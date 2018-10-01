@@ -2,8 +2,13 @@ import os, argparse
 import pandas as pd
 import numpy as np
 from skgarden import RandomForestQuantileRegressor
+import json
+from joblib import Parallel, delayed
 
 from azureml.core import Run
+
+NUM_CV_ROUND = 4
+NUM_FORECAST_ROUND = 6
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data-folder', type=str, dest='data_folder',
@@ -27,18 +32,18 @@ def pinball_loss(predictions, actuals, q):
 
 run = Run.get_submitted_run()
 
-data_full = pd.read_csv(data_path, parse_dates=['Datetime'])
+datetime_col = 'Datetime'
+data_full = pd.read_csv(data_path, parse_dates=[datetime_col])
 
-data_full = data_full.loc[data_full['Zone'] == 'CT']
-
-train_validation_split = pd.to_datetime('2015-11-30 23:00:00')
-train_data = data_full.loc[(data_full['Datetime'] <= train_validation_split)
-                           & (data_full['Datetime'] >=
-                              pd.to_datetime('2015-11-01 00:00:00'))]
-validation_data = data_full.loc[data_full['Datetime'] > train_validation_split]
+# data_full = data_full.loc[data_full['Zone'] == 'CT']
+#
+# train_validation_split = pd.to_datetime('2015-11-30 23:00:00')
+# train_data = data_full.loc[(data_full['Datetime'] <= train_validation_split)
+#                            & (data_full['Datetime'] >=
+#                               pd.to_datetime('2015-11-01 00:00:00'))]
+# validation_data = data_full.loc[data_full['Datetime'] > train_validation_split]
 
 quantiles = np.linspace(0.1, 0.9, 9)
-max_features = train_data.shape[1]//3
 feature_cols = ['LoadLag', 'DryBulbLag',
                 'annual_sin_1', 'annual_cos_1', 'annual_sin_2',
                 'annual_cos_2', 'annual_sin_3', 'annual_cos_3',
@@ -46,35 +51,145 @@ feature_cols = ['LoadLag', 'DryBulbLag',
                 'weekly_cos_2', 'weekly_sin_3', 'weekly_cos_3'
                 ]
 
-rfqr = RandomForestQuantileRegressor(random_state=0,
-                                     min_samples_split=min_samples_split,
-                                     n_estimators=n_estimators,
-                                     max_features=max_features)
 
-rfqr.fit(train_data[feature_cols], train_data['DEMAND'])
+def train_validate(train_data, validation_data):
+    rfqr = RandomForestQuantileRegressor(random_state=0,
+                                         min_samples_split=min_samples_split,
+                                         n_estimators=n_estimators,
+                                         max_features=max_features)
 
-result_list = []
+    rfqr.fit(train_data[feature_cols], train_data['DEMAND'])
 
-for q in quantiles:
-    q_predict = rfqr.predict(validation_data[feature_cols], quantile=q)
+    result_list = []
 
-    result = pd.DataFrame({'predict': q_predict,
-                           'q': q,
-                           'actual': validation_data['DEMAND'],
-                           'Datetime': validation_data['Datetime']})
+    for q in quantiles:
+        q_predict = rfqr.predict(validation_data[feature_cols], quantile=q)
 
-    result_list.append(result)
+        result = pd.DataFrame({'predict': q_predict,
+                               'q': q,
+                               'actual': validation_data['DEMAND'],
+                               'Datetime': validation_data['Datetime']})
 
-result_final = pd.concat(result_list)
+        result_list.append(result)
 
-result_final.reset_index(inplace=True, drop=True)
+    result_final = pd.concat(result_list)
 
-result_final['loss'] = pinball_loss(result_final['predict'],
-                                    result_final['actual'],
-                                    result_final['q'])
+    result_final.reset_index(inplace=True, drop=True)
 
-average_pinball_loss = result_final['loss'].mean()
+    result_final['loss'] = pinball_loss(result_final['predict'],
+                                        result_final['actual'],
+                                        result_final['q'])
 
-print('Average Pinball loss is {}'.format(average_pinball_loss))
+    average_pinball_loss = result_final['loss'].mean()
 
-run.log('average pinball loss', average_pinball_loss)
+    return average_pinball_loss
+
+
+def train_single_group(train_df_single, group_name):
+    model = RandomForestQuantileRegressor(random_state=0,
+                                          min_samples_split=min_samples_split,
+                                          n_estimators=n_estimators)
+
+    model.fit(train_df_single[feature_cols], train_df_single['DEMAND'])
+
+    return group_name, model
+
+
+def predict_single_group(test_df_single, group_name, model):
+    result_list = []
+
+    for q in quantiles:
+        q_predict = model.predict(test_df_single[feature_cols], quantile=q)
+
+        result = pd.DataFrame({'predict': q_predict,
+                               'q': q,
+                               'actual': test_df_single['DEMAND'],
+                               'Datetime': test_df_single['Datetime'],
+                               'Zone': group_name})
+
+        result_list.append(result)
+
+    result_final = pd.concat(result_list)
+
+    return result_final
+
+
+def train(train_df, parallel):
+    train_df_grouped = train_df.groupby('Zone')
+
+    models_all = parallel\
+        (delayed(train_single_group)(group, name)
+         for name, group in train_df_grouped)
+
+    models_all_dict = {}
+    for k, v in models_all:
+        models_all_dict[k] = v
+
+    return models_all_dict
+
+
+def predict(test_df, models_all, parallel):
+    test_df_grouped = test_df.groupby('Zone')
+
+    predictions = parallel\
+        (delayed(predict_single_group)(group, name, models_all[name])
+         for name, group in test_df_grouped)
+
+    return predictions
+
+
+def main():
+    with open('cv_settings.json') as f:
+        cv_config = json.load(f)
+
+    predictions_all = []
+
+    with Parallel(n_jobs=-1) as parallel:
+        for i_cv in range(1, NUM_CV_ROUND + 1):
+            print('CV Round '.format(i_cv))
+            cv_round = 'cv_round_' + str(i_cv)
+            cv_config_round = cv_config[cv_round]
+
+            for i_r in range(1, NUM_FORECAST_ROUND + 1):
+                print('Forecast Round '.format(i_r))
+                train_range = cv_config_round[str(i_r)]['train_range']
+                validation_range = cv_config_round[str(i_r)]['validation_range']
+
+                train_start = pd.to_datetime(train_range[0])
+                train_end = pd.to_datetime(train_range[1])
+
+                validation_start = pd.to_datetime(validation_range[0])
+                validation_end = pd.to_datetime(validation_range[1])
+
+                train_df = data_full.loc[(data_full[datetime_col] >= train_start)
+                                         & (data_full[datetime_col] <= train_end)]
+                validation_df = data_full.loc[(data_full[datetime_col] >=
+                                               validation_start)
+                                              & (data_full[datetime_col] <=
+                                              validation_end)]
+
+                models_all = train(train_df, parallel)
+                predictions_df = predict(validation_df, models_all, parallel)
+                predictions_df['CVRound'] = i_cv
+                predictions_df['ForecastRound'] = i_r
+                # predictions_df = predictions_df.merge(
+                #     validation_df[[datetime_col, 'Zone', 'DEMAND']],
+                #     on=['Datetime', 'Zone'])
+                predictions_all.append(predictions_df)
+
+    predictions_final = pd.concat(predictions_all)
+    predictions_final.reset_index(inplace=True, drop=True)
+
+    predictions_final['loss'] = pinball_loss(predictions_final['predict'],
+                                             predictions_final['actual'],
+                                             predictions_final['q'])
+
+    average_pinball_loss = predictions_final['loss'].mean()
+
+    print('Average Pinball loss is {}'.format(average_pinball_loss))
+
+    run.log('average pinball loss', average_pinball_loss)
+
+
+if __name__ == '__main__':
+    main()
