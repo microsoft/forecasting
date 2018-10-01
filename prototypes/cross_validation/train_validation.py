@@ -24,6 +24,10 @@ data_path = os.path.join(args.data_folder, 'train_round_1.csv')
 min_samples_split = args.min_samples_split
 n_estimators = args.n_estimators
 
+# data_path = 'C:/Users/hlu/TSPerf/prototypes/cross_validation/data/train_round_1.csv'
+# min_samples_split = 10
+# n_estimators = 10
+
 
 def pinball_loss(predictions, actuals, q):
     zeros = pd.Series([0]*len(predictions))
@@ -118,7 +122,7 @@ def train(train_df, parallel):
     train_df_grouped = train_df.groupby('Zone')
 
     models_all = parallel\
-        (delayed(train_single_group)(group, name)
+        (delayed(train_single_group)(group.copy(), name)
          for name, group in train_df_grouped)
 
     models_all_dict = {}
@@ -132,10 +136,12 @@ def predict(test_df, models_all, parallel):
     test_df_grouped = test_df.groupby('Zone')
 
     predictions = parallel\
-        (delayed(predict_single_group)(group, name, models_all[name])
+        (delayed(predict_single_group)(group.copy(), name, models_all[name])
          for name, group in test_df_grouped)
 
-    return predictions
+    predictions_final = pd.concat(predictions)
+
+    return predictions_final
 
 
 def main():
@@ -146,12 +152,12 @@ def main():
 
     with Parallel(n_jobs=-1) as parallel:
         for i_cv in range(1, NUM_CV_ROUND + 1):
-            print('CV Round '.format(i_cv))
+            print('CV Round {}'.format(i_cv))
             cv_round = 'cv_round_' + str(i_cv)
             cv_config_round = cv_config[cv_round]
 
             for i_r in range(1, NUM_FORECAST_ROUND + 1):
-                print('Forecast Round '.format(i_r))
+                print('Forecast Round {}'.format(i_r))
                 train_range = cv_config_round[str(i_r)]['train_range']
                 validation_range = cv_config_round[str(i_r)]['validation_range']
 
@@ -168,13 +174,13 @@ def main():
                                               & (data_full[datetime_col] <=
                                               validation_end)]
 
+                validation_month = validation_df['MonthOfYear'].values[0]
+                train_df = train_df.loc[train_df['MonthOfYear'] == validation_month,].copy()
+
                 models_all = train(train_df, parallel)
                 predictions_df = predict(validation_df, models_all, parallel)
                 predictions_df['CVRound'] = i_cv
                 predictions_df['ForecastRound'] = i_r
-                # predictions_df = predictions_df.merge(
-                #     validation_df[[datetime_col, 'Zone', 'DEMAND']],
-                #     on=['Datetime', 'Zone'])
                 predictions_all.append(predictions_df)
 
     predictions_final = pd.concat(predictions_all)
