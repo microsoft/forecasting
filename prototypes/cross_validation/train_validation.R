@@ -30,14 +30,6 @@ parameter_file = opt$paramfile
 cv_file = opt$cvfile
 parameter_set = opt$paramset
 
-# data_path = "C:/Users/hlu/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/baseline/data/features/train/train_round_1.csv"
-# parameter_file = "C:/Users/hlu/TSPerf/prototypes/cross_validation/parameter_settings.json"
-# cv_file = "C:/Users/hlu/TSPerf/prototypes/cross_validation/cv_settings.json"
-# parameter_set = '3'
-
-normalize_columns = list( 'LoadLag', 'DryBulbLag')
-quantiles = seq(0.1, 0.9, by = 0.1)
-
 print(data_path)
 print(parameter_file)
 print(cv_file)
@@ -53,14 +45,14 @@ feature_set = parameters$feature_set
 parameter_names = parameters$parameter_names
 parameter_values = parameters$parameter_values
 
-output_file_name = feature_set
+output_file_name = paste('feature_set_', feature_set, sep="")
 
 for (i in 1:length(parameter_names)){
   output_file_name = paste(output_file_name, parameter_names[i], parameter_values[i], sep="_")
 }
 
-
 quantiles = seq(0.1, 0.9, by = 0.1)
+normalize_columns = list( 'LoadLag', 'DryBulbLag')
 subset_columns_train = c(features, 'DEMAND')
 subset_columns_validation = c(features, 'DEMAND', 'Zone', 'Datetime', 'LoadRatio')
 
