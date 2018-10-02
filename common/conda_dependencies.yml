@@ -2,6 +2,7 @@ name: tsperf
 channels:
   - defaults
   - r
+  - conda-forge
 dependencies:
   - python=3.6
   - numpy=1.15.0
@@ -9,4 +10,5 @@ dependencies:
   - xlrd=1.1.0
   - urllib3=1.21.1
   - r-base=3.4.3
-
+  - scikit-garden
+  - joblib
