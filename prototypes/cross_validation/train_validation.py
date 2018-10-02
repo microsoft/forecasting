@@ -144,58 +144,58 @@ def predict(test_df, models_all, parallel):
     return predictions_final
 
 
-def main():
-    with open('cv_settings.json') as f:
-        cv_config = json.load(f)
+# def main():
+with open('cv_settings.json') as f:
+    cv_config = json.load(f)
 
-    predictions_all = []
+predictions_all = []
 
-    with Parallel(n_jobs=-1) as parallel:
-        for i_cv in range(1, NUM_CV_ROUND + 1):
-            print('CV Round {}'.format(i_cv))
-            cv_round = 'cv_round_' + str(i_cv)
-            cv_config_round = cv_config[cv_round]
+with Parallel(n_jobs=-1) as parallel:
+    for i_cv in range(1, NUM_CV_ROUND + 1):
+        print('CV Round {}'.format(i_cv))
+        cv_round = 'cv_round_' + str(i_cv)
+        cv_config_round = cv_config[cv_round]
 
-            for i_r in range(1, NUM_FORECAST_ROUND + 1):
-                print('Forecast Round {}'.format(i_r))
-                train_range = cv_config_round[str(i_r)]['train_range']
-                validation_range = cv_config_round[str(i_r)]['validation_range']
+        for i_r in range(1, NUM_FORECAST_ROUND + 1):
+            print('Forecast Round {}'.format(i_r))
+            train_range = cv_config_round[str(i_r)]['train_range']
+            validation_range = cv_config_round[str(i_r)]['validation_range']
 
-                train_start = pd.to_datetime(train_range[0])
-                train_end = pd.to_datetime(train_range[1])
+            train_start = pd.to_datetime(train_range[0])
+            train_end = pd.to_datetime(train_range[1])
 
-                validation_start = pd.to_datetime(validation_range[0])
-                validation_end = pd.to_datetime(validation_range[1])
+            validation_start = pd.to_datetime(validation_range[0])
+            validation_end = pd.to_datetime(validation_range[1])
 
-                train_df = data_full.loc[(data_full[datetime_col] >= train_start)
-                                         & (data_full[datetime_col] <= train_end)]
-                validation_df = data_full.loc[(data_full[datetime_col] >=
-                                               validation_start)
-                                              & (data_full[datetime_col] <=
-                                              validation_end)]
+            train_df = data_full.loc[(data_full[datetime_col] >= train_start)
+                                     & (data_full[datetime_col] <= train_end)]
+            validation_df = data_full.loc[(data_full[datetime_col] >=
+                                           validation_start)
+                                          & (data_full[datetime_col] <=
+                                          validation_end)]
 
-                validation_month = validation_df['MonthOfYear'].values[0]
-                train_df = train_df.loc[train_df['MonthOfYear'] == validation_month,].copy()
+            validation_month = validation_df['MonthOfYear'].values[0]
+            train_df = train_df.loc[train_df['MonthOfYear'] == validation_month,].copy()
 
-                models_all = train(train_df, parallel)
-                predictions_df = predict(validation_df, models_all, parallel)
-                predictions_df['CVRound'] = i_cv
-                predictions_df['ForecastRound'] = i_r
-                predictions_all.append(predictions_df)
+            models_all = train(train_df, parallel)
+            predictions_df = predict(validation_df, models_all, parallel)
+            predictions_df['CVRound'] = i_cv
+            predictions_df['ForecastRound'] = i_r
+            predictions_all.append(predictions_df)
 
-    predictions_final = pd.concat(predictions_all)
-    predictions_final.reset_index(inplace=True, drop=True)
+predictions_final = pd.concat(predictions_all)
+predictions_final.reset_index(inplace=True, drop=True)
 
-    predictions_final['loss'] = pinball_loss(predictions_final['predict'],
-                                             predictions_final['actual'],
-                                             predictions_final['q'])
+predictions_final['loss'] = pinball_loss(predictions_final['predict'],
+                                         predictions_final['actual'],
+                                         predictions_final['q'])
 
-    average_pinball_loss = predictions_final['loss'].mean()
+average_pinball_loss = predictions_final['loss'].mean()
 
-    print('Average Pinball loss is {}'.format(average_pinball_loss))
+print('Average Pinball loss is {}'.format(average_pinball_loss))
 
-    run.log('average pinball loss', average_pinball_loss)
+run.log('average pinball loss', average_pinball_loss)
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
