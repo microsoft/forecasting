@@ -24,10 +24,6 @@ data_path = os.path.join(args.data_folder, 'train_round_1.csv')
 min_samples_split = args.min_samples_split
 n_estimators = args.n_estimators
 
-# data_path = 'C:/Users/hlu/TSPerf/prototypes/cross_validation/data/train_round_1.csv'
-# min_samples_split = 10
-# n_estimators = 10
-
 
 def pinball_loss(predictions, actuals, q):
     zeros = pd.Series([0]*len(predictions))
@@ -38,14 +34,6 @@ run = Run.get_submitted_run()
 
 datetime_col = 'Datetime'
 data_full = pd.read_csv(data_path, parse_dates=[datetime_col])
-
-# data_full = data_full.loc[data_full['Zone'] == 'CT']
-#
-# train_validation_split = pd.to_datetime('2015-11-30 23:00:00')
-# train_data = data_full.loc[(data_full['Datetime'] <= train_validation_split)
-#                            & (data_full['Datetime'] >=
-#                               pd.to_datetime('2015-11-01 00:00:00'))]
-# validation_data = data_full.loc[data_full['Datetime'] > train_validation_split]
 
 quantiles = np.linspace(0.1, 0.9, 9)
 feature_cols = ['LoadLag', 'DryBulbLag',
@@ -144,8 +132,7 @@ def predict(test_df, models_all, parallel):
     return predictions_final
 
 
-# def main():
-with open('cv_settings.json') as f:
+with open('cv_settings_org.json') as f:
     cv_config = json.load(f)
 
 predictions_all = []
@@ -195,7 +182,3 @@ average_pinball_loss = predictions_final['loss'].mean()
 print('Average Pinball loss is {}'.format(average_pinball_loss))
 
 run.log('average pinball loss', average_pinball_loss)
-
-
-# if __name__ == '__main__':
-#     main()

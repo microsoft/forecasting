@@ -7,6 +7,7 @@
     "ValidationStartTime": "2013-01-01 00:00:00",
     "StepSize": 1,
     "StepUnit": "year",
+    "ValidationSteps": 1,
     "EndTime": "2016-12-31 23:00:00",
     "SlidingWindow": "False"
   },
