@@ -2,94 +2,19 @@ import json
 import os
 import itertools
 from datetime import datetime
-from common.utils import add_datetime
 from dateutil.relativedelta import relativedelta
 import subprocess
 
-
-def add_datetime(input_datetime, unit, add_count):
-    if unit == 'year':
-        new_datetime = input_datetime + relativedelta(years=add_count)
-    elif unit == 'month':
-        new_datetime = input_datetime + relativedelta(months=add_count)
-    elif unit == 'week':
-        new_datetime = input_datetime + relativedelta(weeks=add_count)
-    elif unit == 'day':
-        new_datetime = input_datetime + relativedelta(days=add_count)
-    elif unit == 'hour':
-        new_datetime = input_datetime + relativedelta(hours=add_count)
-    elif unit == 'minute':
-        new_datetime = input_datetime + relativedelta(minutes=add_count)
-    else:
-        raise Exception('Invalid data frequency unit, {}, provided. Valid'
-                        ' units are year, month, week, day, hour, '
-                        'and minute'.format(unit))
-    return new_datetime
-
-
-class CrossValidator:
-    def __init__(self, config):
-        self.datetime_format = config['DatetimeFormat']
-
-        back_test_config = config['BackTestParams']
-        self.train_start_time = back_test_config['TrainStartTime']
-        self.backtest_start_time = datetime.strptime(
-            back_test_config['ValidationStartTime'], self.datetime_format)
-        self.backtest_step_size = back_test_config['StepSize']
-        self.backtest_step_unit = back_test_config['StepUnit']
-        self.backtest_end_time = datetime.strptime(
-            back_test_config['EndTime'], self.datetime_format)
-        self.backtest_sliding_window = back_test_config['SlidingWindow']
-
-        self.data_frequency = config['DataFrequency']
-
-        self.train_validation_split = self.create_train_validation_split()
-
-    def create_train_validation_split(self):
-        split_datetime_list = []
-        split_datetime = self.backtest_start_time
-
-        while split_datetime < self.backtest_end_time:
-            split_datetime_list.append(split_datetime)
-            split_datetime = add_datetime(split_datetime,
-                                          self.backtest_step_unit,
-                                          self.backtest_step_size)
-
-        train_validation_split = {}
-        train_start = self.train_start_time
-
-        for i in range(len(split_datetime_list) - 1):
-            validation_start = split_datetime_list[i]
-            validation_start_next = split_datetime_list[i+1]
-            train_end = add_datetime(validation_start, self.data_frequency, -1)
-            validation_end = add_datetime(validation_start_next,
-                                          self.data_frequency, -1)
-
-            validation_start = validation_start.strftime(self.datetime_format)
-            validation_end = validation_end.strftime(self.datetime_format)
-            train_end = train_end.strftime(self.datetime_format)
-
-            train_validation_split['cv_round_' + str(i+1)] \
-                = {'train_range': [train_start, train_end],
-                   'validation_range': [validation_start, validation_end]}
-
-        validation_start = split_datetime_list[-1]
-        train_end = add_datetime(split_datetime_list[-1],
-                                 self.data_frequency, -1)
-        validation_end = self.backtest_end_time
-
-        validation_start = validation_start.strftime(self.datetime_format)
-        validation_end = validation_end.strftime(self.datetime_format)
-        train_end = train_end.strftime(self.datetime_format)
-
-        train_validation_split['cv_round_' + str(len(split_datetime_list))] \
-            = {'train_range': [train_start, train_end],
-               'validation_range': [validation_start, validation_end]}
-
-        return train_validation_split
+from common.train_utils import CrossValidator
 
 
 class ParameterSweeper:
+    """
+        The function of this class is currently replaced by HyperDrive.
+        But let's keep it to preserve the work already done, and also
+        in case we need more flexibility than what HyperDrive provides.
+    """
+
     def __init__(self, config):
 
         self.work_directory = config['WorkDirectory']
@@ -176,8 +101,8 @@ def main(config_file):
     work_directory = config['WorkDirectory']
 
     cv_setting_file = os.path.join(work_directory, 'cv_settings.json')
-    parameter_setting_file = os.path.join(work_directory,
-                                          'parameter_settings.json')
+    # parameter_setting_file = os.path.join(work_directory,
+    #                                       'parameter_settings.json')
 
     cv = CrossValidator(config)
 
@@ -193,7 +118,7 @@ def main(config_file):
         validation_start_1 = datetime.strptime(v['validation_range'][0],
                                                datetime_format)
         validation_end_1 = validation_start_1 + \
-                           relativedelta(months=1, days=-1)
+                           relativedelta(months=1, hours=-1)
 
         # Training data ends on 11/30, used to forecast Jan. and Feb.
         train_end_prev = datetime.strftime(
@@ -204,15 +129,15 @@ def main(config_file):
 
         # Feb. validation range
         validation_start_2 = validation_start_1 + relativedelta(months=1)
-        validation_end_2 = validation_start_2 + relativedelta(months=1, days=-1)
+        validation_end_2 = validation_start_2 + relativedelta(months=1, hours=-1)
 
         # Mar. validation range
         validation_start_3 = validation_start_1 + relativedelta(months=2)
-        validation_end_3 = validation_start_3 + relativedelta(months=1, days=-1)
+        validation_end_3 = validation_start_3 + relativedelta(months=1, hours=-1)
 
         # Apr. validation range
         validation_start_4 = validation_start_1 + relativedelta(months=3)
-        validation_end_4 = validation_start_4 + relativedelta(months=1, days=-1)
+        validation_end_4 = validation_start_4 + relativedelta(months=1, hours=-1)
 
         validation_start_1 = datetime.strftime(validation_start_1, datetime_format)
         validation_end_1 = datetime.strftime(validation_end_1, datetime_format)
@@ -247,12 +172,12 @@ def main(config_file):
 
     with open(cv_setting_file, 'w') as fp:
         json.dump(cv.train_validation_split, fp, indent=True)
-
-    ps = ParameterSweeper(config)
-
-    script_config = config['ScriptParams']
-    ps.sweep_parameters_script(script_config, cv_setting_file,
-                               parameter_setting_file)
+    #
+    # ps = ParameterSweeper(config)
+    #
+    # script_config = config['ScriptParams']
+    # ps.sweep_parameters_script(script_config, cv_setting_file,
+    #                            parameter_setting_file)
 
 
 if __name__ == '__main__':
