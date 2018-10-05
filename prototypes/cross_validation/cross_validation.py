@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import subprocess
 
-from common.train_utils import CrossValidator
+from common.train_utils import TSCVSplitter
 
 
 class ParameterSweeper:
@@ -104,7 +104,7 @@ def main(config_file):
     # parameter_setting_file = os.path.join(work_directory,
     #                                       'parameter_settings.json')
 
-    cv = CrossValidator(config)
+    cv = TSCVSplitter(config)
 
     # This part adjusts the cv settings due to the specific problem setup
     # of GEFCom2017. Different forecasting setups may require different

@@ -1,7 +1,7 @@
 {
   "DatetimeFormat": "%Y-%m-%d %H:%M:%S",
   "DataFrequency": "hour",
-  "WorkDirectory": "C:/Users/hlu/TSPerf/prototypes/cross_validation/",
+  "WorkDirectory": "C:/Users/honglu/TSPerf/prototypes/cross_validation/",
   "BackTestParams": {
     "TrainStartTime": "2011-01-01 00:00:00",
     "ValidationStartTime": "2013-01-01 00:00:00",
