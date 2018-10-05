@@ -132,7 +132,7 @@ def predict(test_df, models_all, parallel):
     return predictions_final
 
 
-with open('cv_settings_org.json') as f:
+with open('cv_settings.json') as f:
     cv_config = json.load(f)
 
 predictions_all = []

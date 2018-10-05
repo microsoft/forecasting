@@ -2,7 +2,7 @@ from datetime import datetime
 from .utils import add_datetime
 
 
-class CrossValidator:
+class TSCVSplitter:
     def __init__(self, config):
         self.datetime_format = config['DatetimeFormat']
 
