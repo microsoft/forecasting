@@ -8,13 +8,13 @@ The downloaded data is stored in
 
 This script parses the excel files and creates training and testing data files.
 After running this script, the following files are generated:
-data/train/train_base.csv   : 2011-01-01 00:00:00 - 2016-11-30 23:00:00
-data/train/train_round_1.csv: 2016-12-01 00:00:00 - 2016-12-14 23:00:00
-data/train/train_round_2.csv: 2016-12-01 00:00:00 - 2016-12-30 23:00:00
-data/train/train_round_3.csv: 2016-12-01 00:00:00 - 2017-01-14 23:00:00
-data/train/train_round_4.csv: 2016-12-01 00:00:00 - 2017-01-30 23:00:00
-data/train/train_round_5.csv: 2016-12-01 00:00:00 - 2017-02-13 23:00:00
-data/train/train_round_6.csv: 2016-12-01 00:00:00 - 2017-02-27 23:00:00
+data/train/train_base.csv   : 2011-01-01 00:00:00 - 2016-10-31 23:00:00
+data/train/train_round_1.csv: 2016-11-01 00:00:00 - 2016-11-30 23:00:00
+data/train/train_round_2.csv: 2016-11-01 00:00:00 - 2016-11-30 23:00:00
+data/train/train_round_3.csv: 2016-11-01 00:00:00 - 2017-12-31 23:00:00
+data/train/train_round_4.csv: 2016-11-01 00:00:00 - 2017-12-31 23:00:00
+data/train/train_round_5.csv: 2016-11-01 00:00:00 - 2017-01-31 23:00:00
+data/train/train_round_6.csv: 2016-11-01 00:00:00 - 2017-01-31 23:00:00
 data/test/test_round_1.csv  : 2017-01-01 00:00:00 - 2017-01-31 23:00:00
 data/test/test_round_2.csv  : 2017-02-01 00:00:00 - 2017-02-28 23:00:00
 data/test/test_round_3.csv  : 2017-02-01 00:00:00 - 2017-02-28 23:00:00
