@@ -1,0 +1,16 @@
+{
+  "DatetimeFormat": "%Y-%m-%d %H:%M:%S",
+  "DataFrequency": "hour",
+  "WorkDirectory": "C:/Users/honglu/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/common",
+  "BackTestParams": {
+    "TrainStartTime": "2011-01-01 00:00:00",
+    "ValidationStartTime": "2014-01-01 00:00:00",
+    "StepSize": 1,
+    "StepUnit": "year",
+    "ValidationSteps": 1,
+    "EndTime": "2016-12-31 23:00:00",
+    "FoldsPerYear": 12,
+    "CVSettingFile": "cv_settings.json",
+    "SlidingWindow": "False"
+  }
+}
