@@ -1,7 +1,6 @@
 """
-This script adds "/TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly/submissions"
-to the system path, so that benchmark_paths.py can be imported by submission
-scripts.
+This script inserts the TSPerf directory into sys.path, so that scripts can import
+all the modules in TSPerf. Each submission folder needs its own localpath.py file.
 """
 
 import os, sys
