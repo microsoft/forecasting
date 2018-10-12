@@ -162,7 +162,7 @@ def annual_fourier(datetime_col, n_harmonics):
 
 
 def weekly_fourier(datetime_col, n_harmonics):
-    day_of_week = datetime_col.dt.dayofweek
+    day_of_week = datetime_col.dt.dayofweek + 1
 
     output_dict = {}
     for n in range(1, n_harmonics+1):
@@ -293,6 +293,7 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
 
 def same_day_hour_moving_average(datetime_col, value_col, window_size,
                                  start_week, average_count,
+                                 forecast_creation_time,
                                  output_col_prefix='moving_average_lag_'):
     """
     Create a moving average features by averaging values of the same day of
@@ -305,6 +306,10 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
     :param window_size: Number of weeks used to compute the average.
     :param start_week: First week of the first moving average feature.
     :param average_count: Number of moving average features to create.
+    :param forecast_creation_time:
+        The time point when the feature is created. This value is used to
+        prevent using data that are not available at forecast creation time
+        to compute features.
     :param output_col_prefix:
         Prefix of the output columns. The start week of each moving average
         feature is added at the end.
@@ -322,21 +327,29 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
     df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
     df.set_index('Datetime', inplace=True)
 
+    df = df.asfreq('H')
+
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
+
+    df['fct_diff'] = df.index - forecast_creation_time
+    df['fct_diff'] = df['fct_diff'].apply(lambda x: x.days*24 + x.seconds/3600)
+    max_diff = max(df['fct_diff'])
 
     for i in range(average_count):
         output_col = output_col_prefix + str(start_week+i)
         week_lag_start = start_week + i
-        hour_lags = [(week_lag_start + w) * 24 for w in range(window_size)]
-        tmp_df = df.copy()
-        tmp_col_all = []
-        for h in hour_lags:
-            tmp_col = 'tmp_lag_' + str(h)
-            tmp_col_all.append(tmp_col)
-            tmp_df[tmp_col] = tmp_df['value'].shift(h)
+        hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
+        hour_lags = [h for h in hour_lags if h > max_diff]
+        if len(hour_lags) > 0:
+            tmp_df = df[['value']].copy()
+            tmp_col_all = []
+            for h in hour_lags:
+                tmp_col = 'tmp_lag_' + str(h)
+                tmp_col_all.append(tmp_col)
+                tmp_df[tmp_col] = tmp_df['value'].shift(h)
 
-        df[output_col] = round(tmp_df[tmp_col_all].mean(axis=1))
+            df[output_col] = round(tmp_df[tmp_col_all].mean(axis=1))
     df.drop('value', inplace=True, axis=1)
 
     return df

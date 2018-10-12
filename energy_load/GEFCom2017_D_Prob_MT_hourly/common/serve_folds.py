@@ -26,12 +26,12 @@ def serve_folds():
         test_round_file_name = TEST_ROUND_FILE_PREFIX + str(i+1) + '.csv'
 
         test_round_df = \
-            pd.read_csv(os.path.join(TEST_DATA_DIR, test_round_file_name))
+            pd.read_csv(os.path.join( TEST_DATA_DIR, test_round_file_name))
 
-        yield train_round_df, test_round_df
+        yield train_round_df, test_round_df, i+1
 
 # # Test serve_folds
-# for train, test in serve_folds():
+# for train, test, _ in serve_folds():
 #     print('Training data size: {}'.format(train.shape))
 #     print('Testing data size: {}'.format(test.shape))
 #     print('Minimum training timestamp: {}'.format(min(train['Datetime'])))
@@ -39,4 +39,3 @@ def serve_folds():
 #     print('Minimum testing timestamp: {}'.format(min(test['Datetime'])))
 #     print('Maximum testing timestamp: {}'.format(max(test['Datetime'])))
 #     print('')
-

@@ -4,10 +4,10 @@ common.feature_utils, which serve as a set of baseline features.
 Feel free to write your own feature engineering code to create new features by
 calling the feature_utils functions with alternative parameters.
 """
-import os
+import os, sys, getopt
 from functools import reduce
 
-from benchmark_paths import DATA_DIR
+from benchmark_paths import DATA_DIR, SUBMISSIONS_DIR
 from common.feature_utils import *
 from common.utils import is_datetime_like
 
@@ -74,7 +74,7 @@ def create_advanced_features(train_df, test_df, datetime_colname,
     2) Normalized features depend on the value range of the entire feature
     column.
     Therefore, the train_df and test_df are concatenated to create these
-    fetures.
+    features.
     NOTE: test_df can not contain any values that are unknown at
     forecasting creation time to avoid data leakage from the future. For
     example, it can contain the timestamps, zone, holiday, forecasted
@@ -86,6 +86,7 @@ def create_advanced_features(train_df, test_df, datetime_colname,
         output_df[datetime_colname] = \
             pd.to_datetime(output_df[datetime_colname], format=DATETIME_FORMAT)
     datetime_col = output_df[datetime_colname]
+    forecast_creation_time = max(train_df[datetime_colname])
 
     # Temporal features indicating the position of a record in the entire
     # time period under consideration.
@@ -137,9 +138,10 @@ def create_advanced_features(train_df, test_df, datetime_colname,
         output_df[[datetime_colname, 'DEMAND', 'Zone']].groupby('Zone').apply(
             lambda g: same_day_hour_moving_average(g[datetime_colname],
                                                    g['DEMAND'],
-                                                   start_week=9,
+                                                   start_week=10,
                                                    window_size=4,
-                                                   average_count=8,
+                                                   average_count=7,
+                                                   forecast_creation_time=forecast_creation_time,
                                                    output_col_prefix='RecentLoad_'))
     load_moving_average.reset_index(inplace=True)
 
@@ -164,7 +166,6 @@ def create_advanced_features(train_df, test_df, datetime_colname,
                                                    average_count=8,
                                                    output_col_prefix='RecentDryBulb_'))
     drybulb_moving_average.reset_index(inplace=True)
-
     # Put everything together
     output_df = reduce(
         lambda left, right: pd.merge(left, right, on=[datetime_colname, 'Zone']),
@@ -200,10 +201,6 @@ def main(train_dir, test_dir, output_dir, datetime_colname, holiday_colname):
     train_base_basic_features = \
         create_basic_features(train_base_df,
                               datetime_colname=datetime_colname)
-
-    #TODO: Finalize this list after experimenting
-    normalize_columns = ['DayType', 'WeekOfYear', 'LoadLag', 'DewPntLag',
-                         'DryBulbLag']
 
     for i in range(1, NUM_ROUND+1):
         train_file = os.path.join(train_dir, TRAIN_FILE_PREFIX + str(i) + '.csv')
@@ -258,14 +255,6 @@ def main(train_dir, test_dir, output_dir, datetime_colname, holiday_colname):
         test_all_features.drop(['DewPnt', 'DryBulb', 'DEMAND'],
                                inplace=True, axis=1)
 
-        for c in normalize_columns:
-            min_value = np.nanmin(train_all_features[c].values)
-            max_value = np.nanmax(train_all_features[c].values)
-            train_all_features[c] = \
-                (train_all_features[c] - min_value)/(max_value - min_value)
-            test_all_features[c] = \
-                (test_all_features[c] - min_value)/(max_value - min_value)
-
         train_output_file = os.path.join(output_dir, 'train',
                                          TRAIN_FILE_PREFIX + str(i) + '.csv')
         test_output_file = os.path.join(output_dir, 'test',
@@ -289,6 +278,18 @@ def main(train_dir, test_dir, output_dir, datetime_colname, holiday_colname):
 
 
 if __name__ == '__main__':
+    opts, args = getopt.getopt(sys.argv[1:], '', ['submission='])
+    for opt, arg in opts:
+        if opt == '--submission':
+            submission_folder = arg
+            output_data_dir = os.path.join(SUBMISSIONS_DIR, submission_folder,
+                                           'data')
+            if not os.path.isdir(output_data_dir):
+                os.mkdir(output_data_dir)
+            OUTPUT_DIR = os.path.join(output_data_dir, 'features')
+    if not os.path.isdir(OUTPUT_DIR):
+        os.mkdir(OUTPUT_DIR)
+
     main(train_dir=TRAIN_DATA_DIR,
          test_dir=TEST_DATA_DIR,
          output_dir=OUTPUT_DIR,

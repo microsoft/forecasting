@@ -1,0 +1,36 @@
+{
+  "DatetimeFormat": "%Y-%m-%d %H:%M:%S",
+  "DataFrequency": "hour",
+  "WorkDirectory": "C:/Users/honglu/TSPerf/prototypes/cross_validation/",
+  "BackTestParams": {
+    "TrainStartTime": "2011-01-01 00:00:00",
+    "ValidationStartTime": "2013-01-01 00:00:00",
+    "StepSize": 1,
+    "StepUnit": "year",
+    "ValidationSteps": 1,
+    "EndTime": "2016-12-31 23:00:00",
+    "SlidingWindow": "False"
+  },
+
+  "DataParams":{
+    "DataPath": "data",
+    "DataFile": "train_round_1.csv"
+  },
+  "ScriptParams":{
+    "ScriptCommand": "Rscript",
+    "Script": "train_validation.R"
+  },
+  "Parameters":{
+    "rq_method": ["br", "fn"]
+  },
+  "Features":
+  {
+    "FeatureSelectionMode": "Default",
+    "FeatureList": {
+      "FeatureSet1": ["LoadLag", "DryBulbLag"],
+      "FeatureSet2": ["LoadLag", "DryBulbLag",
+                      "annual_sin_1", "annual_cos_1", "annual_sin_2", "annual_cos_2", "annual_sin_3", "annual_cos_3",
+                      "weekly_sin_1", "weekly_cos_1", "weekly_sin_2", "weekly_cos_2", "weekly_sin_3", "weekly_cos_3"]
+    }
+  }
+}
