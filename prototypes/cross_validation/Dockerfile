@@ -1,0 +1,42 @@
+## Download base image
+FROM mcr.microsoft.com/azureml/base:0.1.3 
+ADD conda_dependencies.yml /tmp/conda_dependencies.yml
+
+WORKDIR /tmp
+
+## Install basic packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    zlib1g-dev \
+    libssl-dev \
+    libssh2-1-dev \
+    libcurl4-openssl-dev \
+    libreadline-gplv2-dev \
+    libncursesw5-dev \
+    libsqlite3-dev \
+    tk-dev \
+    libgdbm-dev \
+    libc6-dev \
+    libbz2-dev \
+    libffi-dev \
+    bzip2 \
+    build-essential \
+    checkinstall \
+    ca-certificates \
+    curl \
+    lsb-release \
+    apt-utils \
+    python3-pip \
+    vim
+
+## Create and activate conda environment
+RUN conda update -y conda
+RUN conda update -y conda
+RUN conda env create --file /tmp/conda_dependencies.yml
+
+RUN rm conda_dependencies.yml
+
+RUN mkdir /TSPerf
+WORKDIR /TSPerf
+
+# ENTRYPOINT ["/bin/bash"]
