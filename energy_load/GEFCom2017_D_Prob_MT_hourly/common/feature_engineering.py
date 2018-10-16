@@ -153,6 +153,7 @@ def create_advanced_features(train_df, test_df, datetime_colname,
                                                    start_week=9,
                                                    window_size=4,
                                                    average_count=8,
+                                                   forecast_creation_time=forecast_creation_time,
                                                    output_col_prefix='RecentDewPnt_'))
     dewpnt_moving_average.reset_index(inplace=True)
 
@@ -164,6 +165,7 @@ def create_advanced_features(train_df, test_df, datetime_colname,
                                                    start_week=9,
                                                    window_size=4,
                                                    average_count=8,
+                                                   forecast_creation_time=forecast_creation_time,
                                                    output_col_prefix='RecentDryBulb_'))
     drybulb_moving_average.reset_index(inplace=True)
     # Put everything together
