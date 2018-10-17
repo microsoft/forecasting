@@ -51,7 +51,7 @@ def day_type(datetime_col, holiday_col=None,
              for d in holiday_dates]
 
         # Flatten the list of lists
-        semi_holiday_dates = [d for dates in semi_holiday_dadf[output_col] = round(tmp_df[tmp_col_all].quantile(.99, axis=1))tes for d in dates]
+        semi_holiday_dates = [d for dates in semi_holiday_dates for d in dates]
 
         semi_holiday_dates = set(semi_holiday_dates)
         semi_holiday_dates = semi_holiday_dates.difference(holiday_dates)
@@ -71,7 +71,7 @@ def time_of_year(datetime_col):
     Time of year is a cyclic variable that indicates the annual position and
     repeats each year. It is each year linearly increasing over time going
     from 0 on January 1 at 00:00 to 1 on December 31st at 23:00. The values
-    are normalized to be between [0; 1].were
+    are normalized to be between [0; 1].
     """
     time_of_year = pd.DataFrame({'DayOfYear': datetime_col.dt.dayofyear,
                                  'HourOfDay': datetime_col.dt.hour,
