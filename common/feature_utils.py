@@ -7,7 +7,6 @@ from datetime import timedelta
 import calendar
 import pandas as pd
 import numpy as np
-import math
 
 from .utils import is_datetime_like
 
@@ -113,45 +112,46 @@ def encoded_month_of_year(month_of_year):
     """
     Create one hot encoding of month of year.
     """
-    encoded_month_of_year = pd.get_dummies(month_of_year)
+    month_of_year = pd.get_dummies(month_of_year)
 
-    return encoded_month_of_year
+    return month_of_year
 
 
 def encoded_day_of_week(day_of_week):
     """
     Create one hot encoding of day_of_week.
     """
-    encoded_day_of_week = pd.get_dummies(day_of_week)
+    day_of_week = pd.get_dummies(day_of_week)
 
-    return encoded_day_of_week
+    return day_of_week
 
 
 def encoded_day_of_month(day_of_month):
     """
     Create one hot encoding of day_of_month.
     """
-    encoded_day_of_month = pd.get_dummies(day_of_month)
+    day_of_month = pd.get_dummies(day_of_month)
 
-    return encoded_day_of_month
+    return day_of_month
 
 
 def encoded_day_of_year(day_of_year):
     """
     Create one hot encoding of day_of_year.
     """
-    encoded_day_of_month = pd.get_dummies(day_of_year)
+    day_of_year = pd.get_dummies(day_of_year)
 
-    return encoded_day_of_year
+    return day_of_year
 
 
 def encoded_hour_week_diff(hour_of_day, week_of_year):
     """
     Create one hot encoding of hour_of_day - week_of_year.
     """
-    encoded_hour_week_diff = pd.get_dummies(hour_of_day - week_of_year)
+    hour_week_diff = pd.get_dummies(hour_of_day - week_of_year)
 
-    return encoded_hour_week_diff
+    return hour_week_diff
+
 
 def normalized_current_year(datetime_col, min_year, max_year):
     """
@@ -202,15 +202,18 @@ def normalized_series(datetime_col, value_col, output_colname='normalized_series
         Series value column to be normalized 
     """
     
+    if not is_datetime_like(datetime_col):
+        datetime_col = pd.to_datetime(datetime_col, format=DATETIME_FORMAT)
+
     df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
     df.set_index('Datetime', inplace=True)
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
 
-    df[['value']] = math.log10(df[['value']]/df[['value']].mean(axis=1))
+    df[output_colname] = np.log(df['value']/df['value'].mean())
 
-    return df
+    return df[[output_colname]]
 
 
 def normalized_features(datetime_col, value_col, output_colname='normalized_features'):
@@ -222,15 +225,18 @@ def normalized_features(datetime_col, value_col, output_colname='normalized_feat
         Feature value column to be normalized
     """
 
+    if not is_datetime_like(datetime_col):
+        datetime_col = pd.to_datetime(datetime_col, format=DATETIME_FORMAT)
+        
     df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
     df.set_index('Datetime', inplace=True)
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
 
-    df[['value']] = (df[['value']] - min(df[['value']])/(max(df[['value']]) - min(df[['value']]))
+    df[output_colname] = (df['value'] - min(df['value']))/(max(df['value']) - min(df['value']))
 
-    return df
+    return df[[output_colname]]
 
 
 def fourier_approximation(t, n, period):
@@ -405,23 +411,23 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
 
     # Additional aggregation options will be added as needed
     if agg_func == 'mean' and q == None:
-        df[output_colname] = round(df[week_lag_cols].mean(axis=1))
+        df[output_colname] = round(df[day_lag_cols].mean(axis=1))
     elif agg_func == 'quantile' and q == .01:
-        df[output_colname] = round(df[week_lag_cols].quantile(.01, axis=1))
+        df[output_colname] = round(df[day_lag_cols].quantile(.01, axis=1))
     elif agg_func == 'quantile' and q == .05:
-        df[output_colname] = round(df[week_lag_cols].quantile(.05, axis=1))
+        df[output_colname] = round(df[day_lag_cols].quantile(.05, axis=1))
     elif agg_func == 'quantile' and q == .2:
-        df[output_colname] = round(df[week_lag_cols].quantile(.2, axis=1))
+        df[output_colname] = round(df[day_lag_cols].quantile(.2, axis=1))
     elif agg_func == 'quantile' and q == .5:
-        df[output_colname] = round(df[week_lag_cols].quantile(.5, axis=1))
+        df[output_colname] = round(df[day_lag_cols].quantile(.5, axis=1))
     elif agg_func == 'quantile' and q == .8:
-        df[output_colname] = round(df[week_lag_cols].quantile(.8, axis=1))
+        df[output_colname] = round(df[day_lag_cols].quantile(.8, axis=1))
     elif agg_func == 'quantile' and q == .95:
-        df[output_colname] = round(df[week_lag_cols].quantile(.95, axis=1))
+        df[output_colname] = round(df[day_lag_cols].quantile(.95, axis=1))
     elif agg_func == 'quantile' and q == .99:
-        df[output_colname] = round(df[week_lag_cols].quantile(.99, axis=1))
+        df[output_colname] = round(df[day_lag_cols].quantile(.99, axis=1))
     elif agg_func == 'std' and q == None:
-        df[output_colname] = round(df[week_lag_cols].std(axis=1))
+        df[output_colname] = round(df[day_lag_cols].std(axis=1))
 
     return df[[output_colname]]
 
@@ -492,8 +498,8 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
 
 def same_day_hour_moving_quatile(datetime_col, value_col, window_size,
                                  start_week, quatile_count, 
-                                 q=[.01, .05, .2, .5, .8, .95, .99],
                                  forecast_creation_time,
+                                 q=[.01, .05, .2, .5, .8, .95, .99],
                                  output_col_prefix='moving_quatile_lag_'):
     """
     Create a series of quatiles of features by calculating quatiles of values of the same day of
@@ -580,11 +586,11 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
 
     :param datetime_col: Datetime column
     :param value_col:
-        Feature value column to create moving average features
+        Feature value column to create moving std of features
         from.
-    :param window_size: Number of weeks used to compute the average.
-    :param start_week: First week of the first moving average feature.
-    :param std_count: Number of moving average features to create.
+    :param window_size: Number of weeks used to compute the std.
+    :param start_week: First week of the first moving std feature.
+    :param std_count: Number of moving std features to create.
     :param forecast_creation_time:
         The time point when the feature is created. This value is used to
         prevent using data that are not available at forecast creation time
@@ -593,13 +599,13 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
         Prefix of the output columns. The start week of each moving average
         feature is added at the end.
 
-    For example, start_week = 9, window_size=4, and average_count = 3 will
-    create three moving average features.
-    1) moving_average_lag_9: average the same day and hour values of the 9th,
+    For example, start_week = 9, window_size=4, and std_count = 3 will
+    create three moving std features.
+    1) moving_std_lag_9: calculate std of the same day and hour values of the 9th,
     10th, 11th, and 12th weeks before the current week.
-    2) moving_average_lag_10: average the same day and hour values of the
+    2) moving_std_lag_10: calculate std of the same day and hour values of the
     10th, 11th, 12th, and 13th weeks before the current week.
-    3) moving_average_lag_11: average the same day and hour values of the
+    3) moving_std_lag_11: calculate std of the same day and hour values of the
     11th, 12th, 13th, and 14th weeks before the current week.
     """
 
@@ -636,9 +642,9 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
 
 def same_day_hour_moving_agg(datetime_col, value_col, window_size,
                              start_week, count,
+                             forecast_creation_time,
                              agg_func=['mean', 'quantile', 'std'],
                              q=[None, .01, .05, .2, .5, .8, .95, .99],
-                             forecast_creation_time,
                              output_col_prefix='moving_agg_lag_'):
     """
     Create a series of aggregation of features by calculating mean, quantiles, 
