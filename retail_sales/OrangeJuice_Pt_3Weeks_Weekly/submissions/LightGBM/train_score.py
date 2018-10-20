@@ -183,7 +183,7 @@ for r in range(bs.NUM_ROUNDS):
                             on=['store', 'brand', 'week'])
     print('Number of missing rows is {}'.format(data_filled[data_filled.isnull().any(axis=1)].shape[0]))
     print('')
-    data_filled = data_filled.groupby(['store', 'brand']).                               apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
+    data_filled = data_filled.groupby(['store', 'brand']).apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
     # Create datetime features
     data_filled['week_start'] = data_filled['week'].apply(lambda x: first_week_start + datetime.timedelta(days=(x-bs.TRAIN_START_WEEK)*7))
     data_filled['year'] = data_filled['week_start'].apply(lambda x: x.year)
@@ -192,7 +192,7 @@ for r in range(bs.NUM_ROUNDS):
     data_filled['day'] = data_filled['week_start'].apply(lambda x: x.day)
     data_filled.drop('week_start', axis=1, inplace=True)
     # Create other features (lagged features, moving averages, etc.)
-    features = data_filled.groupby(['store','brand']).                            apply(lambda x: create_features(x))
+    features = data_filled.groupby(['store','brand']).apply(lambda x: create_features(x))
     train_fea = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
     # Drop rows with NaN values
     train_fea.dropna(inplace=True)
@@ -217,7 +217,7 @@ for r in range(bs.NUM_ROUNDS):
     )
     # Generate forecasts
     test_fea = features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
-    pred = test_fea.groupby(['store','brand']).                     apply(lambda x: make_predictions(x, bst)).                     reset_index(drop=True)
+    pred = make_predictions(test_fea, bst).sort_values(by=['store','brand', 'week']).reset_index(drop=True)
     # Additional columns required by the submission format
     pred['round'] = r+1
     pred['weeks_ahead'] = pred['week'] - bs.TRAIN_END_WEEK_LIST[r]
