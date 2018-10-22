@@ -29,20 +29,20 @@
 
 ### Vision
 
-Establish an industry leading framework that allows comparison of various time-series forecasting algorithms and frameworks in a practical way on real cloud based architectures. This will allow potential users or customers to discover the best approach that suites their needs from cost, time and quality perspective.
+Establish an industry leading framework that allows comparison of various time-series forecasting algorithms in a practical way on real cloud based architectures. This will allow potential users or customers to discover the best approach that suites their needs from cost, time and quality perspective.
 
 The benchmarking framework is designed to facilitate community participation and contribution through the development of benchmark implementations against a practical set of forecasting problems and datasets. These implementations will be measured by means of standard metrics of accuracy, cost and training time.
 
 The benchmarking framework will provide a simple access, discovery, comparison, maintenance and contributions. 
 
-Note: The TSPerf vision is aligned with the [MLPerf](https://mlperf.org/) vision and designed to be merged with it after an internal implementation of it. 
+Note: The TSPerf vision is aligned with the [MLPerf](https://mlperf.org/) vision. TSPerf is designed to be merged with MLPerf after completing an internal implementation of the former.
 
 ### Goals:
 
 Short Term (Internal Only):
 
-* Allow fair comparison of various forecasting frameworks/algorithms performance on a given problem/dataset on multiple environments with the ability to reproduce it
-* To become the central Microsoft repository for forecasting benchmarks
+* Allow fair comparison of performance of various forecasting algorithms on a given problem/dataset on multiple environments, with the ability to reproduce performance 
+* Become the central Microsoft repository for forecasting benchmarks
 * Establish time-series forecasting track in [MLPerf](https://mlperf.org/) and provide a reference implementation for it
 
 ## Framework
@@ -60,23 +60,23 @@ specific dataset.
 **Benchmark rules** is a set of rules for implementing a benchmark to produce a class of comparable 
 results, such as training and test set partition, performance evaluation metric and process.
 
-A **system** consists of a defined set of cloud hardware resources and services such as processors, 
+A **architecture** consists of a defined set of cloud hardware resources and services such as processors, 
 memories, disks, clusters and interconnect. It also includes specific versions of all software such as 
 operating system, compilers, libraries, and drivers that significantly influences the running time, 
-excluding the ML framework.
+excluding the software framework for training ML models.
 
-A **framework** is a specific version of a software library or set of related libraries, possibly with 
-associated offline compiler, for training ML models using a system. Examples include specific versions 
-of Caffe2, MXNet, PaddlePaddle, pyTorch, or TensorFlow.
+A **software framework** is a specific version of a software library or set of related libraries, possibly with 
+associated offline compiler, for training ML models using an architecture. Examples include specific versions 
+of Caffe2, MXNet, CNTK, PaddlePaddle, pyTorch, or TensorFlow.
 
-A **benchmark implementation** is an implementation of a benchmark in a particular framework by a user 
+A **benchmark implementation** is an implementation of a benchmark in a particular software framework by a user 
 under the benchmark rules.
 
 **Benchmark quality** is performance metric value of a benchmark implementation, measured according to 
 benchmark rules.
 
-A **run** is a complete execution of a benchmark implementation on a system, training a model from 
-initialization to the specified  quality target.
+A **run** is a complete execution of a benchmark implementation on an architecture, training a model from 
+initialization to the specified quality target.
 
 A **run result**  is a wall-clock time to execute a complete run and the cost of that execution.
 
@@ -97,14 +97,14 @@ The following diagram summarizes the relations between different terms and the w
 
 ### Structure and hierarchy of documents
 
-This document serves as the master document and includes the generic concepts and scope of the forecasting framework.
-In addition to it there will be a specific benchmark submission guidelines documents that are part of each the benchmarks that are included in the framework. These will include the problem description, implementation and submission instructions. 
+This document serves as the master document and includes the generic concepts and scope of the benchmarks.
+In addition to it, there will be a specific benchmark submission guidelines documents that are part of each benchmark. These documents will include detailed benchmark description, as well as benchmark-specific implementation and submission instructions. 
 
 ### Structure of repository
 
 We use Git repo to maintain the source code and relevant files. The repository has three levels of folders: use case, benchmark, and benchmark implementation.
 The top-level directory `/TSPerf` consists of folders for all the existing use cases, a folder storing common utility scripts, a folder storing internal 
-docs, and a Markdown file describing the time series benchmarking framework. 
+docs, and a Markdown file with an overview of TSPerf framework. 
 
 * Use case folders: Each such folder is named after a specific use case and contains scripts of the implementations/submissions for every benchmark of this 
 use case. Currently we have a folder `/TSPerf/energy_load` for the energy load forecasting use case and another folder `/TSPerf/retail_sales` for the 
@@ -115,7 +115,7 @@ retail sales forecasting use case.
   and `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly` includes all the submissions for a point forecasting problem defined upon GEFCom2014 dataset. In 
   addition, `/TSPerf/energy_load/README.md` summarizes all the benchmarks of the energy load forecasting use case. 
 
-  Under each benchmark folder, there are a subfolder containing source code of all reference implementations, a subfolder containing source code of all 
+  Under each benchmark folder, there are a subfolder containing source code of reference implementation, a subfolder containing source code of all 
   submissions, a subfolder storing common utility scripts, and a Markdown file specifying the benchmark. The description of each item under the benchmark 
   folder is as follows
 
@@ -142,7 +142,7 @@ metrics of the forecasting results.
 * `/TSPerf/internal_docs` folder: This folder contains the internal documents that we create during the development of TSPerf. 
 
 * `/TSPerf/README.md` file: This Markdown file describes the TSPerf framework in general. It introduces the goal and vision, specifies the use cases and 
-benchmarks, as well as provides guidances for benchmark implementation, benchmark submission, and reviewing of the submissions. 
+benchmarks, and points to leaderboards and more detailed documentation.
 
 ## Benchmarks  
 
@@ -150,8 +150,8 @@ The following table summarizes benchmarks that are currently included in TSPerf:
 
 | **Benchmark** | **Dataset** | **Benchmark directory** |  
 | --------------------- | ----|---------------- |  
-| Probabilistic electricity load forecasting | GEFCom2017 |TSPerf\energy_load\GEFCom2017-D_Prob_MT_Hourly |
-| Retail sales forecasting | Orange Juice dataset | TSPerf\retail_sales\OrangeJuice_Pt_3Weeks_Weekly |
+| Probabilistic electricity load forecasting | GEFCom2017 |`TSPerf\energy_load\GEFCom2017-D_Prob_MT_Hourly` |
+| Retail sales forecasting | Orange Juice dataset | `TSPerf\retail_sales\OrangeJuice_Pt_3Weeks_Weekly` |
 
 Next sections provide a high-level description of the benchmarks. A more detailed description of the benchmarks is in README files in benchmark directories.
 
@@ -186,7 +186,7 @@ averaged over all time series.
 
 ### Availables Docker images
 
-We recommend to use Docker images for the reproduciblility of the submissions. In TSPerf, we provide a basic Docker image to speed up the process of new benchmark implementation and reproduction. The image is called tsperf.azurecr.io/common/image:v1 and is stored in tsperf Azure Container Registry (ACR). This image contains basic configurations of the system and a few commonly used packages. One can directly use the basic image by pulling it from the ACR or modify it for their own benchmark implementations. 
+We recommend to use Docker images for the reproduciblility of the submissions. In TSPerf, we provide a basic Docker image to speed up the process of new benchmark implementation and reproduction. The image is called tsperf.azurecr.io/common/image:v1 and is stored in tsperf Azure Container Registry (ACR). This image contains basic configurations and a few commonly used packages. One can directly use the basic image by pulling it from the ACR or modify it for their own benchmark implementations. 
 
 Under `/TSPerf/common` folder, there are a Dockerfile and requirements.txt file used for creating the basic image. The Dockerfile contains the main configuration steps and requirements.txt includes the necessary Python packages. By modifying these files, one can easily create their own Docker images and host them in ACR or other venues such as Docker Hub.
 
@@ -212,10 +212,10 @@ The total cost can be computed using [Azure pricing calculator](https://azure.mi
 
 ### Guideline for submitting reproduction instructions
 
-#### System and framework availability
+#### System and software framework availability
 This section is aligned with [MLPerf](https://mlperf.org/).  
-If you are using a publicly available system or framework, you must use publicly available and widely-used used versions of the system or framework.  
-If you are using an experimental framework or system, you must make the system and framework you use available upon request for replication.
+If you are using a publicly available architecture components or software framework, you must use their publicly available and widely-used used versions.  
+If you are using an experimental software framework or architecture components, you must make the architecture components and software framework you use available upon request for replication.
 
 #### Benchmark implementation source code
 This section is aligned with [MLPerf](https://mlperf.org/).  
@@ -225,11 +225,11 @@ Source code used for the benchmark implementations must be open-sourced under a 
 1. Parallel/distributed computation environment setup  
 If you are using multiple machines for parallel/distributed computation, you must provide a script for automatically creating the cluster (preferred) or instructions for manual creation.
 2. Virtual machine or Docker image setup  
-You need to provide instructions for setting up the implementation system from a plain VM, or a Docker file/image for creating the container needed to execute the implementation.
+You need to provide instructions for setting up the implementation from a plain VM, or a Docker file/image for creating the container needed to execute the implementation.
 3. Virtual environment setup  
 If your implementation is light-weight and does not have any system dependency, a YAML file for creating a conda environment is also acceptable.
-4. Framework and package version report  
-The submitter needs to submit a report summarizing all the framework and package versions used for producing the reported result. This is to prevent the newer version of a framework or package significantly changing the implementation result.
+4. Software framework and package version report  
+The submitter needs to submit a report summarizing all the software framework and package versions used for producing the reported result. This is to prevent the newer version of a software framework or package significantly changing the implementation result.
 
 #### Non-determinism restrictions
 This section is aligned with [MLPerf](https://mlperf.org/). Some more detailed instructions are added.  
@@ -240,7 +240,7 @@ The following forms of non-determinism are acceptable in [MLPerf](https://mlperf
 
 - Random traversal of the inputs.  
 
-In order to avoid any other sources of non-determinisms, we recommend setting random seeds whenever a package/framework provides a function for setting random seed, e.g. numpy.random.seed(), random.seed(), tf.set_random_seed().  
+In order to avoid any other sources of non-determinisms, we recommend setting random seeds whenever a package/software framework provides a function for setting random seed, e.g. `numpy.random.seed()`, `random.seed()` and `tf.set_random_seed()`.  
 The submitter needs to run the benchmark implementation five times using the integer random number generator seeds 1 through 5 and report all five results.  The variance of the five run results should be reasonable, otherwise, it's an indicator of instability of the implementation. The median of the five results is reported as the performance of the submitted implementation. 
 
 #### Hyperparameter tuning
@@ -252,7 +252,7 @@ Detailed instructions for hyperparameter tuning are optional. However, it's **hi
 New benchmark submissions to TSPerf should be made through pull requests in the Git repo by adding a completed submission form and supporting code in a new 
 submission folder. 
 
-The submission process depends on the system and is described in the following two subsections.
+The submission process depends on the architecture and is described in the following two subsections.
 
 #### Standalone VM
 
@@ -317,7 +317,7 @@ here (TODO: Add link). Specifically, it should include
     * name of the branch with submission code
     * benchmark path, e.g. `/TSPerf/energy_load/problem1`
     * path to submission directory, e.g. `/TSPerf/energy_load/problem1/submissions/submission1`
-    * instructions for provisioning the system (e.g. DSVM, Batch AI)
+    * instructions for provisioning the architecture components (e.g. DSVM, Batch AI)
     * name of Docker image stored in tsperf registry, for example
       tsperf.azurecr.io/energy_load/problem1/submission1/submission1_image:v1
     * benchmark quality values obtained with random seeds 1 through 5
@@ -327,6 +327,7 @@ here (TODO: Add link). Specifically, it should include
 11. Create pull request for review by following the process in the next section.
 
 #### Batch AI
+TBD
 
 ### Pull request process
 
@@ -392,14 +393,14 @@ reviewer needs to complete the following three steps:
     * name of the branch with submission code
     * benchmark path, for example /TSPerf/energy_load/problem1
     * path to submission directory, for example  /TSPerf/energy_load/problem1/benchmarks/submission1
-    * instructions for provisioning the system (e.g. DSVM, Batch AI)
+    * instructions for provisioning the architecture components (e.g. DSVM, Batch AI)
     * name of Docker image stored in tsperf registry, for example 
     tsperf.azurecr.io/energy_load/problem1/submission1/submission1_image:v1
 
 In the following sections all occurences of "README file" refer to README file in the submission, unless 
 specified otherwise.
 
-The next steps depend on the system and are described in the following two subsections.
+The next steps depend on the architecture and are described in the following two subsections.
 
 ### Standalone VM
 
@@ -507,7 +508,7 @@ Each benchmark will have a separate leaderboard. All leaderboards will have the 
 * benchmark quality (e.g. MAPE)
 * running time
 * cost
-* system (e.g. DSVM)
+* architecture (e.g. DSVM)
 * framework (e.g. Tensorflow)
 * algorithm (e.g. LSTM)  
 
