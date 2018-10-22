@@ -1,0 +1,175 @@
+---
+title: "ETS Method for Retail Forecasting Benchmark - OrangeJuice_Pt_3Weeks_Weekly"
+output: html_notebook
+---
+
+
+```{r}
+## Import packages
+library(dplyr)
+library(tidyr)
+library(forecast)
+library(MLmetrics)
+
+## Define parameters
+NUM_ROUNDS <- 12
+TRAIN_START_WEEK <- 40
+TRAIN_END_WEEK_LIST <- seq(135, 157, 2)
+TEST_START_WEEK_LIST <- seq(137, 159, 2)
+TEST_END_WEEK_LIST <- seq(138, 160, 2)
+
+# Get the path of the current script and paths of data directories
+SCRIPT_PATH = dirname(rstudioapi::getSourceEditorContext()$path)
+TRAIN_DIR = file.path(dirname(dirname(SCRIPT_PATH)), 'data', 'train')
+TEST_DIR = file.path(dirname(dirname(SCRIPT_PATH)), 'data', 'test')
+```
+
+```{r}
+#### Test ets method on a subset of the data  ####
+## Import data
+r <- 1
+train_df <- read.csv(file.path(TRAIN_DIR, paste0('train_round_', as.character(r), '.csv')))
+#head(train_df)
+
+## Fill missing values
+store_list <- unique(train_df$store)
+brand_list <- unique(train_df$brand)
+week_list <- TRAIN_START_WEEK:TRAIN_END_WEEK_LIST[r]
+data_grid <- expand.grid(store = store_list,
+                           brand = brand_list, 
+                           week = week_list)
+train_filled <- merge(data_grid, train_df, 
+                     by = c('store', 'brand', 'week'), 
+                     all.x = TRUE)
+train_filled <- train_filled[,c('store','brand','week','logmove')]
+head(train_filled)
+print('Number of rows with missing values:')
+print(sum(!complete.cases(train_filled)))
+
+# Fill missing logmove 
+train_filled <- 
+  train_filled %>% 
+  group_by(store, brand) %>% 
+  arrange(week) %>%
+  fill(logmove) %>%
+  fill(logmove, .direction = 'up')
+head(train_filled)
+print('Number of rows with missing values after filling:')
+print(sum(!complete.cases(train_filled)))
+
+## ETS method
+train_sub <- filter(train_filled, store=='2', brand=='1')
+train_ts <- ts(train_sub[c('logmove')], frequency = 52)
+horizon <- TEST_END_WEEK_LIST[r] - TRAIN_END_WEEK_LIST[r]
+fit_ets <- ets(train_ts)
+pred_ets <- forecast(fit_ets, h=horizon)
+print('EST forecasts:')
+pred_ets$mean[2:horizon]
+plot(pred_ets, main='ETS')
+```
+
+```{r}
+#### Implement ets method on all the data  ####
+basic_method <- 'ets'
+pred_basic_all <- list()
+print(paste0('Using ', basic_method))
+
+## Basic methods 
+apply_basic_methods <- function(train_sub, method) {
+  cur_store <- train_sub$store[1]
+  cur_brand <- train_sub$brand[1]
+  train_ts <- ts(train_sub[c('logmove')], frequency = 52)
+  if (method == 'naive'){
+    pred_basic <- naive(train_ts, h=pred_horizon)
+  } else if (method == 'snaive'){
+    pred_basic <- snaive(train_ts, h=pred_horizon)
+  } else if (method == 'meanf'){
+    pred_basic <- meanf(train_ts, h=pred_horizon)
+  } else if (method == 'ets') {
+    fit_ets <- ets(train_ts)
+    pred_basic <- forecast(fit_ets, h=pred_horizon)
+  } else if (method == 'arima'){
+    fit_arima <- auto.arima(train_ts)
+    pred_basic <- forecast(fit_arima, h=pred_horizon)
+  }
+  pred_basic_df <- data.frame(round = rep(r, pred_steps),
+                              store = rep(cur_store, pred_steps),
+                              brand = rep(cur_brand, pred_steps),
+                              week = pred_weeks,
+                              weeks_ahead = pred_weeks_ahead,
+                              prediction = round(exp(pred_basic$mean[2:pred_horizon])))
+}
+
+for (r in 1:NUM_ROUNDS) { 
+  print(paste0('---- Round ', r, ' ----'))
+  pred_horizon <- TEST_END_WEEK_LIST[r] - TRAIN_END_WEEK_LIST[r]
+  pred_steps <- TEST_END_WEEK_LIST[r] - TEST_START_WEEK_LIST[r] + 1
+  pred_weeks <- TEST_START_WEEK_LIST[r]:TEST_END_WEEK_LIST[r]
+  pred_weeks_ahead <- pred_weeks - TRAIN_END_WEEK_LIST[r]
+  ## Import training data
+  train_df <- read.csv(file.path(TRAIN_DIR, paste0('train_round_', as.character(r), '.csv')))
+  ## Fill missing values
+  store_list <- unique(train_df$store)
+  brand_list <- unique(train_df$brand)
+  week_list <- TRAIN_START_WEEK:TRAIN_END_WEEK_LIST[r]
+  data_grid <- expand.grid(store = store_list,
+                           brand = brand_list, 
+                           week = week_list)
+  train_filled <- merge(data_grid, train_df, 
+                        by = c('store', 'brand', 'week'), 
+                        all.x = TRUE)
+  train_filled <- train_filled[,c('store','brand','week','logmove')]
+  head(train_filled)
+  print('Number of rows with missing values:')
+  print(sum(!complete.cases(train_filled)))
+  # Fill missing logmove 
+  train_filled <- 
+    train_filled %>% 
+    group_by(store, brand) %>% 
+    arrange(week) %>%
+    fill(logmove) %>%
+    fill(logmove, .direction = 'up')
+  head(train_filled)
+  print('Number of rows with missing values after filling:')
+  print(sum(!complete.cases(train_filled)))
+  
+  # Apply basic method
+  pred_basic_all[[paste0('Round', r)]] <- 
+    train_filled %>%
+    group_by(store, brand) %>%
+    do(apply_basic_methods(., basic_method))
+}
+
+pred_basic_all <- do.call(rbind, pred_basic_all)
+# Save forecast results
+write.csv(pred_basic_all, file.path(SCRIPT_PATH, 'submission.csv'), row.names = FALSE)
+
+## Evaluate forecast performance
+# Get the true value dataframe
+true_sales_all <- list()
+for (r in 1:NUM_ROUNDS){
+  test_df <- read.csv(file.path(TEST_DIR, paste0('test_round_', as.character(r), '.csv')))
+  true_sales_all[[paste0('Round', r)]] <-
+    data.frame(round = rep(r, dim(test_df)[1]),
+               store = test_df$store,
+               brand = test_df$brand,
+               week = test_df$week,
+               truth = round(exp(test_df$logmove)))
+}
+true_sales_all <- do.call(rbind, true_sales_all)
+
+# Merge prediction and true sales
+merged_df <- merge(pred_basic_all, true_sales_all, 
+                  by = c('round', 'store', 'brand', 'week'), 
+                  all.y = TRUE)
+
+print('MAPE')
+print(MAPE(merged_df$prediction, merged_df$truth)*100)
+print('MedianAPE')
+print(MedianAPE(merged_df$prediction, merged_df$truth)*100)
+```
+
+
+
+
+
