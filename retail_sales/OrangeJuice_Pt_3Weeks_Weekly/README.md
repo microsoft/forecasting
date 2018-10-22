@@ -26,7 +26,8 @@ The OJ dataset is from R package [`bayesm`](https://cran.r-project.org/web/packa
 This dataset contains the following two tables:
 
 1. Weekly sales of refrigerated orange juice at 83 stores. This table has 106139 rows and 19 columns. It includes weekly sales and prices of 11 orange juice 
-brands as well as information about profit, deal, and advertisement for each brand. 
+brands as well as information about profit, deal, and advertisement for each brand. Note that the weekly sales is captured by a column named `logmove` which 
+corresponds to the natural logarithm of the number of units sold. To get the number of units sold, you need to apply an exponential transform to this column.
 
 2. Demographic information on those stores. This table has 83 rows and 13 columns. For every store, the table describes demographic information of its consumers, 
 distance to the nearest warehouse store, average distance to the nearest 5 supermarkets, ratio of its sales to the nearest warehouse store, and ratio of its sales 
@@ -72,7 +73,7 @@ with each of the columns explained below
 * brand: brand indicator
 * week: week of the sales that we forecast
 * weeks_ahead: number of weeks ahead that we forecast
-* prediction: predicted number of units sold 
+* prediction: predicted number of units sold  
  
 
 

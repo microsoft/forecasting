@@ -93,7 +93,7 @@ leaderboard.
 
 The following diagram summarizes the relations between different terms and the workflow:
 
-<img src="./images/definitions.png" alt="drawing" heigh="300px" width="600px"/>
+![Definitions](images/definitions.png =900x450)
 
 ### Structure and hierarchy of documents
 
