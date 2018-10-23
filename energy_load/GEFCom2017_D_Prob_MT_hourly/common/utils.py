@@ -138,13 +138,16 @@ def download_eei_data():
         print('Downloaded to', fpath)
         
 
+
 def parse_eei_date(dt):
     """Helper function to parse date column from EEI format files."""
     from datetime import datetime
-    dt = dt[:-1] # remove the last char (1 or 2) & and year
+    dt = dt[:-1] # remove the last char (indicators 1 and 2)
     dt = dt.replace(' ', '0')
-    dt = datetime.strptime(dt, "%m%d%y")
-    #TODO: fix a bug, some years are in %y ('13') format and some in %Y ('2013') format
+    if(len(dt) == 6):
+        dt = datetime.strptime(dt, "%m%d%y")
+    elif(len(dt) == 8):
+        dt = datetime.strptime(dt, "%m%d%Y")   
     return(dt)
 
 
@@ -179,6 +182,8 @@ def extract_eei_data():
         load assets, station service load assets, and unmetered load assets. This load
         corresponds to total load across all zones.
     """
+    
+    # Look for files from 2000 to 2018
     start_yr = 2000
     end_yr = 2018
     yrs = list(range(start_yr, end_yr+1))
@@ -194,11 +199,11 @@ def extract_eei_data():
             raise Exception('The data file {0} is not found in the data '
                             'directory {1}, make sure you download the data '
                             'and try again.'.format(f, DATA_DIR))
-            
+
         data = [l.replace('\n', '') for l in data]
 
         # collect dates into a list
-        dates = [l[0:7] for l in data]
+        dates = [l.split('  ')[0] for l in data]
         dates = [parse_eei_date(dt) for dt in dates]
 
         # remove extra lines with next year
