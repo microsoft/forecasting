@@ -10,21 +10,31 @@ import sys
 import math
 import itertools
 import datetime
+import argparse
 import numpy as np
 import pandas as pd
 import lightgbm as lgb 
 
 # Append TSPerf path to sys.path
-cur_dir = os.path.split(os.getcwd())[0]
-tsperf_dir = os.path.dirname(os.path.dirname(os.path.dirname(cur_dir)))
+#cur_dir = os.path.split(os.getcwd())[0]
+#tsperf_dir = os.path.dirname(os.path.dirname(os.path.dirname(cur_dir)))
+tsperf_dir = os.getcwd()
 if tsperf_dir not in sys.path:
     sys.path.append(tsperf_dir)
 
 from common.metrics import MAPE
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
+# Get random seed
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--seed', type=int, help='Random seed of GRM algorithm')
+args = parser.parse_args()
+seed = args.seed
+print('Random seed is {}'.format(seed))
+
 # Data paths
-DATA_DIR = '../../data'
+DATA_DIR = os.path.join(tsperf_dir, 'retail_sales', 'OrangeJuice_Pt_3Weeks_Weekly', 'data')
+SUBMISSION_DIR = os.path.join(tsperf_dir, 'retail_sales', 'OrangeJuice_Pt_3Weeks_Weekly', 'submissions', 'LightGBM')
 TRAIN_DIR = os.path.join(DATA_DIR, 'train')
 TEST_DIR = os.path.join(DATA_DIR, 'test')
 
@@ -37,7 +47,8 @@ params = {
     'feature_fraction': 0.9, 
     'bagging_fraction': 0.7,
     'bagging_freq': 1,
-    'num_threads': 16
+    'num_threads': 16,
+    'seed': seed
 }
 MAX_ROUNDS = 100 
 
@@ -225,9 +236,10 @@ for r in range(bs.NUM_ROUNDS):
     print('')
     # Evaluate prediction accuracy
     test_df = pd.read_csv(os.path.join(TEST_DIR, 'test_round_'+str(r+1)+'.csv'))
-    test_df['move'] = test_df['logmove'].apply(lambda x: round(math.exp(x)))
+    test_df['actual'] = test_df['logmove'].apply(lambda x: round(math.exp(x)))
     test_df.drop('logmove', axis=1, inplace=True)
-    metric_value = evaluate(pred, test_df)
+    combined = pd.merge(pred, test_df, on=['store', 'brand', 'week'], how='left')
+    metric_value = MAPE(combined['move'], combined['actual'])*100
     print('')
     print('MAPE of current round is {}'.format(metric_value))
     print('')
@@ -239,7 +251,8 @@ for r in range(bs.NUM_ROUNDS):
 submission = pd.concat(pred_all, axis=0)
 submission.rename(columns={'move': 'prediction'}, inplace=True)
 submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction']]
-submission.to_csv('submission.csv', index=False)
+filename = 'submission_seed_' + str(seed) + '.csv'
+submission.to_csv(os.path.join(SUBMISSION_DIR, filename), index=False)
 print('MAPE of the submission is {}'.format(np.mean(metric_all))) 
 
 
