@@ -16,8 +16,6 @@ import pandas as pd
 import lightgbm as lgb 
 
 # Append TSPerf path to sys.path
-#cur_dir = os.path.split(os.getcwd())[0]
-#tsperf_dir = os.path.dirname(os.path.dirname(os.path.dirname(cur_dir)))
 tsperf_dir = os.getcwd()
 if tsperf_dir not in sys.path:
     sys.path.append(tsperf_dir)
@@ -50,7 +48,7 @@ params = {
     'num_threads': 16,
     'seed': seed
 }
-MAX_ROUNDS = 100 
+MAX_ROUNDS = 400 #100 
 
 # Lags and categorical features
 lags = [2,3,4] 
@@ -61,8 +59,7 @@ first_week_start = pd.to_datetime('1989-09-07 00:00:00')
 
 # Utility functions
 def week_of_month(dt):
-    """ 
-    Get the week of the month for the specified date.
+    """Get the week of the month for the specified date.
     
     Args: 
         dt (Datetime): Input date
@@ -112,8 +109,7 @@ def lagged_features(df, lags):
     return fea
 
 def moving_averages(df, start_step, window_size=None):
-    """
-    Compute averages of every feature over moving time windows.
+    """Compute averages of every feature over moving time windows.
     
     Args:
         df (Dataframe): Input features as a dataframe
@@ -128,8 +124,7 @@ def moving_averages(df, start_step, window_size=None):
     return fea
 
 def create_features(df):
-    """
-    Create features used for model training.
+    """Create features used for model training.
     
     Args:
         df (Dataframe): Time series data of a certain store and brand
@@ -145,8 +140,7 @@ def create_features(df):
     return fea_all
 
 def make_predictions(df, model):
-    """
-    Predict sales with the trained GBM model.
+    """Predict sales with the trained GBM model.
     
     Args: 
         df (Dataframe): Dataframe including all needed features
@@ -160,8 +154,7 @@ def make_predictions(df, model):
     return pd.concat([df[['brand', 'store', 'week']].reset_index(drop=True), predictions], axis=1)
 
 def evaluate(result):
-    """
-    Compute MAPE value of the forecast.
+    """Compute MAPE value of the forecast.
     
     Args:
         result (Dataframe): Input dataframe including predicted sales and actual sales
@@ -179,8 +172,6 @@ for r in range(bs.NUM_ROUNDS):
     train_df = pd.read_csv(os.path.join(TRAIN_DIR, 'train_round_'+str(r+1)+'.csv'))
     train_df['move'] = train_df['logmove'].apply(lambda x: round(math.exp(x)))
     train_df.drop('logmove', axis=1, inplace=True)
-    #print(train_df.head(3))
-    #print('')
     # Fill missing values
     store_list = train_df['store'].unique()
     brand_list = train_df['brand'].unique()
@@ -191,8 +182,6 @@ for r in range(bs.NUM_ROUNDS):
     data_grid = df_from_cartesian_product(d)
     data_filled = pd.merge(data_grid, train_df, how='left', 
                             on=['store', 'brand', 'week'])
-    #print('Number of missing rows is {}'.format(data_filled[data_filled.isnull().any(axis=1)].shape[0]))
-    #print('')
     data_filled = data_filled.groupby(['store', 'brand']).apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
     # Create datetime features
     data_filled['week_start'] = data_filled['week'].apply(lambda x: first_week_start + datetime.timedelta(days=(x-bs.TRAIN_START_WEEK)*7))
@@ -206,8 +195,6 @@ for r in range(bs.NUM_ROUNDS):
     train_fea = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
     # Drop rows with NaN values
     train_fea.dropna(inplace=True)
-    #print(train_fea.head(1))
-    #print('')
     print('Training and predicting models...')
     evals_result = {} # to record eval results for plotting
     dtrain = lgb.Dataset(
@@ -231,20 +218,8 @@ for r in range(bs.NUM_ROUNDS):
     # Additional columns required by the submission format
     pred['round'] = r+1
     pred['weeks_ahead'] = pred['week'] - bs.TRAIN_END_WEEK_LIST[r]
-    #print(pred)
-    #print('')
-    ## Evaluate prediction accuracy
-    #test_df = pd.read_csv(os.path.join(TEST_DIR, 'test_round_'+str(r+1)+'.csv'))
-    #test_df['actual'] = test_df['logmove'].apply(lambda x: round(math.exp(x)))
-    #test_df.drop('logmove', axis=1, inplace=True)
-    #combined = pd.merge(pred, test_df, on=['store', 'brand', 'week'], how='left')
-    #metric_value = evaluate(combined)
-    #print('')
-    #print('MAPE of current round is {}'.format(metric_value))
-    #print('')
-    # Keep the predictions and accuracy
+    # Keep the predictions 
     pred_all.append(pred)
-    #metric_all.append(metric_value)
 
 # Generate submission
 submission = pd.concat(pred_all, axis=0)
@@ -252,7 +227,6 @@ submission.rename(columns={'move': 'prediction'}, inplace=True)
 submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction']]
 filename = 'submission_seed_' + str(seed) + '.csv'
 submission.to_csv(os.path.join(SUBMISSION_DIR, filename), index=False)
-#print('MAPE of the submission is {}'.format(np.mean(metric_all))) 
 
 
 
