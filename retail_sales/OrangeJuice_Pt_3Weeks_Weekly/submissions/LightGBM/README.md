@@ -28,23 +28,37 @@ gradient boosting framework based on decision tree algorithms.
 
 ### Feature engineering
 
-Only the weekly sales of each orange juice has been used in the implementation of the forecast method.
+The following features have been used in the implementation of the forecast method:
+- datetime features including week number, week of the month, and day of the month
+- weekly sales of each orange juice in recent weeks
+- average sales of each orange juice during recent weeks
+- other features including *store*, *brand*, *profit*, *deal*, *feat* columns
+
 
 ### Hyperparameter tuning
 
-Default hyperparameters of the forecasting algorithm are used. Additionally, the frequency of the weekly sales time series is set to be 52, 
-since there are approximately 52 weeks in a year. 
+This model mainly involves the following hyperparameters:  
+- Hyperparameters of gradient boosting machine (GBM): *num_leaves* (maximum number of leaves in one tree), *min_data_in_leaf* (minimum number of data in one leaf), *learning_rate* (learning rate), *feature_fraction* (ratio of the randomly selected features), *bagging_fraction* (ratio of the randomly sampled data), *bagging_freq* (frequency for bagging), *num_threads* (number of threads), *num_boost_round* (number of training iterations)
+- Lag values for computing the weekly sales in recent weeks
+- Window size and starting point for computing the average sales 
+
+We have conducted a grid search to tune these parameters. The range of each hyperparameter is selected based on its importance reported in other places and our intuition about the data. The ranges of a few important hyperparameters are as follows
+- *num_leaves*: [50, 80, 100, 200]
+- *min_data_in_leaf*: [100, 200]
+- *learning_rate*: [0.001, 0.002, 0.01, 0.02, 0.1]
+- *num_boost_round*: [100, 400, 1000, 2000]
+
 
 ### Description of implementation scripts
 
-* `train_score.r`: R script that trains the model and evaluate its performance
-* `train_score.ipynb` (optional): R markdown that trains the model and visualizes the results
+* `train_score.py`: Python script that trains the model and evaluates its performance
+* `train_score.ipynb` (optional): Jupyter notebook that trains the model and visualizes the results
 
 
 ### Steps to reproduce results
 
-0. Follow the instructions [here](#resource-deployment-instructions) to provision a Linux virtual machine and log into the provisioned 
-VM. 
+0. Follow the instructions [here](#resource-deployment-instructions) to provision a Linux virtual
+machine and log into the provisioned VM. 
 
 1. Choose submission branch and clone the Git repo to home directory of your machine:
 
@@ -52,12 +66,12 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd ~/TSPerf
-   git checkout chenhui/mean_forecast
+   git checkout chenhui/boosted_decision_tree
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
    connect to Git repos via HTTPS authentication. If these don't work, you can try to [connect through SSH](https://docs.microsoft.com/en-us/vsts/repos/git/use-ssh-keys-to-authenticate?view=vsts). The above commands will download the 
-   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout chenhui/mean_forecast` once the submission branch is merged into the master branch.
+   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout chenhui/boosted_decision_tree` once the submission branch is merged into the master branch.
 
 2. Create a conda environment for running the scripts of data downloading, data preparation, and result evaluation. To do this, you need 
 to check if conda has been installed by runnning command `conda -V`. If it is installed, you will see the conda version in the terminal. Otherwise, please follow the instructions [here](https://conda.io/docs/user-guide/install/linux.html) to install conda. Then, you can go to `TSPerf` directory in the VM and create a conda environment named `tsperf` by
@@ -101,13 +115,13 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 6. Pull a Docker image from ACR using the following command   
 
    ```bash
-   docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/baseline_image:v1
+   docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/lightgbm_image:v1
    ```
 
-7. Choose a name for a new Docker container (e.g. meanf_container) and create it using command:   
+7. Choose a name for a new Docker container (e.g. lightgbm_container) and create it using command:   
    
    ```bash
-   docker run -it -v $(pwd):/TSPerf --name meanf_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/baseline_image:v1
+   docker run -it -v $(pwd):/TSPerf --name lightgbm_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/lightgbm_image:v1
    ```
    
    Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have 
@@ -116,7 +130,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 8. Inside `/TSPerf` folder, train the model and make predictions by running
 
    ```bash
-   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/MeanForecast R
+   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM Python3
    ``` 
  
    This will generate 5 `submission_seed_<seed number>.csv` files in the submission directory, where \<seed number\> 
@@ -127,7 +141,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 9. Activate conda environment again by `source activate tsperf`. Then, evaluate the benchmark quality by running
    
    ```bash
-   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/MeanForecast ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
+   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
    ```
 
    This command will output 5 benchmark quality values (MAPEs). Their median should be compared against the 
@@ -147,9 +161,9 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 **Docker image:** tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/baseline_image:v1
 
 **Key packages/dependencies:**  
-  * R 
-    - r-base==3.5.1  
-    - forecast==8.1
+  * Python
+    - pandas==0.23.1
+    - lightgbm==2.1.2
 
 ## Resource deployment instructions
 
@@ -157,40 +171,37 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 * Azure Linux VM deployment
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
   - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a Data 
-  Science Virtual Machine for Linux (Ubuntu). Select *D16s_v3* as the virtual machine size.
+  Science Virtual Machine for Linux (Ubuntu). Select *D2s_v3* as the virtual machine size.
 
 
 ## Implementation evaluation
 
 **Quality:** 
 
-*MAPE run 1: 70.74%*
+*MAPE run 1: 61.53%*
 
-*MAPE run 2: 70.74%*
+*MAPE run 2: 61.49%*
 
-*MAPE run 3: 70.74%*
+*MAPE run 3: 61.43%*
 
-*MAPE run 4: 70.74%*
+*MAPE run 4: 61.48%*
 
-*MAPE run 5: 70.74%*
+*MAPE run 5: 61.48%*
 
-*median MAPE: 70.74%*
+*median MAPE: 61.48%*
 
 **Time:** 
 
-*run time 1: 69.85 seconds*
+*run time 1: 181.03 seconds*
 
-*run time 2: 69.80 seconds*
+*run time 2: 182.28 seconds*
 
-*run time 3: 68.88 seconds*
+*run time 3: 182.47 seconds*
 
-*run time 4: 68.54 seconds*
+*run time 4: 183.24 seconds*
 
-*run time 5: 68.10 seconds*
+*run time 5: 181.47 seconds*
 
-*median run time: 68.88 seconds*
+*median run time: 182.10 seconds*
 
-**Cost:** The total cost is 68.88/3600 $\times$ 0.096 = $0.0018.
-
-Note that there is no randomness in the forecasts obtained by the above method. Thus, quality values do not change over 
-different runs.
+**Cost:** The total cost is 182.10/3600 $\times$ 0.096 = $0.0049.
