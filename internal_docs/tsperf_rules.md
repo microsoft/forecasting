@@ -29,21 +29,18 @@
 
 ### Vision
 
-Establish an industry leading framework that allows comparison of various time-series forecasting algorithms in a practical way on real cloud based architectures. This will allow potential users or customers to discover the best approach that suites their needs from cost, time and quality perspective.
+Our vision it to establish a leading framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework will allow data scientists or customers to discover the best approach that fits their use case cost, time and quality perspective.
+TSPerf framework is designed to facilitate data scientist’s community participation and contribution through the development of implementations against a given set of forecasting problems and datasets. Once submitted, implementations will be measured in terms of standard metrics of model accuracy, operation cost and model training time. Each implementation will include all the necessary instruction and tools that will ensure reproducibility of the implementation in the customer local environment.
+Note: The TSPerf vision shared common principles with the [MLPerf](https://mlperf.org/) vision and designed to be proposed as a new track after an internal validation of the concept. 
 
-The benchmarking framework is designed to facilitate community participation and contribution through the development of benchmark implementations against a practical set of forecasting problems and datasets. These implementations will be measured by means of standard metrics of accuracy, cost and training time.
-
-The benchmarking framework will provide a simple access, discovery, comparison, maintenance and contributions. 
-
-Note: The TSPerf vision is aligned with the [MLPerf](https://mlperf.org/) vision. TSPerf is designed to be merged with MLPerf after completing an internal implementation of the former.
 
 ### Goals:
 
-Short Term (Internal Only):
+We are planning on the following 3 phase goals:
+* **Phase 1** – Internal only frame work that is used by internal Microsoft data scientists for submission and retrieval of implementation with the objective to reduce customer deployment time 
+* **Phase 2**- Enable external customers to access, discover and clone implementations with the objective of enabling forecasting implementations on Azure in short time
+* **Phase 3** Propose TSPerf as a new track for time-series forecasting in [MLPerf](https://mlperf.org/)
 
-* Allow fair comparison of performance of various forecasting algorithms on a given problem/dataset on multiple environments, with the ability to reproduce performance 
-* Become the central Microsoft repository for forecasting benchmarks
-* Establish time-series forecasting track in [MLPerf](https://mlperf.org/) and provide a reference implementation for it
 
 ## Framework
 
