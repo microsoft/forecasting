@@ -185,13 +185,26 @@ averaged over all time series.
 
 ## Development of benchmark implementation
 
+In this section we provide a number of guidelines for developing reproducible results.
+
 ### Availables Docker images
 
 We recommend to use Docker images for the reproduciblility of the submissions. In TSPerf, we provide a basic Docker image to speed up the process of new benchmark implementation and reproduction. The image is called tsperf.azurecr.io/common/image:v1 and is stored in tsperf Azure Container Registry (ACR). This image contains basic configurations and a few commonly used packages. One can directly use the basic image by pulling it from the ACR or modify it for their own benchmark implementations. 
 
 Under `/TSPerf/common` folder, there are a Dockerfile and requirements.txt file used for creating the basic image. The Dockerfile contains the main configuration steps and requirements.txt includes the necessary Python packages. By modifying these files, one can easily create their own Docker images and host them in ACR or other venues such as Docker Hub.
 
-### Guideline for measuring performance
+### Non-determinism restrictions
+This section is aligned with [MLPerf](https://mlperf.org/). Some more detailed instructions are added.  
+The following forms of non-determinism are acceptable in [MLPerf](https://mlperf.org/).
+- Floating point operation order. For example, certain functions in cuDNN do not guarantee reproducibility across runs.
+
+- Random initialization of the weights and/or biases.
+
+- Random traversal of the inputs.  
+
+In order to avoid any other sources of non-determinisms, we recommend setting random seeds whenever a package/software framework provides a function for setting random seed, e.g. `numpy.random.seed()`, `random.seed()` and `tf.set_random_seed()`.  
+
+### Measuring performance
 
 A *benchmark result* is the median of five run results produced using the integer random number generator seeds 1 through 5.  All five run results must also be reported. The following measurements should be included:
   * quality of the model
@@ -202,7 +215,7 @@ The median should be computed over 5 values of the quality of the model.
 
 Submission guidelines for [Standalone VM](#standalone-vm) and [Batch AI](#batch-ai) have detailed instructions for measuing quality of the model and wall-clock running time. In the next section we provide instructions for measuring cloud costs.
 
-#### Measuring Cloud Cost
+#### Measuring cloud cost
 
 The cloud cost is the total cost of obtaining the benchmark result using fixed prices for the general public at the time the result is collected.  The total cost should be computed as the product of wall-clock time and the sum of the costs of all Azure services used by benchmark implementation. 
 The total cost can be computed using [Azure pricing calculator](https://azure.microsoft.com/en-us/pricing/calculator/).  When computing the costs, do not use spot pricing. Also, do not include in the cloud costs the
@@ -232,17 +245,11 @@ If your implementation is light-weight and does not have any system dependency, 
 4. Software framework and package version report  
 The submitter needs to submit a report summarizing all the software framework and package versions used for producing the reported result. This is to prevent the newer version of a software framework or package significantly changing the implementation result.
 
-#### Non-determinism restrictions
-This section is aligned with [MLPerf](https://mlperf.org/). Some more detailed instructions are added.  
-The following forms of non-determinism are acceptable in [MLPerf](https://mlperf.org/).
-- Floating point operation order. For example, certain functions in cuDNN do not guarantee reproducibility across runs.
-
-- Random initialization of the weights and/or biases.
-
-- Random traversal of the inputs.  
-
-In order to avoid any other sources of non-determinisms, we recommend setting random seeds whenever a package/software framework provides a function for setting random seed, e.g. `numpy.random.seed()`, `random.seed()` and `tf.set_random_seed()`.  
-The submitter needs to run the benchmark implementation five times using the integer random number generator seeds 1 through 5 and report all five results.  The variance of the five run results should be reasonable, otherwise, it's an indicator of instability of the implementation. The median of the five results is reported as the performance of the submitted implementation. 
+#### Reporting benchmark results
+This section is aligned with [MLPerf](https://mlperf.org/).  
+The submitter needs to run the benchmark implementation five times using the integer random number generator seeds 1 through 5 and report all five benchmark results (quality of the model, 
+wall-clock running time and cloud cost).  The variance of the five run results should be reasonable, otherwise, it's an indicator of instability of the implementation. The median of the five 
+results is reported as the performance of the submitted implementation. 
 
 #### Hyperparameter tuning
 Submitter should justify choice of hyperparameter values if they are not the default ones. Example of justifications are improvement in validation error, reduction in running time or cost. 
