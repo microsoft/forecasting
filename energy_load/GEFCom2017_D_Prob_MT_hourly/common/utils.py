@@ -94,7 +94,7 @@ def split_train_test(full_df, output_dir,
 def download_eei_data():
     '''
     Download hourly system load data for the New England bulk power system provided in the 
-    industry-standard Edison Electric Institute (EEI) format.
+    industry-standard Edison Electric Institute (EEI) format. Download only data for 2000-2018.
     '''
 
     urls = [
@@ -163,8 +163,8 @@ def parse_eei_load(ldstr):
 
 def extract_eei_data():
     """
-    This function requires the user to use the script
-    "TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly/common/download_eei_data.py" to
+    This function requires the user to use the download_eei_data() function in
+    "TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly/common/utils.py" file to
     download the EEI Hourly Data from 2008 to 2018 from the ISO New England
     website (https://www.iso-ne.com/isoexpress/web/reports/load-and-demand/-/tree/sys-load-eei-fmt).
     The downloaded data is stored in
