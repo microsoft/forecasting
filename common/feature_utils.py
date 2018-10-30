@@ -496,7 +496,7 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
     return df
 
 
-def same_day_hour_moving_quatile(datetime_col, value_col, window_size,
+def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
                                  start_week, quatile_count, 
                                  forecast_creation_time,
                                  q=[.01, .05, .2, .5, .8, .95, .99],
