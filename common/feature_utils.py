@@ -292,8 +292,8 @@ def daily_fourier(datetime_col, n_harmonics):
 
 def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
                            week_window=1, 
-                           agg_func=['mean', 'quantile', 'std'],
-                           q=[None, .01, .05, .2, .5, .8, .95, .99],
+                           agg_func='mean',
+                           q=None,
                            output_colname='SameWeekHourLag'):
     """
     Create a lag feature by calculating quantiles, mean and std of values of and around the same week,
@@ -304,8 +304,10 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
     :param week_window:
         Number of weeks before and after the same week to
         use, which should help reduce noise in the data
-    :param agg_func: aggregation function to apply on multiple previous values
-    :param q: quantile value 
+    :param agg_func: 
+        Aggregation function to apply on multiple previous values, including
+        mean, quantile, and standard deviation. 
+    :param q: Quantile value column, taking value of None, .01, .05, .2, .5, .8, .95, .99
     :param output_colname: name of the output lag feature column
     """
 
@@ -341,20 +343,8 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
     # Additional aggregation options will be added as needed
     if agg_func == 'mean' and q == None:
         df[output_colname] = round(df[week_lag_cols].mean(axis=1))
-    elif agg_func == 'quantile' and q == .01:
-        df[output_colname] = round(df[week_lag_cols].quantile(.01, axis=1))
-    elif agg_func == 'quantile' and q == .05:
-        df[output_colname] = round(df[week_lag_cols].quantile(.05, axis=1))
-    elif agg_func == 'quantile' and q == .2:
-        df[output_colname] = round(df[week_lag_cols].quantile(.2, axis=1))
-    elif agg_func == 'quantile' and q == .5:
-        df[output_colname] = round(df[week_lag_cols].quantile(.5, axis=1))
-    elif agg_func == 'quantile' and q == .8:
-        df[output_colname] = round(df[week_lag_cols].quantile(.8, axis=1))
-    elif agg_func == 'quantile' and q == .95:
-        df[output_colname] = round(df[week_lag_cols].quantile(.95, axis=1))
-    elif agg_func == 'quantile' and q == .99:
-        df[output_colname] = round(df[week_lag_cols].quantile(.99, axis=1))
+    elif agg_func == 'quantile' and q != None:
+        df[output_colname] = round(df[week_lag_cols].quantile(q, axis=1))
     elif agg_func == 'std' and q == None:
         df[output_colname] = round(df[week_lag_cols].std(axis=1))
 
@@ -363,8 +353,8 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
 
 def same_day_hour_lag(datetime_col, value_col, n_years=3,
                       day_window=1, 
-                      agg_func=['mean', 'quantile', 'std'],
-                      q=[None, .01, .05, .2, .5, .8, .95, .99],
+                      agg_func='mean',
+                      q=None,
                       output_colname='SameDayHourLag'):
     """
     Create a lag feature by calculating quantiles, mean, and std of values of and around the same day of
@@ -375,8 +365,10 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
     :param day_window:
         Number of days before and after the same day to
         use, which should help reduce noise in the data
-    :param agg_func: aggregation function to apply on multiple previous values
-    :param q: quantile value
+    :param agg_func: 
+        Aggregation function to apply on multiple previous values, including
+        mean, quantile, and standard deviation. 
+    :param q: Quantile value column, taking value of None, .01, .05, .2, .5, .8, .95, .99
     :param output_colname: name of the output lag feature column
     """
 
@@ -412,20 +404,8 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
     # Additional aggregation options will be added as needed
     if agg_func == 'mean' and q == None:
         df[output_colname] = round(df[day_lag_cols].mean(axis=1))
-    elif agg_func == 'quantile' and q == .01:
-        df[output_colname] = round(df[day_lag_cols].quantile(.01, axis=1))
-    elif agg_func == 'quantile' and q == .05:
-        df[output_colname] = round(df[day_lag_cols].quantile(.05, axis=1))
-    elif agg_func == 'quantile' and q == .2:
-        df[output_colname] = round(df[day_lag_cols].quantile(.2, axis=1))
-    elif agg_func == 'quantile' and q == .5:
-        df[output_colname] = round(df[day_lag_cols].quantile(.5, axis=1))
-    elif agg_func == 'quantile' and q == .8:
-        df[output_colname] = round(df[day_lag_cols].quantile(.8, axis=1))
-    elif agg_func == 'quantile' and q == .95:
-        df[output_colname] = round(df[day_lag_cols].quantile(.95, axis=1))
-    elif agg_func == 'quantile' and q == .99:
-        df[output_colname] = round(df[day_lag_cols].quantile(.99, axis=1))
+    elif agg_func == 'quantile' and q != None:
+        df[output_colname] = round(df[day_lag_cols].quantile(q, axis=1))
     elif agg_func == 'std' and q == None:
         df[output_colname] = round(df[day_lag_cols].std(axis=1))
 
@@ -497,9 +477,8 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
 
 
 def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
-                                 start_week, quatile_count, 
+                                 start_week, quatile_count, q,
                                  forecast_creation_time,
-                                 q=[.01, .05, .2, .5, .8, .95, .99],
                                  output_col_prefix='moving_quatile_lag_'):
     """
     Create a series of quatiles of features by calculating quatiles of values of the same day of
@@ -512,7 +491,7 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
     :param window_size: Number of weeks used to compute the average.
     :param start_week: First week of the first moving average feature.
     :param quantile_count: Number of quantiles of features to create.
-    :param q: quantile values.
+    :param q: Quantile value column.
     :param forecast_creation_time:
         The time point when the feature is created. This value is used to
         prevent using data that are not available at forecast creation time
@@ -556,21 +535,8 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
                 tmp_col_all.append(tmp_col)
                 tmp_df[tmp_col] = tmp_df['value'].shift(h)
 
-        if q == .01:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.01, axis=1))
-        elif q == .05:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.05, axis=1))
-        elif q == .2:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.2, axis=1))
-        elif q == .5:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.5, axis=1))
-        elif q == .8:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.8, axis=1))
-        elif q == .95:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.95, axis=1))
-        elif q == .99:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.99, axis=1))
-
+        df[output_col] = round(tmp_df[tmp_col_all].quantile(q, axis=1))
+        
     df.drop('value', inplace=True, axis=1)
 
     return df
@@ -635,6 +601,7 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
                 tmp_df[tmp_col] = tmp_df['value'].shift(h)
 
             df[output_col] = round(tmp_df[tmp_col_all].std(axis=1))
+
     df.drop('value', inplace=True, axis=1)
 
     return df
@@ -643,8 +610,8 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
 def same_day_hour_moving_agg(datetime_col, value_col, window_size,
                              start_week, count,
                              forecast_creation_time,
-                             agg_func=['mean', 'quantile', 'std'],
-                             q=[None, .01, .05, .2, .5, .8, .95, .99],
+                             agg_func='mean',
+                             q=None,
                              output_col_prefix='moving_agg_lag_'):
     """
     Create a series of aggregation of features by calculating mean, quantiles, 
@@ -661,6 +628,10 @@ def same_day_hour_moving_agg(datetime_col, value_col, window_size,
         The time point when the feature is created. This value is used to
         prevent using data that are not available at forecast creation time
         to compute features.
+    :param agg_func: 
+        Aggregation function to apply on multiple previous values, including
+        mean, quantile, and standard deviation. 
+    :param q: Quantile value column, taking value of None, .01, .05, .2, .5, .8, .95, .99.
     :param output_col_prefix:
         Prefix of the output columns. The start week of each moving average
         feature is added at the end.
@@ -702,20 +673,8 @@ def same_day_hour_moving_agg(datetime_col, value_col, window_size,
 
         if agg_func == 'mean' and q == None:
             df[output_col] = round(tmp_df[tmp_col_all].mean(axis=1))        
-        elif agg_func == 'quantile' and q == .01:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.01, axis=1))
-        elif agg_func == 'quantile' and q == .05:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.05, axis=1))
-        elif agg_func == 'quantile' and q == .2:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.2, axis=1))
-        elif agg_func == 'quantile' and q == .5:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.5, axis=1))
-        elif agg_func == 'quantile' and q == .8:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.8, axis=1))
-        elif agg_func == 'quantile' and q == .95:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.95, axis=1))
-        elif agg_func == 'quantile' and q == .99:
-            df[output_col] = round(tmp_df[tmp_col_all].quantile(.99, axis=1))
+        elif agg_func == 'quantile' and q != None:
+            df[output_col] = round(tmp_df[tmp_col_all].quantile(q, axis=1))
         elif agg_func == 'std' and q == None:
             df[output_col] = round(tmp_df[tmp_col_all].std(axis=1))
             
