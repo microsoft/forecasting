@@ -244,6 +244,10 @@ def fourier_approximation(t, n, period):
     """
     Generic helper function for create Fourier Series at different
     harmonies(n) and periods.
+
+    :param t: Datetime column.
+    :param n: Harmonies, n=0, 1, 2, 3,...
+    :param period: Period of the datetime variable t.
     """
     x = n * 2 * np.pi * t/period
     x_sin = np.sin(x)
@@ -253,6 +257,13 @@ def fourier_approximation(t, n, period):
 
 
 def annual_fourier(datetime_col, n_harmonics):
+    """
+    Create Annual Fourier Series at different
+    harmonies(n).
+
+    :param datetime_col: Datetime column.
+    :param n: Harmonies, n=0, 1, 2, 3,...
+    """
     day_of_year = datetime_col.dt.dayofyear
 
     output_dict = {}
@@ -266,6 +277,13 @@ def annual_fourier(datetime_col, n_harmonics):
 
 
 def weekly_fourier(datetime_col, n_harmonics):
+    """
+    Create Weekly Fourier Series at different
+    harmonies(n).
+
+    :param datetime_col: Datetime column.
+    :param n: Harmonies, n=0, 1, 2, 3,...
+    """
     day_of_week = datetime_col.dt.dayofweek + 1
 
     output_dict = {}
@@ -279,6 +297,13 @@ def weekly_fourier(datetime_col, n_harmonics):
 
 
 def daily_fourier(datetime_col, n_harmonics):
+    """
+    Create Daily Fourier Series at different
+    harmonies(n).
+
+    :param datetime_col: Datetime column.
+    :param n: Harmonies, n=0, 1, 2, 3,...
+    """
     hour_of_day = datetime_col.dt.hour + 1
 
     output_dict = {}
