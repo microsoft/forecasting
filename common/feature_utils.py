@@ -261,9 +261,15 @@ def normalized_features(datetime_col, value_col, output_colname='normalized_feat
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
+    
+    min_value = min(df['value'])
+    max_value = max(df['value'])
 
-    df[output_colname] = (df['value'] - min(df['value']))/(max(df['value']) - min(df['value']))
-
+    if min_value != max_value:
+        df[output_colname] = (df['value'] - min_value)/(max_value - min_value)
+    elif min_value == max_value:
+        df[output_colname] = 0
+        
     return df[[output_colname]]
 
 
