@@ -158,9 +158,17 @@ def normalized_current_year(datetime_col, min_year, max_year):
     """
     Temporal feature indicating the position of the year of a record in the
     entire time period under consideration, normalized to be between 0 and 1.
+    
+    :param datetime_col: Datetime column.
+    :param min_year: minimum value of year.
+    :param max_year: maximum value of year.
     """
     year = datetime_col.dt.year
-    current_year = (year - min_year)/(max_year - min_year)
+
+    if max_year != min_year:
+        current_year = (year - min_year)/(max_year - min_year)
+    elif max_year == min_year:
+        current_year = 0
 
     return current_year
 
@@ -169,11 +177,18 @@ def normalized_current_date(datetime_col, min_date, max_date):
     """
     Temporal feature indicating the position of the date of a record in the
     entire time period under consideration, normalized to be between 0 and 1.
+    
+    :param datetime_col: Datetime column.
+    :param min_date: minimum value of date.
+    :param max_date: maximum value of date.
     """
     date = datetime_col.dt.date
     current_date = (date - min_date).apply(lambda x: x.days)
-
-    current_date = current_date/(max_date - min_date).days
+    
+    if max_date != min_date:
+        current_date = current_date/(max_date - min_date).days
+    elif max_date == min_date:
+        current_date = 0
 
     return current_date
 
@@ -182,14 +197,21 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
     """
     Temporal feature indicating the position of the hour of a record in the
     entire time period under consideration, normalized to be between 0 and 1.
+    
+    :param datetime_col: Datetime column.
+    :param min_datehour: minimum value of datehour.
+    :param max_datehour: maximum value of datehour.
     """
     current_datehour = (datetime_col - min_datehour)\
         .apply(lambda x: x.days*24 + x.seconds/3600)
 
     max_min_diff = max_datehour - min_datehour
-
-    current_datehour = current_datehour/\
-                       (max_min_diff.days * 24 + max_min_diff.seconds/3600)
+    
+    if max_min_diff != 0:
+        current_datehour = current_datehour/\
+                           (max_min_diff.days * 24 + max_min_diff.seconds/3600)
+    elif max_min_diff == 0:
+        current_datehour = 0
 
     return current_datehour
 
