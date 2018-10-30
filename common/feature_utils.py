@@ -31,6 +31,11 @@ def day_type(datetime_col, holiday_col=None,
     6: Sunday
     7: Holiday
     8: Days before and after a holiday
+
+    :param datetime_col: Datetime column.
+    :param holiday_col: Holiday code.
+    :param semi_holiday_offset: Time difference between 
+        the date before (or after) the holiday and the holiday.
     """
     datetype = pd.DataFrame({'DayType': datetime_col.dt.dayofweek})
     datetype.replace({'DayType': WEEK_DAY_TYPE_MAP}, inplace=True)
