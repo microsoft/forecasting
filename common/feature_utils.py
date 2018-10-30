@@ -233,8 +233,13 @@ def normalized_series(datetime_col, value_col, output_colname='normalized_series
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
+    
+    mean_value = df['value'].mean()
 
-    df[output_colname] = np.log(df['value']/df['value'].mean())
+    if mean_value != 0:
+        df[output_colname] = np.log(df['value']/mean_value)
+    elif mean_value == 0:
+        df[output_colname] = 0
 
     return df[[output_colname]]
 
