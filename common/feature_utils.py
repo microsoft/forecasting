@@ -1,6 +1,7 @@
 """
 This file contains helper functions for creating features for TSPerf
-reference implementations and submissions.
+reference implementations and submissions. All functions defined assume 
+that there is no missing data.
 """
 
 from datetime import timedelta
