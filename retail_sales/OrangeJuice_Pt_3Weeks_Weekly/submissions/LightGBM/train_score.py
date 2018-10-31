@@ -52,10 +52,7 @@ MAX_ROUNDS = 400 #100
 
 # Lags and categorical features
 lags = [2,3,4] 
-lags_str = [str(x) for x in lags]
 categ_fea = ['store', 'brand', 'deal', 'feat'] 
-
-first_week_start = pd.to_datetime('1989-09-07 00:00:00') 
 
 # Utility functions
 def week_of_month(dt):
@@ -184,7 +181,7 @@ for r in range(bs.NUM_ROUNDS):
                             on=['store', 'brand', 'week'])
     data_filled = data_filled.groupby(['store', 'brand']).apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
     # Create datetime features
-    data_filled['week_start'] = data_filled['week'].apply(lambda x: first_week_start + datetime.timedelta(days=(x-bs.TRAIN_START_WEEK)*7))
+    data_filled['week_start'] = data_filled['week'].apply(lambda x: bs.FIRST_WEEK_START + datetime.timedelta(days=(x-bs.TRAIN_START_WEEK)*7))
     data_filled['year'] = data_filled['week_start'].apply(lambda x: x.year)
     data_filled['month'] = data_filled['week_start'].apply(lambda x: x.month)
     data_filled['week_of_month'] = data_filled['week_start'].apply(lambda x: week_of_month(x))

@@ -2,9 +2,12 @@
 # in ../README.md file
  
 import numpy as np
+import pandas as pd
 
 NUM_ROUNDS = 12
 TRAIN_START_WEEK = 40
 TRAIN_END_WEEK_LIST = np.linspace(135, 157, NUM_ROUNDS, dtype=int)
 TEST_START_WEEK_LIST = np.linspace(137, 159, NUM_ROUNDS, dtype=int)
 TEST_END_WEEK_LIST = np.linspace(138, 160, NUM_ROUNDS, dtype=int)
+# The start datetime of the first week in the record
+FIRST_WEEK_START = pd.to_datetime('1989-09-07 00:00:00')
