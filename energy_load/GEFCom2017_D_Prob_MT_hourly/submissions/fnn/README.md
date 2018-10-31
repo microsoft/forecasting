@@ -12,7 +12,7 @@
 
 **Submission name:** fnn
 
-**Submission branch:** [zhouf/energy_forecast_fnnet_model](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBhlu%2Fenergy_forecast_baseline_model)
+**Submission branch:** [zhouf/energy_forecast_fnn_model_v1](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBhlu%2Fenergy_forecast_baseline_model)
 
 **Pull request:** [GEFCom2017_D_Prob_MT_hourly - fnn submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150805?_a=overview)
 
@@ -54,7 +54,7 @@ VM.
    ```bash
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
-   git checkout zhouf/energy_forecast_fnnet_model
+   git checkout zhouf/energy_forecast_fnn_model_v1
    ```
    Use one of the following options to securely connect to the Git repo:
    * [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts)  
