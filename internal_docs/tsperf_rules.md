@@ -29,8 +29,8 @@
 
 ### Vision
 
-Our vision it to establish a leading framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework will allow data scientists or customers to discover the best approach that fits their use case cost, time and quality perspective.
-TSPerf framework is designed to facilitate data scientist’s community participation and contribution through the development of implementations against a given set of forecasting problems and datasets. Once submitted, implementations will be measured in terms of standard metrics of model accuracy, operation cost and model training time. Each implementation will include all the necessary instruction and tools that will ensure reproducibility of the implementation in the customer local environment.
+Our vision it to establish a leading framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework will allow data scientists or customers to discover the best approach that fits their use case from cost, time and quality perspective.
+TSPerf framework is designed to facilitate data science community participation and contribution through the development of implementations against a given set of forecasting problems and datasets. Once submitted, implementations will be measured in terms of standard metrics of model accuracy, training cost and model training time. Each implementation will include all the necessary instruction and tools that will ensure reproducibility on Azure customer's subscription.
 Note: The TSPerf vision shared common principles with the [MLPerf](https://mlperf.org/) vision and designed to be proposed as a new track after an internal validation of the concept. 
 
 
