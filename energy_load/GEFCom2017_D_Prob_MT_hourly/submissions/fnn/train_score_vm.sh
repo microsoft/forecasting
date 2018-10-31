@@ -8,7 +8,7 @@ do
     python $path/submissions/fnn/feature_engineering.py --submission fnn
 
     echo 'Training and predicting...'
-    Rscript $path/submissions/fnn/train_predict_qrnn.R $i
+    Rscript $path/submissions/fnn/train_predict.R $i
 
     end=`date +%s`
     echo 'Running time '$((end-start))' seconds'
