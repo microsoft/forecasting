@@ -121,11 +121,11 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
 6. Model evaluation **on the VM**
 
-  ```bash
-  source activate tsperf
-  cd ~/TSPerf
-  bash ./common/evaluate submissions/fnn energy_load/GEFCom2017_D_Prob_MT_hourly
-  ```
+   ```bash
+   source activate tsperf
+   cd ~/TSPerf
+   bash ./common/evaluate submissions/fnn energy_load/GEFCom2017_D_Prob_MT_hourly
+   ```
 
 ## Implementation resources
 
