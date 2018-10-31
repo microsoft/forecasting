@@ -14,7 +14,7 @@
 
 **Submission branch:** [chenhui/boosted_decision_tree](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Fboosted_decision_tree)
 
-**Pull request:** [Added boosted decision tree method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150726?_a=overview)
+**Pull request:** [Added boosted decision tree method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/159654?_a=overview)
 
 **Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FLightGBM&version=GBchenhui%2Fboosted_decision_tree)
 
@@ -121,13 +121,14 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 7. Choose a name for a new Docker container (e.g. lightgbm_container) and create it using command:   
    
    ```bash
+   cd ~/TSPerf
    docker run -it -v $(pwd):/TSPerf --name lightgbm_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/lightgbm_image:v1
    ```
    
    Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have 
    access to the source code in the container. 
 
-8. Inside `/TSPerf` folder, train the model and make predictions by running
+8. Inside the Docker container, train the model and make predictions by running the following command from `/TSPerf` folder
 
    ```bash
    source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM Python3
