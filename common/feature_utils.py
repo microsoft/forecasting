@@ -150,13 +150,22 @@ def encoded_day_of_year(day_of_year):
     return day_of_year
 
 
-def encoded_hour_week_diff(hour_of_day, week_of_year):
+def encoded_hour_of_day(hour_of_day):
     """
-    Create one hot encoding of hour_of_day - week_of_year.
+    Create one hot encoding of hour_of_day.
     """
-    hour_week_diff = pd.get_dummies(hour_of_day - week_of_year)
+    hour_of_day = pd.get_dummies(hour_of_day)
 
-    return hour_week_diff
+    return hour_of_day
+
+
+def encoded_week_of_year(week_of_year):
+    """
+    Create one hot encoding of week_of_year.
+    """
+    week_of_year = pd.get_dummies(week_of_year)
+
+    return week_of_year
 
 
 def normalized_current_year(datetime_col, min_year, max_year):
