@@ -46,7 +46,9 @@ params = {
     'bagging_fraction': 0.7,
     'bagging_freq': 1,
     'num_threads': 16,
-    'seed': seed
+    'seed': seed,
+    'early_stopping_rounds': 125,
+    'verbose_eval': False
 }
 MAX_ROUNDS = 400 #100 
 
@@ -120,7 +122,7 @@ def moving_averages(df, start_step, window_size=None):
     fea.columns = fea.columns + '_mean'
     return fea
 
-def create_features(df):
+def create_features(df, lags):
     """Create features used for model training.
     
     Args:
@@ -188,7 +190,7 @@ for r in range(bs.NUM_ROUNDS):
     data_filled['day'] = data_filled['week_start'].apply(lambda x: x.day)
     data_filled.drop('week_start', axis=1, inplace=True)
     # Create other features (lagged features, moving averages, etc.)
-    features = data_filled.groupby(['store','brand']).apply(lambda x: create_features(x))
+    features = data_filled.groupby(['store','brand']).apply(lambda x: create_features(x, lags))
     train_fea = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
     # Drop rows with NaN values
     train_fea.dropna(inplace=True)
@@ -205,9 +207,7 @@ for r in range(bs.NUM_ROUNDS):
         num_boost_round = MAX_ROUNDS,
         valid_sets = [dtrain], 
         categorical_feature = categ_fea,
-        early_stopping_rounds = 125, 
-        evals_result = evals_result,
-        verbose_eval = False
+        evals_result = evals_result
     )
     # Generate forecasts
     test_fea = features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
