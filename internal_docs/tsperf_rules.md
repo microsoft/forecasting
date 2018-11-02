@@ -22,7 +22,7 @@
 6. [Review of submissions](#review-of-submissions)  
     6.1 [Standalone VM](#standalone-vm)  
     6.2 [Batch AI](#batch-ai)   
-7. [Leaderboard](#leaderboard)  
+7. [Performance board](#performance-board)  
 8. [Selection of reference implementation](#selection-of-reference-implementation)
     
 ## Introduction
@@ -83,10 +83,9 @@ A **benchmark submission** is a source code of benchmark implementation, declare
 
 A **validated benchmark submission** is a benchmark submission that passed review process.
 
-A **benchmark leaderboard** is a table of validated benchmark submissions.
+A **benchmark performance board** is a table of validated benchmark submissions.
 
-A **benchmark reference implementation** is a specific validated benchmark submission chosen from the 
-leaderboard. 
+A **benchmark reference implementation** is a specific validated benchmark submission chosen from the performance board. 
 
 The following diagram summarizes the relations between different terms and the workflow:
 
@@ -124,7 +123,6 @@ retail sales forecasting use case.
     the submission form for reproducing a certain submission. For instance, `/submission1` folder under 
     `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/submissions` includes the required submission files of submission1.
     
-
     * `/common` folder: This folder includes utility scripts for a benchmark. As an example, `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/common` 
     contains the scripts that could be commonly used for GEFCom2014_Pt_1Month_Hourly, such as Python scripts that download the data, prepare training and 
     scoring data, and evaluate performance of the benchmark implementation. 
@@ -139,7 +137,7 @@ metrics of the forecasting results.
 * `/TSPerf/internal_docs` folder: This folder contains the internal documents that we create during the development of TSPerf. 
 
 * `/TSPerf/README.md` file: This Markdown file describes the TSPerf framework in general. It introduces the goal and vision, specifies the use cases and 
-benchmarks, and points to leaderboards and more detailed documentation.
+benchmarks, and points to performance boards and more detailed documentation.
 
 ## Benchmarks  
 
@@ -506,8 +504,8 @@ file.
     This command will output 5 benchmark quality values (e.g. MAPEs). Their median should be compared against the 
     benchmark quality declared in the benchmark submission.
 
-## Leaderboard
-Each benchmark will have a separate leaderboard. All leaderboards will have the following columns:
+## Performance board
+Each benchmark will have a separate performance board. All performance boards will have the following columns:
 * submission name
 * URL of submission folder in VSTS
 * benchmark quality (e.g. MAPE)
@@ -517,10 +515,10 @@ Each benchmark will have a separate leaderboard. All leaderboards will have the 
 * framework (e.g. Tensorflow)
 * algorithm (e.g. LSTM)  
 
-Each row will be a validated benchmark submission. Leaderboard will be updated by reviewer, after validating a benchmark 
-submission. Every validated benchmark submission will be shown in the leaderboard. Since benchmark submission are measured 
-by three parameters (quality, running time and cost), there will be no ranking between leaderboard entries.
+Each row will be a validated benchmark submission. Performance board will be updated by reviewer, after validating a benchmark 
+submission. Every validated benchmark submission will be shown in the performance board. Since benchmark submission are measured 
+by three parameters (quality, running time and cost), there will be no ranking between performance board entries.
 
 ## Selection of reference implementation
  
-We will select from a benchmark leaderboard a reference implementation that optimizes quality, running time and cost tradeoffs. The selection will be done manually, after examining all leaderboard entries. We target to have two reference implementations, one for each benchmark.
+We will select from a benchmark performance board a reference implementation that optimizes quality, running time and cost tradeoffs. The selection will be done manually, after examining all performance board entries. We target to have two reference implementations, one for each benchmark.
