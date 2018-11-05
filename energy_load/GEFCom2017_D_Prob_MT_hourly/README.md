@@ -67,6 +67,6 @@ final metric.**
 
 # Performance Board
 
-| Submission Name | Submission Folder URL | Pinball Loss | Training Time | Training Cost | Architecture | Framework | Algorithm |
+| Submission Name | Submission Folder URL | Pinball Loss | Training and Scoring Time | Training and Scoring Cost | Architecture | Framework | Algorithm |
 | -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
 | Baseline | energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/baseline | 84.66 | 446 sec | $0.05 | Linux DSVM (Standard D8s v3, Premium SSD) | quantreg package of R | Linear Quantile Regression  |

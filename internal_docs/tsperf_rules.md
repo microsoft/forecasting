@@ -509,8 +509,8 @@ Each benchmark will have a separate performance board. All performance boards wi
 * submission name
 * URL of submission folder in VSTS
 * benchmark quality (e.g. MAPE)
-* running time
-* cost
+* training and scoring time
+* training and scoring cost
 * architecture (e.g. DSVM)
 * framework (e.g. Tensorflow)
 * algorithm (e.g. LSTM)  
