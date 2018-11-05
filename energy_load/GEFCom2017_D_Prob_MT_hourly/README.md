@@ -55,9 +55,7 @@ using the available training data:
 | 5 | 2011-01-01 01:00:00 | 2017-01-31 00:00:00 | 2017-03-01 01:00:00 | 2017-03-31 00:00:00 |
 | 6 | 2011-01-01 01:00:00 | 2017-01-31 00:00:00 | 2017-04-01 01:00:00 | 2017-04-30 00:00:00 |
 
-# Model (TBD)
-
-# Quality
+# Model Evaluation
 
 **Evaluation metric**: Pinball loss  
 **Minimum performance**: TBD  
@@ -67,8 +65,8 @@ using the available training data:
 **TODO: Write script to compute pinball losses over 6 rounds and computes the
 final metric.**
 
-# Leaderboard
+# Performance Board
 
-| **Submission** | **Model description** | ** Median Pinball Loss** |
-| -------------- | --------------------- | --------- |
-|  | | |  
+| Submission Name | Submission Folder URL | Pinball Loss | Training and Scoring Time | Training and Scoring Cost | Architecture | Framework | Algorithm |
+| -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
+| Baseline | energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/baseline | 84.66 | 446 sec | $0.05 | Linux DSVM (Standard D8s v3, Premium SSD) | quantreg package of R | Linear Quantile Regression  |
