@@ -84,7 +84,7 @@ with each of the columns explained below
 
 # Performance Board
 
-| Submission Name | Submission Folder URL | MAPE (%) | Training Time | Training Cost | Architecture | Framework | Algorithm |
+| Submission Name | Submission Folder URL | MAPE (%) | Training and Scoring Time | Training and Scoring Cost | Architecture | Framework | Algorithm |
 | -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
 | Baseline |retail_sales/OrangeJuice_Pt_3Weeks_Weekly/baseline | 109.67 | 114.06 sec | $0.003 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Naive Forecast  |
 | AutoARIMA | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/AutoARIMA | 77.66 | 2214.93 sec | $0.06 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Auto ARIMA  |
