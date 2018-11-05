@@ -73,7 +73,7 @@ under the benchmark rules.
 benchmark rules.
 
 A **run** is a complete execution of a benchmark implementation on an architecture, training a model from 
-initialization to the specified quality target.
+initialization to the specified quality target and scoring the model over the specified test set.
 
 A **run result**  is a wall-clock time to execute a complete run and the cost of that execution.
 
