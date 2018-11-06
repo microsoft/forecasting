@@ -121,7 +121,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 7. Choose a name for a new Docker container (e.g. lightgbm_container) and create it using command:   
    
    ```bash
-   cd ~/TSPerf
+   cd TSPerf
    docker run -it -v $(pwd):/TSPerf --name lightgbm_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/lightgbm_image:v1
    ```
    
@@ -179,30 +179,30 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 **Quality:** 
 
-*MAPE run 1: 52.08%*
+*MAPE run 1: 51.76%*
 
-*MAPE run 2: 52.05%*
+*MAPE run 2: 51.74%*
 
-*MAPE run 3: 52.01%*
+*MAPE run 3: 51.83%*
 
-*MAPE run 4: 52.05%*
+*MAPE run 4: 51.74%*
 
-*MAPE run 5: 51.99%*
+*MAPE run 5: 51.70%*
 
-*median MAPE: 52.04%*
+*median MAPE: 51.74%*
 
 **Time:** 
 
-*run time 1: 543.30 seconds*
+*run time 1: 430.92 seconds*
 
-*run time 2: 530.38 seconds*
+*run time 2: 424.93 seconds*
 
-*run time 3: 535.10 seconds*
+*run time 3: 428.89 seconds*
 
-*run time 4: 533.15 seconds*
+*run time 4: 431.30 seconds*
 
-*run time 5: 541.32 seconds*
+*run time 5: 431.44 seconds*
 
-*median run time: 536.65 seconds*
+*median run time: 430.92 seconds*
 
-**Cost:** The total cost is 182.10/3600 $\times$ 0.096 = $0.0143.
+**Cost:** The total cost is 430.92/3600 $\times$ 0.096 = $0.0115.
