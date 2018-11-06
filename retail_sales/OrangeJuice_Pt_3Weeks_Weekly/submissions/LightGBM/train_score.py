@@ -47,8 +47,7 @@ params = {
     'bagging_freq': 1,
     'num_threads': 16,
     'seed': seed,
-    'early_stopping_rounds': 125,
-    'verbose_eval': False
+    'early_stopping_rounds': 125
 }
 MAX_ROUNDS = 400 #100 
 
@@ -133,7 +132,7 @@ def create_features(df, lags):
     """
     lagged_fea = lagged_features(df[['move']], lags)
     moving_avg = moving_averages(df[['move']], 2, 10)
-    fea_columns = ['brand' , 'store', 'week', 'week_of_month', 'day', 'profit', 'deal' , 'feat', 'move']
+    fea_columns = ['brand', 'store', 'week', 'week_of_month', 'day', 'deal', 'feat', 'move']
     #fea_columns = fea_columns + ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', 'price9', 'price10', 'price11']
     fea_all = pd.concat([df[fea_columns], lagged_fea, moving_avg], axis=1)
     return fea_all
@@ -183,7 +182,7 @@ for r in range(bs.NUM_ROUNDS):
                             on=['store', 'brand', 'week'])
     data_filled = data_filled.groupby(['store', 'brand']).apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
     # Create datetime features
-    data_filled['week_start'] = data_filled['week'].apply(lambda x: bs.FIRST_WEEK_START + datetime.timedelta(days=(x-bs.TRAIN_START_WEEK)*7))
+    data_filled['week_start'] = data_filled['week'].apply(lambda x: bs.FIRST_WEEK_START + datetime.timedelta(days=(x-1)*7))
     data_filled['year'] = data_filled['week_start'].apply(lambda x: x.year)
     data_filled['month'] = data_filled['week_start'].apply(lambda x: x.month)
     data_filled['week_of_month'] = data_filled['week_start'].apply(lambda x: week_of_month(x))
@@ -195,7 +194,6 @@ for r in range(bs.NUM_ROUNDS):
     # Drop rows with NaN values
     train_fea.dropna(inplace=True)
     print('Training and predicting models...')
-    evals_result = {} # to record eval results for plotting
     dtrain = lgb.Dataset(
                 train_fea.drop('move', axis=1, inplace=False), 
                 label = train_fea['move']
@@ -207,7 +205,7 @@ for r in range(bs.NUM_ROUNDS):
         num_boost_round = MAX_ROUNDS,
         valid_sets = [dtrain], 
         categorical_feature = categ_fea,
-        evals_result = evals_result
+        verbose_eval =  False
     )
     # Generate forecasts
     test_fea = features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
