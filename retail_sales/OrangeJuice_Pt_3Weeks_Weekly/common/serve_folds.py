@@ -16,6 +16,8 @@ import sys
 import inspect
 import argparse
 import pandas as pd
+if '.' not in sys.path:
+    sys.path.append('.')
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 def serve_folds(write_csv=False): 
