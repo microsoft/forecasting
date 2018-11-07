@@ -52,7 +52,7 @@ def serve_folds(write_csv=False):
             train.to_csv(os.path.join(TRAIN_DATA_DIR, 'train_round_' + str(i+1) + '.csv'))
             test.to_csv(os.path.join(TEST_DATA_DIR, 'test_round_' + str(i+1) + '.csv'))
             aux.to_csv(os.path.join(TRAIN_DATA_DIR, 'aux_round_' + str(i+1) + '.csv'))
-        yield train, test
+        yield train, test, aux
 
 # Test serve_folds
 parser = argparse.ArgumentParser()
@@ -60,11 +60,14 @@ parser.add_argument('--test', help='Run the test of serve_folds function', actio
 parser.add_argument('--save', help='Write training and testing data into csv files', action='store_true')
 args = parser.parse_args()
 if args.test:
-    for train, test in serve_folds(args.save):    
+    for train, test, aux in serve_folds(args.save):    
         print('Training data size: {}'.format(train.shape))
         print('Testing data size: {}'.format(test.shape))
+        print('Auxiliary data size: {}'.format(aux.shape))
         print('Minimum training week number: {}'.format(min(train['week'])))
         print('Maximum training week number: {}'.format(max(train['week'])))
         print('Minimum testing week number: {}'.format(min(test['week'])))
         print('Maximum testing week number: {}'.format(max(test['week'])))
+        print('Minimum auxiliary week number: {}'.format(min(aux['week'])))
+        print('Maximum auxiliary week number: {}'.format(max(aux['week'])))
         print('')
