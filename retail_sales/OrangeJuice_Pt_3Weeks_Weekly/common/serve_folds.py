@@ -10,6 +10,11 @@
 # is effective only if '--test' is specified. This means that you need to run
 #    python serve_folds --test --save 
 # to get the output data files stored in /train and /test folders under the data directory. 
+# Note that train_*.csv files in /train folder contain all the features in the training period 
+# and aux_*.csv files in /train folder contain all the features except 'logmove', 'constant',
+# 'profit' up until the forecast period end week. Both train_*.csv and aux_*csv can be used for
+# generating forecasts in each round. However, test_*.csv files in /test folder can only be used
+# for model performance evaluation.
 
 import os
 import sys
@@ -40,9 +45,13 @@ def serve_folds(write_csv=False):
         train = sales[data_mask].copy()
         data_mask = (sales.week>=bs.TEST_START_WEEK_LIST[i]) & (sales.week<=bs.TEST_END_WEEK_LIST[i])
         test = sales[data_mask].copy()
+        data_mask = (sales.week>=bs.TRAIN_START_WEEK) & (sales.week<=bs.TEST_END_WEEK_LIST[i])
+        aux = sales[data_mask].copy()
+        aux.drop(['logmove', 'constant', 'profit'], axis=1, inplace=True)
         if write_csv:
             train.to_csv(os.path.join(TRAIN_DATA_DIR, 'train_round_' + str(i+1) + '.csv'))
             test.to_csv(os.path.join(TEST_DATA_DIR, 'test_round_' + str(i+1) + '.csv'))
+            aux.to_csv(os.path.join(TRAIN_DATA_DIR, 'aux_round_' + str(i+1) + '.csv'))
         yield train, test
 
 # Test serve_folds
