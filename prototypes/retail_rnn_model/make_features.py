@@ -68,8 +68,8 @@ enc = OneHotEncoder(categories='auto')
 brand_train = np.reshape(train['brand'].values, (-1, 1))
 brand_test = np.reshape(test['brand'].values, (-1, 1))
 enc = enc.fit(brand_train)
-train_brand_enc = enc.transform(brand_train).todense()
-test_brand_enc = enc.transform(brand_test).todense()
+brand_enc_train = enc.transform(brand_train).todense()
+brand_enc_test = enc.transform(brand_test).todense()
 
 # calculate price and price_ratio
 price_cols = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8',
@@ -88,11 +88,25 @@ for cl in ['price', 'price_ratio', 'feat', 'deal']:
     train.loc[train[cl].isna(), cl] = 0
     test.loc[test[cl].isna(), cl] = 0
 
-# features:
+# normalize features:
 # 1) series popularity - 1
 # 2) brand - 11
 # 3) price: price and price_ratio
 # 4) promo: feat and deal
+series_popularity = series_popularity['pop'].values
+series_popularity = (series_popularity - series_popularity.mean()) \
+                    / np.std(series_popularity)
+
+brand_enc_mean = brand_enc_train.mean(axis=0)
+brand_enc_std = brand_enc_train.std(axis=0)
+brand_enc_train = (brand_enc_train - brand_enc_mean) / brand_enc_std
+brand_enc_test = (brand_enc_test - brand_enc_mean) / brand_enc_std
+
+for cl in ['price', 'price_ratio', 'feat', 'deal']:
+    cl_mean = train[cl].mean()
+    cl_std = train[cl].std()
+    train[cl] = (train[cl] - cl_mean) / cl_std
+    test[cl] = (test[cl] - cl_mean) / cl_std
 
 # create the following numpy array
 # 1) ts_value_train (#ts, #train_ts_length)
@@ -107,28 +121,27 @@ ts_value_train = train['logmove'].values
 ts_value_train = ts_value_train.reshape((ts_number, train_ts_length))
 
 # feature_train
-series_popularity = series_popularity['pop'].values
 series_popularity_train = np.repeat(series_popularity, train_ts_length).reshape(
     (ts_number, train_ts_length, 1))
 
-brand_number = train_brand_enc.shape[1]
-train_brand_enc = np.array(train_brand_enc).reshape(
+brand_number = brand_enc_train.shape[1]
+brand_enc_train = np.array(brand_enc_train).reshape(
     (ts_number, train_ts_length, brand_number))
 price_promo_features_train = train[['price', 'price_ratio', 'feat', 'deal']].values.reshape(
     (ts_number, train_ts_length, 4))
 
-feature_train = np.concatenate((series_popularity_train, train_brand_enc, price_promo_features_train), axis=-1)
+feature_train = np.concatenate((series_popularity_train, brand_enc_train, price_promo_features_train), axis=-1)
 
 # feature_test
 series_popularity_test = np.repeat(series_popularity, test_ts_length).reshape(
     (ts_number, test_ts_length, 1))
 
-test_brand_enc = np.array(test_brand_enc).reshape(
+brand_enc_test = np.array(brand_enc_test).reshape(
     (ts_number, test_ts_length, brand_number))
 price_promo_features_test = test[['price', 'price_ratio', 'feat', 'deal']].values.reshape(
     (ts_number, test_ts_length, 4))
 
-feature_test = np.concatenate((series_popularity_test, test_brand_enc, price_promo_features_test), axis=-1)
+feature_test = np.concatenate((series_popularity_test, brand_enc_test, price_promo_features_test), axis=-1)
 
 # save the numpy arrays
 intermediate_data_dir = os.path.join(data_dir, 'intermediate/round_{}'.format(ROUND))
@@ -138,6 +151,4 @@ if not os.path.isdir(intermediate_data_dir):
 np.save(os.path.join(intermediate_data_dir, 'ts_value_train.npy'), ts_value_train)
 np.save(os.path.join(intermediate_data_dir, 'feature_train.npy'), feature_train)
 np.save(os.path.join(intermediate_data_dir, 'feature_test.npy'), feature_test)
-
-
 
