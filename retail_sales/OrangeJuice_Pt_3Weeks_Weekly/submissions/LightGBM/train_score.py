@@ -169,7 +169,7 @@ for r in range(bs.NUM_ROUNDS):
     print('---- Round ' + str(r+1) + ' ----')
     train_df = pd.read_csv(os.path.join(TRAIN_DIR, 'train_round_'+str(r+1)+'.csv'))
     train_df['move'] = train_df['logmove'].apply(lambda x: round(math.exp(x)))
-    train_df.drop('logmove', axis=1, inplace=True)
+    train_df = train_df[['store', 'brand', 'week', 'profit', 'move']]
     # Fill missing values
     store_list = train_df['store'].unique()
     brand_list = train_df['brand'].unique()
@@ -179,6 +179,9 @@ for r in range(bs.NUM_ROUNDS):
          'week': week_list}        
     data_grid = df_from_cartesian_product(d)
     data_filled = pd.merge(data_grid, train_df, how='left', 
+                            on=['store', 'brand', 'week'])
+    aux_df = pd.read_csv(os.path.join(TRAIN_DIR, 'aux_round_'+str(r+1)+'.csv'))  
+    data_filled = pd.merge(data_filled, aux_df, how='left',  # Get future price, deal, and advertisement info
                             on=['store', 'brand', 'week'])
     data_filled = data_filled.groupby(['store', 'brand']).apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
     # Create datetime features
