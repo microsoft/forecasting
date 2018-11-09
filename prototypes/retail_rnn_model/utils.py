@@ -48,3 +48,16 @@ def cut(ts_value_train_slice, feature_train_slice,
         feature_y = feature_test_slice
 
     return true_x, true_y, feature_x, feature_y
+
+
+def normalize_target(true_x, true_y, feature_x, feature_y):
+    """
+    normalize the target variable.
+    """
+    masked_true_x = tf.boolean_mask(true_x, tf.logical_not(tf.is_nan(true_x)))
+
+    norm_mean = tf.reduce_mean(masked_true_x)
+    norm_std = tf.sqrt(tf.reduce_mean(tf.squared_difference(masked_true_x, norm_mean)))
+    norm_x = (true_x - norm_mean) / norm_std
+    # question: the std returned is actually 1 / std?
+    return true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std
