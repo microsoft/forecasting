@@ -1,6 +1,6 @@
 ## Guideline for Creating Docker Images
 
-We recommend that the submitter should provide a Docker image for the reproducibility of the submission. Docker is a platform for developers to develop, deploy,
+We recommend that the submitter provides a Docker image for the reproducibility of the submission. Docker is a platform for developers to develop, deploy,
 and run applications with containers. Please refer to [this tutorial](https://docs.docker.com/get-started/) to learn basics of Docker. Here we introduce the 
 steps of creating and publishing the Docker image.
 
@@ -18,7 +18,7 @@ RUN Rscript install_R_dependencies.r
 
 where `install_R_dependencies.r` is an R script that specifies and installs a list of R packages. You can modify the listed packages based on your 
 need. To ensure the same R package version is installed, we use a MRAN snapshot URL to download packages archived on a specific date which can also be 
-customized. In case you need to install Python packages, we suggest you first update your `pip` via
+customized. In case you need to install Python packages, we suggest you first update your `pip` via adding the following command to the Dockerfile
 
 ```bash
 RUN pip install --upgrade pip
