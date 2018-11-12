@@ -1,5 +1,3 @@
-setwd('C://Users//vapaunic//repos//TSPerf')
-
 args = commandArgs(trailingOnly=TRUE)
 seed_value = args[1]
 library('data.table')
