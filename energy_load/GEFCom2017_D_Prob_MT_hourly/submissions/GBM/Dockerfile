@@ -31,7 +31,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ## Create and activate conda environment
 RUN conda update -y conda
-RUN conda update -y conda
 RUN conda env create --file conda_dependencies.yml
 
 ## Install R
