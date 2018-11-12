@@ -19,7 +19,7 @@ separation](#training-and-test-data-separation). The table below summarizes the 
 
 ## Dataset attribution
 
-The OJ dataset is from R package [`bayesm`](https://cran.r-project.org/web/packages/bayesm/index.html). 
+The OJ dataset is from R package [bayesm](https://cran.r-project.org/web/packages/bayesm/index.html) and is part of the [Dominick's dataset](https://www.chicagobooth.edu/research/kilts/datasets/dominicks). 
 
 ## Dataset description
 
@@ -33,7 +33,8 @@ corresponds to the natural logarithm of the number of units sold. To get the num
 distance to the nearest warehouse store, average distance to the nearest 5 supermarkets, ratio of its sales to the nearest warehouse store, and ratio of its sales 
 to the average of the nearest 5 stores.
 
-Please see pages 40 and 41 of the [bayesm reference manual](https://cran.r-project.org/web/packages/bayesm/bayesm.pdf) for more details about each data column. 
+Note that the week number starts from 40 in this dataset, while the full Dominick's dataset has week number from 1 to 400. According to [Dominick's Data Manual](https://www.chicagobooth.edu/-/media/enterprise/centers/kilts/datasets/dominicks-dataset/dominicks-manual-and-codebook_kiltscenter.aspx), week 1 starts on 09/14/1989.
+Please see pages 40 and 41 of the [bayesm reference manual](https://cran.r-project.org/web/packages/bayesm/bayesm.pdf) and the [Dominick's Data Manual](https://www.chicagobooth.edu/-/media/enterprise/centers/kilts/datasets/dominicks-dataset/dominicks-manual-and-codebook_kiltscenter.aspx) for more details about the data. 
  
 
 ## Training and test data separation
@@ -56,8 +57,8 @@ in the table below, using the available training data:
 | 11 | 40 | 155 | 157 | 158 |
 | 12 | 40 | 157 | 159 | 160 |
 
-Note that week 40 is the first week in the dataset. The gap of one week between training period and forecasting period allows the store managers to prepare the 
-stock to meet the forecasted demand.
+The gap of one week between training period and forecasting period allows the store managers to prepare the 
+stock to meet the forecasted demand. Besides, we assume that the information about the price, deal, and advertisement up until the forecast period end week is available in each round. 
 
 # Format of Forecasts
 
@@ -81,6 +82,17 @@ with each of the columns explained below
 
 **Evaluation metric**: Mean Absolute Percentage Error (MAPE)  
 **Minimum performance**: TBD  
+
+# Performance Board
+
+| Submission Name | Submission Folder URL | MAPE (%) | Training and Scoring Time | Training and Scoring Cost | Architecture | Framework | Algorithm |
+| -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
+| Baseline |retail_sales/OrangeJuice_Pt_3Weeks_Weekly/baseline | 109.67 | 114.06 sec | $0.003 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Naive Forecast  |
+| AutoARIMA | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/AutoARIMA | 77.66 | 2214.93 sec | $0.06 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Auto ARIMA  |
+| ETS | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ETS | 70.99 | 277.01 sec | $0.01 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | ETS  |
+| MeanForecast | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/MeanForecast | 70.74 | 69.88 sec | $0.002 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Mean forecast  |
+| SeasonalNaive | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/SeasonalNaive | 165.06 | 160.45 sec | $0.004 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Seasonal Naive  |
+
 
 # Instructions to run reference implementation
 **TODO: Fill this section when we have a draft reference implementation**
