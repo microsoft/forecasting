@@ -103,6 +103,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    ```
 
 5. Train and predict **within Docker container**.
+
    5.1 Start a Docker container from the image  
 
    ```bash
