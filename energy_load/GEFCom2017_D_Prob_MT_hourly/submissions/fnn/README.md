@@ -23,7 +23,7 @@
 
 ### Modelling approach
 
-In this submission, we implement a quantile regression feed forward neutral network model using the `qrnn` or `keras` package in R.
+In this submission, we implement a quantile regression feed forward neutral network model using the `qrnn` package in R.
 
 ### Feature engineering
 
@@ -99,14 +99,14 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    4.2 Pull the Docker image from ACR to your VM
 
    ```bash
-   docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image
+   docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
    ```
 
 5. Train and predict **within Docker container**
   5.1 Start a Docker container from the image  
 
    ```bash
-   docker run -it -v ~/TSPerf:/TSPerf --name fnn_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image
+   docker run -it -v ~/TSPerf:/TSPerf --name fnn_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
    ```
 
    Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
@@ -151,32 +151,32 @@ Please follow the instructions below to deploy the Linux DSVM.
 **Quality:**  
 Note there is no randomness in this fnn model, so the model quality is the same for all five runs.
 
-* Pinball loss run 1: 92.93
+* Pinball loss run 1: 90.84
 
-* Pinball loss run 2: 90.81
+* Pinball loss run 2: 86.24
 
-* Pinball loss run 3: 90.65
+* Pinball loss run 3: 86.20
 
-* Pinball loss run 4: 90.77
+* Pinball loss run 4: 86.36
 
-* Pinball loss run 5: 90.69
+* Pinball loss run 5: 86.09
 
-* Median Pinball loss: 90.77
+* Median Pinball loss: 86.24
 
 **Time:**
 
-* Run time 1:  seconds
+* Run time 1:  4758 seconds
 
-* Run time 2:  seconds
+* Run time 2:  4740 seconds
 
-* Run time 3:  seconds
+* Run time 3:  4756 seconds
 
-* Run time 4:  seconds
+* Run time 4:  4745 seconds
 
-* Run time 5:  seconds
+* Run time 5:  4750 seconds
 
-* Median run time:  seconds
+* Median run time:  4750 seconds
 
 **Cost:**  
 The hourly cost of the Standard D8s DSVM is 0.3840 USD based on the price at the submission date.   
-Thus, the total cost is 446/3600 * 0.3840 = $0.0476.
+Thus, the total cost is 4750/3600 * 0.3840 = $0.5067.
