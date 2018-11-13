@@ -1,7 +1,11 @@
 ## Download base image
-FROM continuumio/anaconda3:4.4.0
-ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/conda_dependencies.yml /tmp/conda_dependencies.yml
-ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/install_R_dependencies.R /tmp/install_R_dependencies.R
+# FROM continuumio/anaconda3:4.4.0
+FROM ubuntu:16.04
+# ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/conda_dependencies.yml /tmp/conda_dependencies.yml
+# ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/install_R_dependencies.R /tmp/install_R_dependencies.R
+# ADD ./conda_dependencies.yml /tmp/conda_dependencies.yml
+ADD ./python_dependencies.txt /tmp/python_dependencies.txt
+ADD ./install_R_dependencies.R /tmp/install_R_dependencies.R
 WORKDIR /tmp
 
 ## Install basic packages
@@ -26,13 +30,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     lsb-release \
     apt-utils \
+    python3.5 \
     python3-pip \
     vim
 
 ## Create and activate conda environment
-RUN conda update -y conda
-RUN conda update -y conda
-RUN conda env create --file conda_dependencies.yml
+# RUN conda update -y conda
+# RUN conda update -y conda
+# RUN conda env create --file conda_dependencies.yml
+# RUN conda install conda-build
+# RUN conda update -y conda-build
+# RUN conda env create --name tsperffnn --file ./conda_dependencies.yml
+# RUN [ "conda", "env", "create", "--name", "tsperffnn", "--file", "conda_dependencies.yml" ]
+
+## Upgrade pip and install python dependencies.
+RUN pip3 install --upgrade pip
+RUN pip3 install -r python_dependencies.txt
 
 ## Install R
 ENV R_BASE_VERSION 3.5.1
@@ -57,7 +70,8 @@ RUN echo 'options(repos = list(CRAN = "http://mran.revolutionanalytics.com/snaps
 RUN Rscript install_R_dependencies.R
 
 RUN rm install_R_dependencies.R
-RUN rm conda_dependencies.yml
+# RUN rm conda_dependencies.yml
+RUN rm python_dependencies.txt
 
 RUN mkdir /TSPerf
 WORKDIR /TSPerf

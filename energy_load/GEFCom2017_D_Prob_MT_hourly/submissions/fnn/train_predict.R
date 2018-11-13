@@ -68,7 +68,7 @@ for (iR in 1:6){
         model = qrnn2.fit(x=train_x, y=train_y, 
                           n.hidden=3, n.hidden2=3,
                           tau=tau, Th=tanh,
-                          iter.max=200, n.trials=1)
+                          iter.max=10, n.trials=1)
        
         result$Prediction = qrnn2.predict(model, x=test_x) * test_df_sub$LoadRatio
         result$q = tau
