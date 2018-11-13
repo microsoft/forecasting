@@ -102,7 +102,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
    ```
 
-5. Train and predict **within Docker container**
+5. Train and predict **within Docker container**.
    5.1 Start a Docker container from the image  
 
    ```bash
