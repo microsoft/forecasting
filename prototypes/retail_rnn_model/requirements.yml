@@ -6,4 +6,4 @@ dependencies:
   - pandas=0.23.0
   - scikit-learn=0.20.0
   - pip:
-    - tensorflow==1.10
+    - tensorflow-gpu==1.10
