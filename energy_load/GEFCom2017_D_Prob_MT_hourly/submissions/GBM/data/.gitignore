@@ -1,5 +1,0 @@
-# include placeholder data directory in repository. 
-# Ignore all files in this directory except the .gitignore file.
-
-*
-!.gitignore
