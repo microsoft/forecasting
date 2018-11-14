@@ -33,6 +33,7 @@ hparams_dict['decoder_input_dropout'] = [1.0]
 hparams_dict['decoder_state_dropout'] = [0.99]
 hparams_dict['decoder_output_dropout'] = [0.975]
 hparams_dict['decoder_variational_dropout'] = [False]
+# TODO: add ema in the code to imporve the performance
 # hparams_dict['asgd_decay'] = 0.99
 hparams_dict['max_epoch'] = 100
 
