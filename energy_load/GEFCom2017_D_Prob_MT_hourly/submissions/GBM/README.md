@@ -14,7 +14,7 @@
 
 **Submission branch:** [vapaunic/gbm](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBvapaunic%2Fgbm)
 
-**Pull request:** [GEFCom2017_D_Prob_MT_hourly - GBM submission](<INSERT LINK TO PULL REQUEST>)
+**Pull request:** [GEFCom2017_D_Prob_MT_hourly - GBM submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/166792)
 
 **Submission path:** energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/GBM
 
