@@ -1,11 +1,14 @@
 ## Download base image
 FROM continuumio/anaconda3:4.4.0
-ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/baseline/conda_dependencies.yml /tmp/conda_dependencies.yml
-ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/baseline/install_R_dependencies.R /tmp/install_R_dependencies.R
+#ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/GBM/conda_dependencies.yml /tmp/conda_dependencies.yml
+ADD ./conda_dependencies.yml /tmp
+#ADD TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/GBM/install_R_dependencies.R /tmp/install_R_dependencies.R
+ADD ./install_R_dependencies.R /tmp
 WORKDIR /tmp
 
 ## Install basic packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update 
+RUN apt-get install -y --no-install-recommends \
     wget \
     zlib1g-dev \
     libssl-dev \
@@ -27,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lsb-release \
     apt-utils \
     python3-pip \
-    vim
+    vim 
 
 ## Create and activate conda environment
 RUN conda update -y conda
@@ -49,7 +52,8 @@ RUN apt-get install -y \
     liblapack-dev \
     liblapack3 \
     libopenblas-base \
-    libopenblas-dev
+    libopenblas-dev \
+    g++
 ## Mount R dependency file into the docker container and install dependencies
 # Use a MRAN snapshot URL to download packages archived on a specific date
 RUN echo 'options(repos = list(CRAN = "http://mran.revolutionanalytics.com/snapshot/2018-09-01/"))' >> /etc/R/Rprofile.site
