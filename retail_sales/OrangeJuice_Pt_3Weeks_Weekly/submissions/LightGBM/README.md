@@ -46,7 +46,7 @@ We have conducted a grid search to tune these parameters. The range of each hype
 - *num_leaves*: [50, 80, 100, 200]
 - *min_data_in_leaf*: [100, 200]
 - *learning_rate*: [0.001, 0.002, 0.01, 0.02, 0.1]
-- *num_boost_round*: [100, 400, 1000, 2000]
+- *num_boost_round*: [100, 400, 800, 2000]
 
 
 ### Description of implementation scripts
