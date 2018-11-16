@@ -51,7 +51,7 @@ After customizing the Dockerfile and dependency files, you can build a local Doc
         Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have access to the source code and data in the container. Here `<container name>` is the name of the Docker container, e.g. `lightgbm_container`. You will automatically enter the Docker container after executing the above command. 
     * 3.2 Inside the Docker container, train the model and make predictions by running the following command from `/TSPerf` folder
         ```bash
-        source ./common/train_score_vm <submission path>  <script type> 
+        source ./common/train_score_vm <submission path> <script type> 
         ```
         where `train_score_vm` is a bash script that invokes the model training and scoring script; `<submission path>` and `<script type>` are the path of the submission folder (e.g., `./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM`) and type of the script (R, Python, or Python3), respectively. 
 
