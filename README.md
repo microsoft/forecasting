@@ -1,60 +1,35 @@
 # TSPerf
 
-## Time Series Forecasting Model Benchmarking
+TSPerf is a framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework allows data scientists to discover the best approach that fits their use case from cost, time and quality perspective.
+TSPerf framework is designed to facilitate data science community participation and contribution through the development of benchmark implementations against a given set of forecasting problems and datasets. Benchmark implementations are measured in terms of standard metrics of model accuracy, training cost and model training time. Each implementation includes all the necessary instructions and tools that ensure its reproducibility on Azure customer's subscription. We plan to leverage TSPerf to propose a new time-series forecasting track in [MLPerf](https://mlperf.org/).
 
-A framework for evaluating different approaches to common real world time series forecasting problems.
+The following table summarizes benchmarks that are currently included in TSPerf. Source code of the models and instructions for reproducing their performance can be found in submission folders.
 
-## Contents
+| **Benchmark** | **Dataset** | **Benchmark directory** |  
+| --------------------- | ----|---------------- |  
+| Probabilistic electricity load forecasting | GEFCom2017 |`energy_load\GEFCom2017-D_Prob_MT_Hourly` |
+| Retail sales forecasting | Orange Juice dataset | `retail_sales\OrangeJuice_Pt_3Weeks_Weekly` |
 
-Benchmark approaches are submitted against forecasting problems in the following domains:
+A complete documentation of TSPerf, along with the instructions for submitting and reviewing benchmark implementations, can be found [here](./internal_docs/tsperf_rules.md). The tables below 
+list the models developed so far.
 
-- [energy_load](./energy_load) - electricity demand forecasting
-- energy_price - electricity price forecasting
-- retail_sales - forecasts for sales of products in retail stores
-- ...
+### Probabilistic energy forecasting
 
-## Running benchmarks
+| Submission Name | Submission Folder URL | Pinball Loss | Training and Scoring Time | Training and Scoring Cost | Architecture | Framework | Algorithm |
+| -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
+| Baseline | energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/baseline | 84.66 | 446 sec | $0.05 | Linux DSVM (Standard D8s v3, Premium SSD) | quantreg package of R | Linear Quantile Regression  |
 
-To run any of the submitted benchmarks in this repository, your system must meet the following requirements:
+### Retail sales forecasting
 
-- Ubuntu 16.04
-- ...
+| Submission Name | Submission Folder URL | MAPE (%) | Training and Scoring Time | Training and Scoring Cost | Architecture | Framework | Algorithm |
+| -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
+| Baseline |retail_sales/OrangeJuice_Pt_3Weeks_Weekly/baseline | 109.67 | 114.06 sec | $0.003 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Naive Forecast  |
+| AutoARIMA | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/AutoARIMA | 77.66 | 2214.93 sec | $0.06 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Auto ARIMA  |
+| ETS | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ETS | 70.99 | 277.01 sec | $0.01 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | ETS  |
+| MeanForecast | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/MeanForecast | 70.74 | 69.88 sec | $0.002 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Mean forecast  |
+| SeasonalNaive | retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/SeasonalNaive | 165.06 | 160.45 sec | $0.004 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Seasonal Naive  |
 
-and have the following pre-requisites installed:
-- git version...
-- Anaconda version ...
-- docker ...
 
-Clone this repository:
-```
-git clone ...
-```
-Run the following commands to install these dependencies:
-```
-...
-```
-Submitted benchmarks will have additional dependencies specified in their respective README files.
 
-## Submitting benchmarks
 
-1. Create a new git branch
-2. Follow the problem-specific instructions to create a benchmark submission
-3. Submit a pull request
-4. TSPerf board will review submission
-5. PR will be merged if accepted
-
-## Forecasting problems
-
-The table below describes the forecasting problems to be tackled and the best models found to date.
-
-| **Domain** | **Problem** | **Problem description** | **Best model description** |
-| ---------- | ----------- | ---------------- | ------------------- | -------------- |
-| Energy load | [problem1](./energy_load/problem1/) | 1 month ahead point forecasting | [seasonal average](./energy_load/benchmarks/submission1/) |
-| Energy load | problem2 | 1 month ahead probabilistic | ??? |
-| Energy load | problem3 | 1 day ahead point | ??? |
-| Energy load | problem4 | 1 day ahead probabilistic | ??? |
-| Energy price | problem1 | 1 day ahead point | ??? |
-| Energy price | problem2 | 1 day ahead probabilistic | ??? |
-| Retail sales | problem1 | 1 year ahead point | ??? |
-| Retail sales | problem2 | 1 year ahead probabilistic | ??? |
 
