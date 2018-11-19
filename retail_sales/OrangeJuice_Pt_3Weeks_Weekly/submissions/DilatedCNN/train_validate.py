@@ -46,8 +46,6 @@ tsperf_dir = os.path.dirname(os.path.dirname(os.path.dirname(nb_dir)))
 if tsperf_dir not in sys.path:
     sys.path.append(tsperf_dir)
 
-from common.metrics import MAPE
-import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
 # In[3]:
@@ -62,6 +60,16 @@ TEST_DIR = os.path.join(DATA_DIR, 'test')
 MAX_STORE_ID = 137
 MAX_BRAND_ID = 11
 
+NUM_ROUNDS = 12
+PRED_HORIZON = 3
+PRED_STEPS = 2
+TRAIN_START_WEEK = 40
+TRAIN_END_WEEK_LIST = list(range(135,159,2))
+TEST_START_WEEK_LIST = list(range(137,161,2))
+TEST_END_WEEK_LIST = list(range(138,162,2))
+# The start datetime of the first week in the record
+FIRST_WEEK_START = pd.to_datetime('1989-09-14 00:00:00')
+
 # Parameters of the model
 PRED_HORIZON = 3
 PRED_STEPS = 2
@@ -73,7 +81,8 @@ STATIC_FEATURES = ['store', 'brand']
 
 
 # In[4]:
-
+def MAPE(predictions, actuals):
+    return ((predictions - actuals).abs() / actuals).mean()
 
 def week_of_month(dt):
     """Get the week of the month for the specified date.
@@ -245,7 +254,7 @@ model.summary()
 pred_all = []
 combined_all = []
 metric_all = []
-for r in range(1): #range(bs.NUM_ROUNDS):
+for r in range(1): #range(NUM_ROUNDS):
     print('---- Round ' + str(r+1) + ' ----')
     # Load training data
     train_df = pd.read_csv(os.path.join(TRAIN_DIR, 'train_round_'+str(r+1)+'.csv'))
@@ -256,7 +265,7 @@ for r in range(1): #range(bs.NUM_ROUNDS):
     # Fill missing values
     store_list = train_df['store'].unique()
     brand_list = train_df['brand'].unique()
-    week_list = range(bs.TRAIN_START_WEEK, bs.TEST_END_WEEK_LIST[r]+1)
+    week_list = range(TRAIN_START_WEEK, TEST_END_WEEK_LIST[r]+1)
     d = {'store': store_list,
          'brand': brand_list,
          'week': week_list}        
@@ -273,7 +282,7 @@ for r in range(1): #range(bs.NUM_ROUNDS):
     #print(data_filled.head(3))
     #print('')
     # Create datetime features
-    data_filled['week_start'] = data_filled['week'].apply(lambda x: bs.FIRST_WEEK_START + datetime.timedelta(days=(x-1)*7))
+    data_filled['week_start'] = data_filled['week'].apply(lambda x: FIRST_WEEK_START + datetime.timedelta(days=(x-1)*7))
     #data_filled['year'] = data_filled['week_start'].apply(lambda x: x.year)
     data_filled['month'] = data_filled['week_start'].apply(lambda x: x.month)
     data_filled['week_of_month'] = data_filled['week_start'].apply(lambda x: week_of_month(x))
@@ -286,13 +295,13 @@ for r in range(1): #range(bs.NUM_ROUNDS):
 
     # Create sequence array for 'move'
     start_timestep = 0
-    end_timestep = bs.TRAIN_END_WEEK_LIST[r]-bs.TRAIN_START_WEEK-PRED_HORIZON
+    end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK-PRED_HORIZON
     train_input1 = gen_sequence_array(data_scaled, SEQ_LEN, ['move'], start_timestep, end_timestep)
     #train_input1.shape
 
     # Create sequence array for other dynamic features
     start_timestep = PRED_HORIZON
-    end_timestep = bs.TRAIN_END_WEEK_LIST[r]-bs.TRAIN_START_WEEK
+    end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK
     train_input2 = gen_sequence_array(data_scaled, SEQ_LEN, DYNAMIC_FEATURES, start_timestep, end_timestep)
     #train_input2.shape
 
@@ -300,13 +309,13 @@ for r in range(1): #range(bs.NUM_ROUNDS):
     #seq_in.shape
 
     # Create array of static features
-    total_timesteps = bs.TRAIN_END_WEEK_LIST[r]-bs.TRAIN_START_WEEK-SEQ_LEN-PRED_HORIZON+2
+    total_timesteps = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK-SEQ_LEN-PRED_HORIZON+2
     cat_fea_in = static_feature_array(data_filled, total_timesteps, ['store', 'brand'])
     #cat_fea_in.shape
 
     # Create training output
     start_timestep = SEQ_LEN+PRED_HORIZON-PRED_STEPS
-    end_timestep = bs.TRAIN_END_WEEK_LIST[r]-bs.TRAIN_START_WEEK
+    end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK
     train_output = gen_sequence_array(data_filled, PRED_STEPS, ['move'], start_timestep, end_timestep)
     train_output = np.squeeze(train_output)
     #train_output.shape
@@ -333,7 +342,7 @@ for r in range(1): #range(bs.NUM_ROUNDS):
     test_df['actual'] = test_df['logmove'].apply(lambda x: round(math.exp(x)))
     test_df.drop('logmove', axis=1, inplace=True)
 
-    exp_output = data_filled[data_filled.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
+    exp_output = data_filled[data_filled.week >= TEST_START_WEEK_LIST[r]].reset_index(drop=True)
     exp_output = exp_output[['store', 'brand', 'week']]
     exp_output = pd.merge(exp_output, test_df, on=['store', 'brand', 'week'], how='left')
 
@@ -343,12 +352,12 @@ for r in range(1): #range(bs.NUM_ROUNDS):
     exp_test_output = np.squeeze(exp_test_output)
 
     # Get inputs for prediction
-    start_timestep = bs.TEST_START_WEEK_LIST[r] - bs.TRAIN_START_WEEK - SEQ_LEN - PRED_HORIZON + PRED_STEPS
-    end_timestep = bs.TEST_START_WEEK_LIST[r] - bs.TRAIN_START_WEEK + PRED_STEPS - 1 - PRED_HORIZON
+    start_timestep = TEST_START_WEEK_LIST[r] - TRAIN_START_WEEK - SEQ_LEN - PRED_HORIZON + PRED_STEPS
+    end_timestep = TEST_START_WEEK_LIST[r] - TRAIN_START_WEEK + PRED_STEPS - 1 - PRED_HORIZON
     test_input1 = gen_sequence_array(data_scaled, SEQ_LEN, ['move'], start_timestep, end_timestep)
 
-    start_timestep = bs.TEST_END_WEEK_LIST[r] - bs.TRAIN_START_WEEK - SEQ_LEN + 1
-    end_timestep = bs.TEST_END_WEEK_LIST[r] - bs.TRAIN_START_WEEK
+    start_timestep = TEST_END_WEEK_LIST[r] - TRAIN_START_WEEK - SEQ_LEN + 1
+    end_timestep = TEST_END_WEEK_LIST[r] - TRAIN_START_WEEK
     test_input2 = gen_sequence_array(data_scaled, SEQ_LEN, DYNAMIC_FEATURES, start_timestep, end_timestep)
 
     seq_in = np.concatenate((test_input1, test_input2), axis=2)
@@ -362,7 +371,7 @@ for r in range(1): #range(bs.NUM_ROUNDS):
     pred_df = exp_output.sort_values(['store', 'brand', 'week']).\
                          loc[:,['store', 'brand', 'week']].\
                          reset_index(drop=True)
-    pred_df['weeks_ahead'] = pred_df['week'] - bs.TRAIN_END_WEEK_LIST[r]
+    pred_df['weeks_ahead'] = pred_df['week'] - TRAIN_END_WEEK_LIST[r]
     pred_df['round'] = r+1
     pred_df['prediction'] = np.reshape(pred, (pred.size, 1))
     combined = pd.merge(pred_df, test_df, on=['store', 'brand', 'week'], how='left')

@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # In[1]:
@@ -9,7 +9,6 @@ import sys
 import time
 import math
 import keras
-import argparse
 import datetime
 import itertools
 import numpy as np
@@ -21,21 +20,6 @@ from keras import optimizers
 from keras.utils import multi_gpu_model
 from sklearn.preprocessing import MinMaxScaler
 
-from azureml.core import Run
-
-# Parse arguments
-parser = argparse.ArgumentParser()
-parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
-parser.add_argument('--seq-len', type=int, dest='seq_len', default=12, help='length of the input sequence')
-parser.add_argument('--batch-size', type=int, dest='batch_size', default=64, help='mini batch size for training')
-parser.add_argument('--dropout-rate', type=float, dest='dropout_rate', default=0.2, help='dropout ratio')
-parser.add_argument('--learning-rate', type=float, dest='learning_rate', default=0.02, help='learning rate')
-parser.add_argument('--epochs', type=int, dest='epochs', default=4, help='# of epochs')
-
-args = parser.parse_args()
-
-# start an Azure ML run
-run = Run.get_context()
 
 # In[2]:
 
@@ -54,7 +38,7 @@ import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
 # Data paths
-DATA_DIR = args.data_folder #'../../data'
+DATA_DIR = '../../data'
 TRAIN_DIR = os.path.join(DATA_DIR, 'train')
 TEST_DIR = os.path.join(DATA_DIR, 'test')
 
@@ -65,7 +49,7 @@ MAX_BRAND_ID = 11
 # Parameters of the model
 PRED_HORIZON = 3
 PRED_STEPS = 2
-SEQ_LEN = args.seq_len #12 #16 #50 #60 #72 #8
+SEQ_LEN = 12 #16 #50 #60 #72 #8
 DYNAMIC_FEATURES = ['deal', 'feat', 'month', 'week_of_month'] #['week', 'week_of_month'] #['profit', 'feat']
 #DYNAMIC_FEATURES += ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', \
 #                     'price7', 'price8', 'price9', 'price10', 'price11']
@@ -219,7 +203,7 @@ def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_o
     c4 = concatenate([c1, c3])
     # Output of convolutional layers 
     conv_out = Conv1D(8, 1, activation='relu')(c4)
-    conv_out = Dropout(args.dropout_rate)(conv_out) #Dropout(0.25)(conv_out)
+    conv_out = Dropout(0.1)(conv_out) #Dropout(0.25)(conv_out)
     conv_out = Flatten()(conv_out)
     
     # Concatenate with categorical features
@@ -232,8 +216,8 @@ def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_o
     output = Dense(n_outputs, activation='linear')(x)
     
     model = Model(inputs=[seq_in, cat_fea_in], outputs=output)
-    adam = optimizers.Adam(lr=args.learning_rate)
-    model.compile(loss='mae', optimizer=adam, metrics=['mae'])
+    adam = optimizers.Adam(lr=0.02)
+    model.compile(loss='mse', optimizer=adam, metrics=['mae'])
     return model
 
 model = create_dcnn_model(seq_len=SEQ_LEN, n_input_series=4, n_outputs=PRED_STEPS)
@@ -245,7 +229,7 @@ model.summary()
 pred_all = []
 combined_all = []
 metric_all = []
-for r in range(1): #range(bs.NUM_ROUNDS):
+for r in range(12): #range(bs.NUM_ROUNDS):
     print('---- Round ' + str(r+1) + ' ----')
     # Load training data
     train_df = pd.read_csv(os.path.join(TRAIN_DIR, 'train_round_'+str(r+1)+'.csv'))
@@ -321,12 +305,17 @@ for r in range(1): #range(bs.NUM_ROUNDS):
         except:
             print('Training using single GPU or CPU..')
 
-        adam = optimizers.Adam(lr=args.learning_rate)
+        adam = optimizers.Adam(lr=0.02)
+        #model.compile(loss='mse', optimizer=adam, metrics=['mae'])
         model.compile(loss='mape', optimizer=adam, metrics=['mape', 'mae'])
-        #model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size)
-        history = model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size, validation_split=0.05)
-        val_loss = history.history['val_loss'][-1]
-        print(val_loss)
+        #model.fit([seq_in, cat_fea_in], train_output, epochs=2, batch_size=2, validation_data=([seq_in, cat_fea_in], train_output))
+        #model.fit([seq_in, cat_fea_in], train_output, epochs=5, batch_size=16, validation_split=0.05)
+        #model.fit([seq_in, cat_fea_in], train_output, epochs=3+1, batch_size=64, validation_split=0.05)
+        model.fit([seq_in, cat_fea_in], train_output, epochs=3+2, batch_size=64)
+        #model.fit([seq_in, cat_fea_in], train_output, epochs=1, batch_size=16)
+
+        #history = model.fit([seq_in, cat_fea_in], train_output, epochs=3+1, batch_size=64, validation_split=0.05)
+        #print(history.history['val_loss'])
         
     # Get expected test output
     test_df = pd.read_csv(os.path.join(TEST_DIR, 'test_round_'+str(r+1)+'.csv'))
@@ -369,26 +358,26 @@ for r in range(1): #range(bs.NUM_ROUNDS):
 
     pred_all.append(pred_df)
     combined_all.append(combined)
-    cur_metric = val_loss #np.nanmean(np.abs(pred-exp_test_output)/exp_test_output)*100
+    cur_metric = np.nanmean(np.abs(pred-exp_test_output)/exp_test_output)*100
     print('Current MAPE is {}'.format(cur_metric))
     metric_all.append(cur_metric)
 
 # In[7]:
 
 
-#metric_all
+metric_all
 
 
 # In[8]:
 
 
-mape_value = np.mean(metric_all)
+np.mean(metric_all)
 
 
 # In[9]:
 
 
-# Generate submission
+# # Generate submission
 # submission = pd.concat(pred_all, axis=0).reset_index(drop=True)
 # submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction']]
 # submission.to_csv('submission_seed_1.csv', index=False)
@@ -398,6 +387,5 @@ mape_value = np.mean(metric_all)
 # #submission.to_csv('submission_seed_5.csv', index=False)
 # submission.head()
 
-run.log('MAPE', np.float(mape_value))
 
 
