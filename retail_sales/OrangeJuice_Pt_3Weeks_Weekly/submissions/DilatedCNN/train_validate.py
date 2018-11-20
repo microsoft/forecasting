@@ -33,6 +33,7 @@ parser.add_argument('--learning-rate', type=float, dest='learning_rate', default
 parser.add_argument('--epochs', type=int, dest='epochs', default=4, help='# of epochs')
 
 args = parser.parse_args()
+print(args)
 
 # start an Azure ML run
 run = Run.get_context()
