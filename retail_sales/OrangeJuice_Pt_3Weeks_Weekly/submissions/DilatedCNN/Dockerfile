@@ -3,7 +3,7 @@ FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
 WORKDIR /tmp
 
 ## Install basic packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends  --allow-downgrades --allow-change-held-packages \
     wget \
     zlib1g-dev \
     libssl-dev \
