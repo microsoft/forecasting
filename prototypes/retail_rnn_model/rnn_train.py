@@ -12,6 +12,7 @@ import tensorflow.contrib.training as training
 import sys
 sys.path.append('/data/home/yiychen/Desktop/TSPerf/prototypes/retail_rnn_model/')
 from utils import *
+import hparams
 
 # round number
 ROUND = 1
@@ -21,24 +22,9 @@ ROUND = 1
 predict_window = 3
 is_train = True
 mode = 'train'
-# tunable
-hparams_dict = {}
-hparams_dict['train_window'] = 30
-hparams_dict['batch_size'] = 64
-hparams_dict['encoder_rnn_layers'] = 1
-hparams_dict['decoder_rnn_layers'] = hparams_dict['encoder_rnn_layers']
-hparams_dict['rnn_depth'] = 200
-hparams_dict['encoder_dropout'] = 0.03
-hparams_dict['gate_dropout'] = 0.997
-hparams_dict['decoder_input_dropout'] = [1.0]
-hparams_dict['decoder_state_dropout'] = [0.99]
-hparams_dict['decoder_output_dropout'] = [0.975]
-hparams_dict['decoder_variational_dropout'] = [False]
-hparams_dict['asgd_decay'] = None
+# import hyper parameters
 # TODO: add ema in the code to imporve the performance
-# hparams_dict['asgd_decay'] = 0.99
-hparams_dict['max_epoch'] = 20
-
+hparams_dict = hparams.hparams_manual
 hparams = training.HParams(**hparams_dict)
 
 # read the numpy arrays output from the make_features.py
