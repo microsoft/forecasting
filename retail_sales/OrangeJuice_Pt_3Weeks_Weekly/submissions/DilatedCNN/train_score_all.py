@@ -21,7 +21,7 @@ from keras import optimizers
 from keras.utils import multi_gpu_model
 from sklearn.preprocessing import MinMaxScaler
 
-from azureml.core import Run
+#from azureml.core import Run
 
 # Parse arguments
 parser = argparse.ArgumentParser()
@@ -35,7 +35,7 @@ parser.add_argument('--epochs', type=int, dest='epochs', default=4, help='# of e
 args = parser.parse_args()
 
 # start an Azure ML run
-run = Run.get_context()
+#run = Run.get_context()
 
 # In[2]:
 
@@ -245,7 +245,7 @@ model.summary()
 pred_all = []
 combined_all = []
 metric_all = []
-for r in range(1): #range(bs.NUM_ROUNDS):
+for r in range(12): #range(bs.NUM_ROUNDS):
     print('---- Round ' + str(r+1) + ' ----')
     # Load training data
     train_df = pd.read_csv(os.path.join(TRAIN_DIR, 'train_round_'+str(r+1)+'.csv'))
@@ -369,7 +369,7 @@ for r in range(1): #range(bs.NUM_ROUNDS):
 
     pred_all.append(pred_df)
     combined_all.append(combined)
-    cur_metric = val_loss #np.nanmean(np.abs(pred-exp_test_output)/exp_test_output)*100
+    cur_metric = np.nanmean(np.abs(pred-exp_test_output)/exp_test_output)*100
     print('Current MAPE is {}'.format(cur_metric))
     metric_all.append(cur_metric)
 
@@ -383,7 +383,8 @@ for r in range(1): #range(bs.NUM_ROUNDS):
 
 
 mape_value = np.mean(metric_all)
-
+print('---------------------')
+print(mape_value)
 
 # In[9]:
 
@@ -398,6 +399,6 @@ mape_value = np.mean(metric_all)
 # #submission.to_csv('submission_seed_5.csv', index=False)
 # submission.head()
 
-run.log('MAPE', np.float(mape_value))
+#run.log('MAPE', np.float(mape_value))
 
 
