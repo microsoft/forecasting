@@ -93,7 +93,7 @@ def make_encoder(time_inputs, is_train, hparams):
     return rnn_out, rnn_state
 
 
-def convert_cudnn_state_v2(h_state, hparams, seed, dropout=1.0):
+def convert_cudnn_state_v2(h_state, hparams, dropout=1.0):
     """
     Converts RNN state tensor from cuDNN representation to TF RNNCell compatible representation.
     :param h_state: tensor [num_layers, batch_size, depth]
@@ -106,7 +106,7 @@ def convert_cudnn_state_v2(h_state, hparams, seed, dropout=1.0):
 
     def wrap_dropout(structure):
         if dropout < 1.0:
-            return nest.map_structure(lambda x: tf.nn.dropout(x, keep_prob=dropout, seed=seed), structure)
+            return nest.map_structure(lambda x: tf.nn.dropout(x, keep_prob=dropout), structure)
         else:
             return structure
 
@@ -124,12 +124,11 @@ def convert_cudnn_state_v2(h_state, hparams, seed, dropout=1.0):
         return squeeze(lower_inputs + upper_inputs)
 
 
-def default_init(seed):
+def default_init():
     # replica of tf.glorot_uniform_initializer(seed=seed)
     return layers.variance_scaling_initializer(factor=1.0,
                                                mode="FAN_AVG",
-                                               uniform=True,
-                                               seed=seed)
+                                               uniform=True)
 
 
 def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, predict_window):
@@ -140,7 +139,7 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, pre
     """
 
     def build_cell(idx):
-        with tf.variable_scope('decoder_cell', initializer=default_init(idx)):
+        with tf.variable_scope('decoder_cell', initializer=default_init()):
             cell = rnn.GRUBlockCell(hparams.rnn_depth)
             has_dropout = hparams.decoder_input_dropout[idx] < 1 \
                           or hparams.decoder_state_dropout[idx] < 1 or hparams.decoder_output_dropout[idx] < 1
@@ -161,7 +160,6 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, pre
         cell = build_cell(0)
 
     nest.assert_same_structure(encoder_state, cell.state_size)
-    assert prediction_inputs.shape[1] == predict_window
 
     # [batch_size, time, input_depth] -> [time, batch_size, input_depth]
     inputs_by_time = tf.transpose(prediction_inputs, [1, 0, 2])

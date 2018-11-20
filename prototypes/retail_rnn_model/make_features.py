@@ -13,8 +13,8 @@ from sklearn.preprocessing import OneHotEncoder
 ROUND = 1
 
 # read in data
-file_dir = './prototypes/retail_rnn_model'
-# file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# file_dir = './prototypes/retail_rnn_model'
+file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
 data_dir = os.path.join(file_dir, data_relative_dir)
 

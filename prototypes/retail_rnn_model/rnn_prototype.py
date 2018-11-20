@@ -4,12 +4,13 @@ Revise based on: https://github.com/Arturus/kaggle-web-traffic/blob/master/model
 
 # import packages
 import os
+import inspect
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.training as training
 
 import sys
-sys.path.append('C:\\Users\\yiychen\\Desktop\\repos\\TSPerf\\prototypes\\retail_rnn_model')
+sys.path.append('/data/home/yiychen/Desktop/TSPerf/prototypes/retail_rnn_model/')
 from utils import *
 
 # round number
@@ -22,7 +23,7 @@ is_train = True
 mode = 'train'
 # tunable
 hparams_dict = {}
-hparams_dict['train_window '] = 30
+hparams_dict['train_window'] = 30
 hparams_dict['batch_size'] = 64
 hparams_dict['encoder_rnn_layers'] = 1
 hparams_dict['decoder_rnn_layers'] = hparams_dict['encoder_rnn_layers']
@@ -33,15 +34,16 @@ hparams_dict['decoder_input_dropout'] = [1.0]
 hparams_dict['decoder_state_dropout'] = [0.99]
 hparams_dict['decoder_output_dropout'] = [0.975]
 hparams_dict['decoder_variational_dropout'] = [False]
+hparams_dict['asgd_decay'] = None
 # TODO: add ema in the code to imporve the performance
 # hparams_dict['asgd_decay'] = 0.99
-hparams_dict['max_epoch'] = 100
+hparams_dict['max_epoch'] = 20
 
 hparams = training.HParams(**hparams_dict)
 
 # read the numpy arrays output from the make_features.py
-file_dir = './prototypes/retail_rnn_model'
-# file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# file_dir = './prototypes/retail_rnn_model'
+file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
 data_dir = os.path.join(file_dir, data_relative_dir)
 intermediate_data_dir = os.path.join(data_dir, 'intermediate/round_{}'.format(ROUND))
@@ -74,14 +76,14 @@ encoder_feature_depth = feature_x.shape[2].value
 
 # build the encoder-decoder RNN model
 # make encoder
-x_all_features = tf.concat([tf.expand_dims(norm_x, -1), feature_x], axis=1)
+x_all_features = tf.concat([tf.expand_dims(norm_x, -1), feature_x], axis=-1)
 encoder_output, h_state = make_encoder(x_all_features, is_train, hparams)
 encoder_state = convert_cudnn_state_v2(h_state, hparams,
                                        dropout=hparams.gate_dropout if is_train else 1.0)
 
 # Run decoder
-decoder_targets, decoder_outputs = decoder(encoder_state, None,
-                                           feature_y, norm_x[:, -1])
+decoder_targets, decoder_outputs = decoder(encoder_state, feature_y, norm_x[:, -1], hparams, is_train=is_train,
+                                           predict_window=predict_window)
 
 # get predictions
 predictions = decode_predictions(decoder_targets, norm_mean, norm_std)
@@ -106,11 +108,13 @@ else:
 train_size = ts_value_train.shape[0]
 steps_per_epoch = train_size // hparams.batch_size
 
-init = tf.global_variables_initializer()
-global_step = tf.train.get_or_create_global_step()
+
+# global_step = tf.train.get_or_create_global_step()
+global_step = tf.Variable(0, name='global_step', trainable=False)
 inc_step = tf.assign_add(global_step, 1)
 
 saver = tf.train.Saver(max_to_keep=1, name='train_saver')
+init = tf.global_variables_initializer()
 
 with tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
                                       gpu_options=tf.GPUOptions(allow_growth=False))) as sess:
@@ -123,7 +127,7 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
         for _ in tqr:
             try:
                 ops = [inc_step]
-                ops.extend(train_op)
+                ops.extend([train_op])
                 ops.extend([mae, mape, glob_norm])
                 results = sess.run(ops)
             except tf.errors.OutOfRangeError:
