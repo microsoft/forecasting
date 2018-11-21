@@ -94,8 +94,15 @@ pred_sub = pred_o[:, 1:].reshape((-1))
 # read in the test_file for this round
 test_file = os.path.join(data_dir, 'test/test_round_{}.csv'.format(ROUND))
 test = pd.read_csv(test_file, index_col=False)
-submission = test.sort_values(by=['store', 'brand', 'week'], ascending=True)[['store', 'brand', 'week']]
+submission = test.sort_values(by=['store', 'brand', 'week'], ascending=True)[['store', 'brand', 'week', 'logmove']]
 submission['round'] = ROUND
 submission['weeks_ahead'] = submission['week'] - bs.TRAIN_END_WEEK_LIST[ROUND - 1]
 submission['prediction'] = pred_sub
-submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction']]
+submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction', 'logmove']]
+
+# write the submission
+submission['move'] = np.exp(submission['logmove'])
+
+from common.metrics import MAPE
+print("MAPE: ", MAPE(submission['prediction'], submission['move'])*100)
+
