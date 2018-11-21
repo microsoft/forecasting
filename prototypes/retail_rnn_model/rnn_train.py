@@ -77,54 +77,35 @@ decoder_targets, decoder_outputs = decoder(encoder_state, feature_y, norm_x[:, -
 predictions = decode_predictions(decoder_targets, norm_mean, norm_std)
 
 # calculate loss
-if mode == 'predict':
-    # [Yiyu]: not sure why need this?
-    # Pseudo-apply ema to get variable names later in ema.variables_to_restore()
-    # This is copypaste from make_train_op()
-    if hparams.asgd_decay:
-        ema = tf.train.ExponentialMovingAverage(decay=hparams.asgd_decay)
-        variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-        ema_vars = variables
-        ema.apply(ema_vars)
-else:
-    #################### debug
+mask = tf.logical_not(tf.math.equal(true_y, tf.zeros_like(true_y)))
+# Fill NaNs by zeros (can use any value)
+# true_y = tf.where(mask, true_y, tf.zeros_like(true_y))
+# Assign zero weight to NaNs
+weights = tf.to_float(mask)
+mae_loss = tf.losses.absolute_difference(labels=true_y, predictions=predictions, weights=weights)
 
-    mask = tf.logical_not(tf.math.equal(true_y, tf.zeros_like(true_y)))
-    # Fill NaNs by zeros (can use any value)
-    # true_y = tf.where(mask, true_y, tf.zeros_like(true_y))
-    # Assign zero weight to NaNs
-    weights = tf.to_float(mask)
+# mape_loss
+epsilon = 0.1  # Smoothing factor, helps SMAPE to be well-behaved near zero
+true_o = tf.expm1(true_y)
+pred_o = tf.expm1(predictions)
+# summ = tf.maximum(tf.abs(true_o) + epsilon, 0.5 + epsilon)
+mape_loss_origin = tf.abs(pred_o - true_o) / (tf.abs(true_o) + epsilon)
+mape_loss = tf.losses.compute_weighted_loss(mape_loss_origin, weights, loss_collection=None)
 
-    mae_loss = tf.losses.absolute_difference(labels=true_y, predictions=predictions, weights=weights)
+# mape
+true_o1 = tf.round(tf.expm1(true_y))
+pred_o1 = tf.maximum(tf.round(tf.expm1(predictions)), 0.0)
+raw_mape = tf.abs(pred_o1 - true_o1) / tf.abs(true_o1)
+raw_mape_mask = tf.is_finite(raw_mape)
+raw_mape_weights = tf.to_float(raw_mape_mask)
+raw_mape_filled = tf.where(raw_mape_mask, raw_mape, tf.zeros_like(raw_mape))
+mape = tf.losses.compute_weighted_loss(raw_mape_filled, raw_mape_weights, loss_collection=None)
 
-    # mse_loss = tf.losses.mean_squared_error(labels=true_y, predictions=predictions, weights=weights)
-
-    # mape_loss
-    epsilon = 0.1  # Smoothing factor, helps SMAPE to be well-behaved near zero
-    true_o = tf.expm1(true_y)
-    pred_o = tf.expm1(predictions)
-    # summ = tf.maximum(tf.abs(true_o) + epsilon, 0.5 + epsilon)
-    mape_loss_origin = tf.abs(pred_o - true_o) / (tf.abs(true_o) + epsilon)
-    mape_loss = tf.losses.compute_weighted_loss(mape_loss_origin, weights, loss_collection=None)
-
-    # mape
-    true_o1 = tf.round(tf.expm1(true_y))
-    pred_o1 = tf.maximum(tf.round(tf.expm1(predictions)), 0.0)
-    raw_mape = tf.abs(pred_o1 - true_o1) / tf.abs(true_o1)
-    raw_mape_mask = tf.is_finite(raw_mape)
-    raw_mape_weights = tf.to_float(raw_mape_mask)
-    raw_mape_filled = tf.where(raw_mape_mask, raw_mape, tf.zeros_like(raw_mape))
-    mape = tf.losses.compute_weighted_loss(raw_mape_filled, raw_mape_weights, loss_collection=None)
-
-
-    #################### debug
-    # mae, mape_loss, mape, loss_item_count = calc_loss(predictions, true_y)
-    if is_train:
-        # Sum all losses
-        ################################# debug
-        total_loss = mape_loss
-        ################################# debug
-        train_op, glob_norm, ema = make_train_op(total_loss, hparams.asgd_decay)
+# mae, mape_loss, mape, loss_item_count = calc_loss(predictions, true_y)
+if is_train:
+    # Sum all losses
+    total_loss = mape_loss
+    train_op, glob_norm, ema = make_train_op(total_loss, hparams.asgd_decay)
 
 train_size = ts_value_train.shape[0]
 steps_per_epoch = train_size // hparams.batch_size
