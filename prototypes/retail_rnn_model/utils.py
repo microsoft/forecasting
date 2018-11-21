@@ -270,7 +270,7 @@ def calc_loss(predictions, true_y, additional_mask=None):
     :return: MAE loss, differentiable MAPE loss, competition MAPE loss
     """
     # Take into account NaN's in true values
-    mask = tf.is_finite(true_y)
+    mask = tf.logical_not(tf.is_nan(true_y))
     # Fill NaNs by zeros (can use any value)
     true_y = tf.where(mask, true_y, tf.zeros_like(true_y))
     # Assign zero weight to NaNs
