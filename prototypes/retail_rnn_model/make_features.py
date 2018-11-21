@@ -119,6 +119,8 @@ test_ts_length = test_max_time - test_min_time + 1
 # ts_value_train
 ts_value_train = train['logmove'].values
 ts_value_train = ts_value_train.reshape((ts_number, train_ts_length))
+# fill missing value with zero
+ts_value_train = np.nan_to_num(ts_value_train)
 
 # feature_train
 series_popularity_train = np.repeat(series_popularity, train_ts_length).reshape(
