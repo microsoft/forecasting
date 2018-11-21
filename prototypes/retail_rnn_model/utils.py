@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow.python.util import nest
 import tensorflow.contrib.layers as layers
@@ -9,7 +10,7 @@ GRAD_CLIP_THRESHOLD = 10
 
 # input pipe utils
 def cut(ts_value_train_slice, feature_train_slice,
-        feature_test_slice, train_window, predict_window,
+        feature_test_slice, train_window, predict_window, ts_length,
         cut_mode='train', back_offset=0):
     """
     cut each element of the dataset into x and y for supervised learning.
@@ -25,7 +26,6 @@ def cut(ts_value_train_slice, feature_train_slice,
 
     :return:
     """
-    ts_length = tf.shape(ts_value_train_slice)[0]
     if cut_mode in ['train', 'eval']:
         if cut_mode == 'train':
             min_start_idx = 0
@@ -50,7 +50,7 @@ def cut(ts_value_train_slice, feature_train_slice,
         train_end = train_start + train_window
 
         true_x = ts_value_train_slice[train_start: train_end]
-        true_y = None
+        true_y = tf.fill((predict_window,), np.nan)
         feature_x = feature_train_slice[train_start: train_end]
         feature_y = feature_test_slice
 

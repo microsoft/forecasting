@@ -51,7 +51,7 @@ root_ds = tf.data.Dataset.from_tensor_slices(
     (ts_value_train, feature_train, feature_test)).repeat()
 batch = (root_ds
          .map(lambda *x: cut(*x, cut_mode=mode, train_window=hparams.train_window,
-                             predict_window=predict_window, back_offset=0))
+                             predict_window=predict_window, ts_length=ts_value_train.shape[1], back_offset=0))
          .map(normalize_target)
          .batch(hparams.batch_size))
 
