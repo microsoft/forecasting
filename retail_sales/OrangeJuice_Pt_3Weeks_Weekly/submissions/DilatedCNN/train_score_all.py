@@ -315,11 +315,12 @@ for r in range(12): #range(bs.NUM_ROUNDS):
     if r >= 0:
         model = create_dcnn_model(seq_len=SEQ_LEN, n_input_series=1+len(DYNAMIC_FEATURES), n_outputs=PRED_STEPS)
         # Convert to GPU model
-        try:
-            model = multi_gpu_model(model)
-            print('Training using multiple GPUs..')
-        except:
-            print('Training using single GPU or CPU..')
+        #try:
+        #    model = multi_gpu_model(model)
+        #    print('Training using multiple GPUs..')
+        #except:
+        #    print('Training using single GPU or CPU..')
+        model = multi_gpu_model(model, gpus=2)
 
         adam = optimizers.Adam(lr=args.learning_rate)
         model.compile(loss='mape', optimizer=adam, metrics=['mape', 'mae'])
@@ -384,7 +385,7 @@ for r in range(12): #range(bs.NUM_ROUNDS):
 
 mape_value = np.mean(metric_all)
 print('---------------------')
-print(mape_value)
+print(mape_value    )
 
 # In[9]:
 
