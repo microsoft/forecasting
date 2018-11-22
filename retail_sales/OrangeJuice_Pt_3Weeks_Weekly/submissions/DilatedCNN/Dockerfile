@@ -3,7 +3,7 @@ FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
 WORKDIR /tmp
 
 ## Install basic packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --allow-downgrades --allow-change-held-packages \
     wget \
     zlib1g-dev \
     libssl-dev \
@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && \
     apt-get install nvinfer-runtime-trt-repo-ubuntu1604-4.0.1-ga-cuda9.0 && \
     apt-get update && \
-    apt-get install libnvinfer4=4.1.2-1+cuda9.0
+    apt-get install libnvinfer4=4.1.2-1+cuda9.0 
 
 # Update pip and setuptools
 RUN pip3 install --upgrade pip
@@ -56,6 +56,7 @@ RUN pip3 install -r python_dependencies.txt
 # Fix the symlink issue of tensorflow (https://github.com/tensorflow/tensorflow/issues/10776)
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1
 ENV LD_LIBRARY_PATH='/usr/local/cuda/lib64/stubs/:${LD_LIBRARY_PATH}'
+RUN rm /usr/local/cuda/lib64/stubs/libcuda.so.1
 
 WORKDIR /
 RUN rm -rf tmp
