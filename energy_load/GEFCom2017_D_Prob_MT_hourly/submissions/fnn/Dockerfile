@@ -31,7 +31,6 @@ RUN apt-get install -y --no-install-recommends \
     curl \
     lsb-release \
     apt-utils \
-    # python3.5 \
     python3-pip \
     vim
 
