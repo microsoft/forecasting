@@ -5,7 +5,7 @@ do
     echo "Run $i"
     start=`date +%s`
     echo 'Creating features...'
-    python3 $path/submissions/fnn/feature_engineering.py --submission fnn
+    python $path/submissions/fnn/feature_engineering.py --submission fnn
 
     echo 'Training and predicting...'
     Rscript $path/submissions/fnn/train_predict.R $i
