@@ -1,3 +1,9 @@
+#!/usr/bin/Rscript 
+#
+# Quantile Regression Feed Forward Neutral Network Methods for Energy Demand Forecasting Benchmark - GEFCom2017_D_Prob_MT_hourly
+# This R script loads the featured training and test data in, normalizes the features, partitions the data by zone and hour, and
+# trains and predicts the model on each partition at each quantile point.
+
 args = commandArgs(trailingOnly=TRUE)
 seed_value = args[1]
 library('data.table')
