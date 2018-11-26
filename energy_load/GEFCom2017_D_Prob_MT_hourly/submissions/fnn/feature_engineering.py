@@ -60,6 +60,9 @@ def fourier_approximation(t, n, period):
 
 
 def annual_fourier(datetime_col, n_harmonics):
+    """
+    Create annual fourier series to model annually seasonal patterns.
+    """
     day_of_year = datetime_col.dt.dayofyear
 
     output_dict = {}
@@ -73,6 +76,9 @@ def annual_fourier(datetime_col, n_harmonics):
 
 
 def weekly_fourier(datetime_col, n_harmonics):
+    """
+    Create weekly fourier series to model weekly seasonal patterns.
+    """
     day_of_week = datetime_col.dt.dayofweek
 
     output_dict = {}
@@ -86,6 +92,9 @@ def weekly_fourier(datetime_col, n_harmonics):
 
 
 def daily_fourier(datetime_col, n_harmonics):
+    """
+    Create daily fourier series to model daily seasonal patterns.
+    """
     hour_of_day = datetime_col.dt.hour + 1
 
     output_dict = {}
