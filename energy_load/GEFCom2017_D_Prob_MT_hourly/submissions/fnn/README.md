@@ -52,7 +52,7 @@ VM.
 1. Clone the TSPerf repo to the home directory of your machine and check out the baseline model branch
 
    ```bash
-   cd ~
+   cd ~/TSPerf
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    git checkout zhouf/energy_forecast_fnn_model_v1
    ```
