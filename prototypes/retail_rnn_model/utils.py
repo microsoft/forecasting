@@ -260,6 +260,11 @@ def calc_mae_loss(true_y, predictions):
     return mae_loss
 
 def calc_differentiable_mape_loss(true_y, predictions):
+    # calculate loss
+    mask = tf.logical_not(tf.math.equal(true_y, tf.zeros_like(true_y)))
+    # Fill NaNs by zeros (can use any value)
+    # Assign zero weight to zeros, will not calculate loss for those true_y.
+    weights = tf.to_float(mask)
     # mape_loss
     epsilon = 0.1  # Smoothing factor, helps SMAPE to be well-behaved near zero
     true_o = tf.expm1(true_y)
