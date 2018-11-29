@@ -2,8 +2,10 @@ import tensorflow as tf
 import os
 from utils import *
 import numpy as np
+import shutil
 
 MODE = 'train'
+IS_TRAIN = True
 
 
 def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, round):
@@ -25,7 +27,7 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
     encoder_feature_depth = feature_x.shape[2].value
 
     # build the model, get the predictions
-    predictions = build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, is_train, hparams)
+    predictions = build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, IS_TRAIN, hparams)
 
     # calculate loss on log scale
     mae_loss = calc_mae_loss(true_y, predictions)
@@ -94,7 +96,9 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
 
         step = results[0]
         saver_path = os.path.join(intermediate_data_dir, 'cpt_round_{}'.format(round))
-        saver.save(sess, saver_path, global_step=step)
+        if os.path.exists(saver_path):
+            shutil.rmtree(saver_path)
+        saver.save(sess, os.path.join(saver_path, 'cpt'), global_step=step, write_state=True)
 
     # look at the training results
     # examine step_mae and step_mape_loss

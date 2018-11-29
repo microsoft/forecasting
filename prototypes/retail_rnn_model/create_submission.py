@@ -2,21 +2,18 @@
 import os
 import inspect
 import numpy as np
+import pandas as pd
+import tensorflow as tf
 import tensorflow.contrib.training as training
 
-import sys
-sys.path.append('/data/home/yiychen/Desktop/TSPerf/prototypes/retail_rnn_model/')
-from utils import *
+from rnn_train import rnn_train
+from rnn_predict import rnn_predict
 import hparams
+import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 # round number
 ROUND = 1
 
-# define parameters
-# constant
-predict_window = 3
-is_train = True
-mode = 'train'
 # import hyper parameters
 # TODO: add ema in the code to imporve the performance
 hparams_dict = hparams.hparams_manual
@@ -37,4 +34,35 @@ feature_test = np.load(os.path.join(intermediate_data_dir, 'feature_test.npy'))
 ts_value_train = ts_value_train.astype(dtype='float32')
 feature_train = feature_train.astype(dtype='float32')
 feature_test = feature_test.astype(dtype='float32')
+
+# define parameters
+# constant
+predict_window = feature_test.shape[1]
+
+# train the rnn model
+rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, ROUND)
+
+# make prediction
+tf.reset_default_graph()
+pred_batch_size = 1024
+pred_o = rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, ROUND, pred_batch_size )
+
+# get rid of prediction at horizon 1
+pred_sub = pred_o[:, 1:].reshape((-1))
+
+# arrange the predictions into pd.DataFrame
+# read in the test_file for this round
+test_file = os.path.join(data_dir, 'train/aux_round_{}.csv'.format(ROUND))
+test = pd.read_csv(test_file, index_col=False)
+train_last_week = bs.TRAIN_END_WEEK_LIST[ROUND - 1]
+test = test.loc[test['week'] > train_last_week + 1]
+
+submission = test.sort_values(by=['store', 'brand', 'week'], ascending=True)
+submission['round'] = ROUND
+submission['weeks_ahead'] = submission['week'] - train_last_week
+submission['prediction'] = pred_sub
+submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction', 'logmove']]
+
+# write the submission
+
 
