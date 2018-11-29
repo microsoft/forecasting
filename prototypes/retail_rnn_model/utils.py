@@ -230,57 +230,55 @@ def decode_predictions(decoder_readout, norm_mean, norm_std):
     return batch_readout * batch_std + batch_mean
 
 
-def calc_mape_rounded(true, predicted, weights):
-    """
-    Calculates MAPE on rounded submission values. Should be close to official MAPE in competition
-    :param true:
-    :param predicted:
-    :param weights: Weights mask to exclude some values
-    :return:
-    """
-    n_valid = tf.reduce_sum(weights)
-    true_o = tf.round(tf.expm1(true))
-    pred_o = tf.maximum(tf.round(tf.expm1(predicted)), 0.0)
-    raw_mape = tf.abs(pred_o - true_o) / tf.abs(true_o)
-    return tf.reduce_sum(raw_mape * weights) / n_valid
+def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, is_train, hparams):
+    # build the encoder-decoder RNN model
+    # make encoder
+    x_all_features = tf.concat([tf.expand_dims(norm_x, -1), feature_x], axis=-1)
+    encoder_output, h_state = make_encoder(x_all_features, is_train, hparams)
+
+    # convert the encoder state
+    encoder_state = convert_cudnn_state_v2(h_state, hparams,
+                                       dropout=hparams.gate_dropout if is_train else 1.0)
+
+    # Run decoder
+    decoder_targets, decoder_outputs = decoder(encoder_state, feature_y, norm_x[:, -1], hparams, is_train=is_train,
+                                               predict_window=predict_window)
+
+    # get predictions
+    predictions = decode_predictions(decoder_targets, norm_mean, norm_std)
+
+    return predictions
 
 
-def mape_loss(true, predicted, weights):
-    """
-    Differentiable MAPE loss
-    :param true: Truth values
-    :param predicted: Predicted values
-    :param weights: Weights mask to exclude some values
-    :return:
-    """
-    epsilon = 0.1  # Smoothing factor, helps SMAPE to be well-behaved near zero
-    true_o = tf.expm1(true)
-    pred_o = tf.expm1(predicted)
-    summ = tf.maximum(tf.abs(true_o) + epsilon, 0.5 + epsilon)
-    mape = tf.abs(pred_o - true_o) / summ
-    return tf.losses.compute_weighted_loss(mape, weights, loss_collection=None)
-
-
-def calc_loss(predictions, true_y, additional_mask=None):
-    """
-    Calculates losses, ignoring NaN true values (assigning zero loss to them)
-    :param predictions: Predicted values
-    :param true_y: True values
-    :param additional_mask:
-    :return: MAE loss, differentiable MAPE loss, competition MAPE loss
-    """
-    # Take into account NaN's in true values
-    mask = tf.logical_not(tf.is_nan(true_y))
+def calc_mae_loss(true_y, predictions):
+    # calculate loss
+    mask = tf.logical_not(tf.math.equal(true_y, tf.zeros_like(true_y)))
     # Fill NaNs by zeros (can use any value)
-    true_y = tf.where(mask, true_y, tf.zeros_like(true_y))
-    # Assign zero weight to NaNs
+    # Assign zero weight to zeros, will not calculate loss for those true_y.
     weights = tf.to_float(mask)
-    if additional_mask is not None:
-        weights = weights * tf.expand_dims(additional_mask, axis=0)
-
     mae_loss = tf.losses.absolute_difference(labels=true_y, predictions=predictions, weights=weights)
-    return mae_loss, mape_loss(true_y, predictions, weights), \
-           calc_mape_rounded(true_y, predictions, weights), tf.size(true_y)
+    return mae_loss
+
+def calc_differentiable_mape_loss(true_y, predictions):
+    # mape_loss
+    epsilon = 0.1  # Smoothing factor, helps SMAPE to be well-behaved near zero
+    true_o = tf.expm1(true_y)
+    pred_o = tf.expm1(predictions)
+    mape_loss_origin = tf.abs(pred_o - true_o) / (tf.abs(true_o) + epsilon)
+    mape_loss = tf.losses.compute_weighted_loss(mape_loss_origin, weights, loss_collection=None)
+    return mape_loss
+
+
+def calc_rounded_mape(true_y, predictions):
+    # mape
+    true_o1 = tf.round(tf.expm1(true_y))
+    pred_o1 = tf.maximum(tf.round(tf.expm1(predictions)), 0.0)
+    raw_mape = tf.abs(pred_o1 - true_o1) / tf.abs(true_o1)
+    raw_mape_mask = tf.is_finite(raw_mape)
+    raw_mape_weights = tf.to_float(raw_mape_mask)
+    raw_mape_filled = tf.where(raw_mape_mask, raw_mape, tf.zeros_like(raw_mape))
+    mape = tf.losses.compute_weighted_loss(raw_mape_filled, raw_mape_weights, loss_collection=None)
+    return mape
 
 
 def make_train_op(loss, ema_decay=None, prefix=None):
