@@ -6,8 +6,6 @@ import pandas as pd
 import tensorflow as tf
 import tensorflow.contrib.training as training
 
-import sys
-sys.path.append('/data/home/yiychen/Desktop/TSPerf/prototypes/retail_rnn_model/')
 from utils import *
 import hparams
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
@@ -57,21 +55,8 @@ it_tensors = iterator.get_next()
 true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std = it_tensors
 encoder_feature_depth = feature_x.shape[2].value
 
-# build the encoder-decoder RNN model
-# make encoder
-x_all_features = tf.concat([tf.expand_dims(norm_x, -1), feature_x], axis=-1)
-encoder_output, h_state = make_encoder(x_all_features, is_train, hparams)
-
-
-encoder_state = convert_cudnn_state_v2(h_state, hparams,
-                                       dropout=hparams.gate_dropout if is_train else 1.0)
-
-# Run decoder
-decoder_targets, decoder_outputs = decoder(encoder_state, feature_y, norm_x[:, -1], hparams, is_train=is_train,
-                                           predict_window=predict_window)
-
-# get predictions
-predictions = decode_predictions(decoder_targets, norm_mean, norm_std)
+# build the model, get the predictions
+predictions = build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, is_train, hparams)
 
 # init the saver
 saver = tf.train.Saver(name='eval_saver', var_list=None)
