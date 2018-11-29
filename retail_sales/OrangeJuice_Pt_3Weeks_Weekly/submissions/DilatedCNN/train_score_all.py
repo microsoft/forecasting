@@ -69,6 +69,7 @@ SEQ_LEN = args.seq_len #12 #16 #50 #60 #72 #8
 DYNAMIC_FEATURES = ['deal', 'feat', 'month', 'week_of_month'] #['week', 'week_of_month'] #['profit', 'feat']
 #DYNAMIC_FEATURES += ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', \
 #                     'price7', 'price8', 'price9', 'price10', 'price11']
+DYNAMIC_FEATURES += ['price_ratio']
 STATIC_FEATURES = ['store', 'brand']
 
 
@@ -268,6 +269,14 @@ for r in range(12): #range(bs.NUM_ROUNDS):
                             on=['store', 'brand', 'week'])
     #print('Number of missing rows is {}'.format(data_filled[data_filled.isnull().any(axis=1)].shape[0]))
     #print('')
+
+    # Create relative price feature
+    price_cols = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', \
+                  'price9', 'price10', 'price11']
+    data_filled['price'] = data_filled.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
+    data_filled['avg_price'] = data_filled[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
+    data_filled['price_ratio'] = data_filled.apply(lambda x: x['price'] / x['avg_price'], axis=1)
+
     data_filled = data_filled.groupby(['store', 'brand']). \
                               apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
     #print(data_filled.head(3))
