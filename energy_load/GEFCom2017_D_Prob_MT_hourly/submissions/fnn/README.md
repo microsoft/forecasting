@@ -84,6 +84,13 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    ```
 
 4. Prepare Docker container for model training and predicting.  
+   
+   Change to a root user by the command 
+
+   ```bash
+   sudo -i
+   ```
+
    4.1 Log into Azure Container Registry (ACR)
 
    ```bash
