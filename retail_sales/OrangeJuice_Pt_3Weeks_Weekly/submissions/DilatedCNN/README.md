@@ -2,7 +2,7 @@
 
 ## Submission details
 
-**Submission date**: 09/01/2018
+**Submission date**: 11/29/2018
 
 **Benchmark name:** OrangeJuice_Pt_3Weeks_Weekly
 
@@ -12,22 +12,29 @@
 
 **Submission name:** DilatedCNN
 
-**Submission branch:** [chenhui/ets](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Fets)
+**Submission branch:** [chenhui/wavenet](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Fwavenet)
 
-**Pull request:** [Added dilated-CNN method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150743?_a=overview)
+**Pull request:** [Added Dilated CNN method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150743?_a=overview)
 
-**Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ETS](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FETS&version=GBchenhui%2Fets)
+**Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FDilatedCNN&version=GBchenhui%2Fwavenet)
 
 
 ## Implementation description
 
 ### Modelling approach
 
-In this submission, we implement dilated-CNN model using Keras package. 
+In this submission, we implement a Dilated Convolutional Neural Network (CNN) model using Keras package. Dilated CNN is a class of CNN that was initially 
+proposed to improve audio waveform generation in [this paper](https://arxiv.org/abs/1609.03499) by Oord et al in 2016. Later this model has shown great 
+performance in solving time series forecasting problems of several recent machine learning competitions. 
 
 ### Feature engineering
 
-Only the weekly sales of each orange juice has been used in the implementation of the forecast method.
+The following features have been used in the implementation of the forecast method:
+
+- datetime features including week of the month and month number
+- weekly sales of each orange juice in recent weeks 
+- other dynamic features including *deal* and  *feat* columns 
+- static features including store index and brand index
 
 ### Hyperparameter tuning
 
@@ -36,9 +43,11 @@ since there are approximately 52 weeks in a year.
 
 ### Description of implementation scripts
 
-* `train_score.r`: R script that trains the model and evaluate its performance
-* `ets.Rmd` (optional): R markdown that trains the model and visualizes the results
-* `ets.nb.html` (optional): Html file associated with the R markdown file
+* `train_score.py`: Python script that trains the model and generates forecast results for each round
+* `train_score.ipynb` (optional): Jupyter notebook that trains the model and visualizes the results
+* `train_validate.py`: Python script that does training and validation with the 1st round training data 
+* `hyperparameter_tuning.ipynb` (optional): Jupyter notebook that tries different model configurations and selects the best model by running 
+`train_validate.py` script in a Batch AI cluster with different sets of hyperparameters
 
 ### Steps to reproduce results
 
@@ -100,13 +109,13 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 6. Pull a Docker image from ACR using the following command   
 
    ```bash
-   docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/baseline_image:v1
+   docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/dcnn_image:v1
    ```
 
-7. Choose a name for a new Docker container (e.g. ets_container) and create it using command:   
+7. Choose a name for a new Docker container (e.g. dcnn_container) and create it using command:   
    
    ```bash
-   docker run -it -v $(pwd):/TSPerf --name ets_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/baseline_image:v1
+   docker run -it -v $(pwd):/TSPerf --runtime=nvidia --name dcnn_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/dcnn_image:v1
    ```
    
    Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have 
@@ -115,7 +124,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 8. Inside `/TSPerf` folder, train the model and make predictions by running
 
    ```bash
-   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ETS R
+   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN Python3
    ``` 
  
    This will generate 5 `submission_seed_<seed number>.csv` files in the submission directory, where \<seed number\> 
@@ -126,7 +135,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 9. Activate conda environment again by `source activate tsperf`. Then, evaluate the benchmark quality by running
    
    ```bash
-   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ETS ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
+   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
    ```
 
    This command will output 5 benchmark quality values (MAPEs). Their median should be compared against the 
@@ -137,18 +146,19 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Platform:** Azure Cloud 
 
-**Resource location:** West US 2
+**Resource location:** South Central US 
 
-**Hardware:** Standard D2s v3 (2 vcpus, 8 GB memory, 16 GB temporary storage) Ubuntu Linux VM
+**Hardware:** Standard NC12 (2 GPUs, 12 vCPUs, 112 GB memory, 680 GB temporary storage) Ubuntu Linux VM
 
-**Data storage:** Premium SSD
+**Data storage:** Standard HDD
 
-**Docker image:** tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/baseline_image:v1
+**Docker image:** tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/dcnn_image:v1
 
 **Key packages/dependencies:**  
-  * R 
-    - r-base==3.5.1  
-    - forecast==8.1
+  * Python 
+    - pandas==0.23.1  
+    - tensorflow-gpu==1.12.0
+    - keras==2.2.4
 
 ## Resource deployment instructions
 
@@ -156,40 +166,37 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 * Azure Linux VM deployment
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
   - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a Data 
-  Science Virtual Machine for Linux (Ubuntu). Select *D16s_v3* as the virtual machine size.
+  Science Virtual Machine for Linux (Ubuntu). Select *NC12* as the virtual machine size.
 
 
 ## Implementation evaluation
 
 **Quality:** 
 
-*MAPE run 1: 70.99%*
+*MAPE run 1: 37.27%*
 
-*MAPE run 2: 70.99%*
+*MAPE run 2: 39.23%*
 
-*MAPE run 3: 70.99%*
+*MAPE run 3: 40.28%*
 
-*MAPE run 4: 70.99%*
+*MAPE run 4: 39.38%*
 
-*MAPE run 5: 70.99%*
+*MAPE run 5: 38.42%*
 
-*median MAPE: 70.99%*
+*median MAPE: 39.23%*
 
 **Time:** 
 
-*run time 1: 277.03 seconds*
+*run time 1: 1168.20 seconds*
 
-*run time 2: 277.00 seconds*
+*run time 2: 1161.48 seconds*
 
-*run time 3: 277.75 seconds*
+*run time 3: 1162.72 seconds*
 
-*run time 4: 277.01 seconds*
+*run time 4: 1161.84 seconds*
 
-*run time 5: 274.50 seconds*
+*run time 5: 1161.57 seconds*
 
-*median run time: 277.01 seconds*
+*median run time: 1161.84 seconds*
 
-**Cost:** The total cost is 277.01/3600 $\times$ 0.096 = $0.0074.
-
-Note that there is no randomness in the forecasts obtained by the above method. Thus, quality values do not change over 
-different runs.
+**Cost:** The total cost is 1161.84/3600 $\times$ 2.160 = $0.6971.
