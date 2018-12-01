@@ -12,15 +12,15 @@ from sklearn.preprocessing import OneHotEncoder
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
-def make_features(round):
+def make_features(submission_round):
     # read in data
     # file_dir = './prototypes/retail_rnn_model'
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
 
-    train_file = os.path.join(data_dir, 'train/train_round_{}.csv'.format(round))
-    test_file = os.path.join(data_dir, 'train/aux_round_{}.csv'.format(round))
+    train_file = os.path.join(data_dir, 'train/train_round_{}.csv'.format(submission_round))
+    test_file = os.path.join(data_dir, 'train/aux_round_{}.csv'.format(submission_round))
 
     train = pd.read_csv(train_file, index_col=False)
     test = pd.read_csv(test_file, index_col=False)
@@ -36,8 +36,8 @@ def make_features(round):
     # such that every time series have the same length both in train and test
     store_list = train['store'].unique()
     brand_list = train['brand'].unique()
-    train_week_list = range(bs.TRAIN_START_WEEK, bs.TRAIN_END_WEEK_LIST[round - 1] + 1)
-    test_week_list = range(bs.TEST_START_WEEK_LIST[round - 1] - 1, bs.TEST_END_WEEK_LIST[round - 1] + 1)
+    train_week_list = range(bs.TRAIN_START_WEEK, bs.TRAIN_END_WEEK_LIST[submission_round - 1] + 1)
+    test_week_list = range(bs.TEST_START_WEEK_LIST[submission_round - 1] - 1, bs.TEST_END_WEEK_LIST[submission_round - 1] + 1)
 
     train_item_list = list(itertools.product(store_list, brand_list, train_week_list))
     train_item_df = pd.DataFrame.from_records(train_item_list, columns=['store', 'brand', 'week'])
@@ -106,9 +106,9 @@ def make_features(round):
     ts_number = len(series_popularity)
 
     train_min_time = bs.TRAIN_START_WEEK
-    train_max_time = bs.TRAIN_END_WEEK_LIST[round - 1]
-    test_min_time = bs.TEST_START_WEEK_LIST[round - 1] - 1
-    test_max_time = bs.TEST_END_WEEK_LIST[round - 1]
+    train_max_time = bs.TRAIN_END_WEEK_LIST[submission_round - 1]
+    test_min_time = bs.TEST_START_WEEK_LIST[submission_round - 1] - 1
+    test_max_time = bs.TEST_END_WEEK_LIST[submission_round - 1]
     train_ts_length = train_max_time - train_min_time + 1
     test_ts_length = test_max_time - test_min_time + 1
 
@@ -142,7 +142,7 @@ def make_features(round):
     feature_test = np.concatenate((series_popularity_test, brand_enc_test, price_promo_features_test), axis=-1)
 
     # save the numpy arrays
-    intermediate_data_dir = os.path.join(data_dir, 'intermediate/round_{}'.format(round))
+    intermediate_data_dir = os.path.join(data_dir, 'intermediate/round_{}'.format(submission_round))
     if not os.path.isdir(intermediate_data_dir):
         os.makedirs(intermediate_data_dir)
 
