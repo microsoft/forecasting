@@ -5,15 +5,13 @@ import tensorflow as tf
 
 from utils import *
 
-# round number
-ROUND = 1
-
 # define parameters
 MODE = 'predict'
 IS_TRAIN = False
 
 
-def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, round, batch_size):
+def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
+                submission_round, batch_size):
     # build the dataset
     root_ds = tf.data.Dataset.from_tensor_slices(
         (ts_value_train, feature_train, feature_test)).repeat(1)
@@ -34,7 +32,7 @@ def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_wi
     # init the saver
     saver = tf.train.Saver(name='eval_saver', var_list=None)
     # read the saver from checkpoint
-    saver_path = os.path.join(intermediate_data_dir, 'cpt_round_{}'.format(round))
+    saver_path = os.path.join(intermediate_data_dir, 'cpt_round_{}'.format(submission_round))
     paths = [p for p in tf.train.get_checkpoint_state(saver_path).all_model_checkpoint_paths]
     checkpoint = paths[0]
 

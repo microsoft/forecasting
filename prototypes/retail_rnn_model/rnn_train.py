@@ -8,7 +8,7 @@ MODE = 'train'
 IS_TRAIN = True
 
 
-def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, round):
+def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, submission_round):
     # TODO: shuffle the time series
     # TODO: filter the time series with too many zeros
     # TODO: prefetch? optimization of perforamnce in time, n_threads in map etc.
@@ -95,7 +95,7 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
             results_mape_loss.append(results_epoch_mape_loss)
 
         step = results[0]
-        saver_path = os.path.join(intermediate_data_dir, 'cpt_round_{}'.format(round))
+        saver_path = os.path.join(intermediate_data_dir, 'cpt_round_{}'.format(submission_round))
         if os.path.exists(saver_path):
             shutil.rmtree(saver_path)
         saver.save(sess, os.path.join(saver_path, 'cpt'), global_step=step, write_state=True)

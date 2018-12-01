@@ -1,6 +1,7 @@
 # import packages
 import os
 import inspect
+import itertools
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -14,19 +15,19 @@ from utils import *
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
-def create_round_submission(ROUND, hparams):
+def create_round_submission(submission_round, hparams):
     # import hyper parameters
     # TODO: add ema in the code to imporve the performance
 
     # conduct feature engineering and save related numpy array to disk
-    make_features(round=ROUND)
+    make_features(submission_round=submission_round)
 
     # read the numpy arrays output from the make_features.py
     # file_dir = './prototypes/retail_rnn_model'
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
-    intermediate_data_dir = os.path.join(data_dir, 'intermediate/round_{}'.format(ROUND))
+    intermediate_data_dir = os.path.join(data_dir, 'intermediate/round_{}'.format(submission_round))
 
     ts_value_train = np.load(os.path.join(intermediate_data_dir, 'ts_value_train.npy'))
     feature_train = np.load(os.path.join(intermediate_data_dir, 'feature_train.npy'))
@@ -43,30 +44,38 @@ def create_round_submission(ROUND, hparams):
 
     # train the rnn model
     tf.reset_default_graph()
-    rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, ROUND)
+    rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, submission_round)
 
     # make prediction
     tf.reset_default_graph()
     pred_batch_size = 1024
     pred_o = rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
-                         ROUND, pred_batch_size)
+                         submission_round, pred_batch_size)
 
     # get rid of prediction at horizon 1
     pred_sub = pred_o[:, 1:].reshape((-1))
 
     # arrange the predictions into pd.DataFrame
     # read in the test_file for this round
-    test_file = os.path.join(data_dir, 'train/aux_round_{}.csv'.format(ROUND))
+    train_file = os.path.join(data_dir, 'train/train_round_{}.csv'.format(submission_round))
+    test_file = os.path.join(data_dir, 'train/aux_round_{}.csv'.format(submission_round))
+
+    train = pd.read_csv(train_file, index_col=False)
     test = pd.read_csv(test_file, index_col=False)
-    train_last_week = bs.TRAIN_END_WEEK_LIST[ROUND - 1]
-    test = test.loc[test['week'] > train_last_week + 1]
-    test = test.groupby(['store', 'brand']).apply(
-        lambda df: fill_datetime_gap(df, min_time=bs.TEST_START_WEEK_LIST[ROUND - 1],
-                                     max_time=bs.TEST_END_WEEK_LIST[ROUND - 1]))
-    test = test.reset_index(level=[0, 1]).reset_index(drop=True)
+
+    train_last_week = bs.TRAIN_END_WEEK_LIST[submission_round- 1]
+
+    store_list = train['store'].unique()
+    brand_list = train['brand'].unique()
+    test_week_list = range(bs.TEST_START_WEEK_LIST[submission_round - 1], bs.TEST_END_WEEK_LIST[submission_round - 1] + 1)
+
+    test_item_list = list(itertools.product(store_list, brand_list, test_week_list))
+    test_item_df = pd.DataFrame.from_records(test_item_list, columns=['store', 'brand', 'week'])
+
+    test = test_item_df.merge(test, how='left', on=['store', 'brand', 'week'])
 
     submission = test.sort_values(by=['store', 'brand', 'week'], ascending=True)
-    submission['round'] = ROUND
+    submission['round'] = submission_round
     submission['weeks_ahead'] = submission['week'] - train_last_week
     submission['prediction'] = pred_sub
     submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction']]
@@ -82,7 +91,15 @@ if __name__ == '__main__':
     for R in range(1, num_round + 1):
         print('create submission for round {}...'.format(R))
         round_submission = create_round_submission(R, hparams)
-        pred_all.append(round_submission)
-    print(1)
+        pred_all = pred_all.append(round_submission)
+
+    file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    submission_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/RNN'
+    submission_dir = os.path.join(file_dir, submission_relative_dir)
+    if not os.path.isdir(submission_dir):
+        os.makedirs(submission_dir)
+
+    submission_file = os.path.join(submission_dir, 'submission.csv')
+    pred_all.to_csv(submission_file, index=False)
 
 
