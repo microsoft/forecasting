@@ -9,16 +9,17 @@ RNN = cudnn_rnn.CudnnGRU
 GRAD_CLIP_THRESHOLD = 10
 
 
-def fill_datetime_gap(df, min_time=None, max_time=None):
-    if not min_time:
-        min_time = df['week'].min()
-    if not max_time:
-        max_time = df['week'].max()
-    week_list = list(range(min_time, max_time + 1))
-    week_list_df = pd.DataFrame({'week': week_list})
-    df = week_list_df.merge(df, how='left', on='week')
-    new_col = [cl for cl in df.columns if cl not in ['store', 'brand']]
-    return df[new_col]
+# deprecated
+# def fill_datetime_gap(df, min_time=None, max_time=None):
+#     if not min_time:
+#         min_time = df['week'].min()
+#     if not max_time:
+#         max_time = df['week'].max()
+#     week_list = list(range(min_time, max_time + 1))
+#     week_list_df = pd.DataFrame({'week': week_list})
+#     df = week_list_df.merge(df, how='left', on='week')
+#     new_col = [cl for cl in df.columns if cl not in ['store', 'brand']]
+#     return df[new_col]
 
 
 # input pipe utils

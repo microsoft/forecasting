@@ -6,8 +6,10 @@ This .py file creates features for the RNN model.
 import pandas as pd
 import inspect, os
 import numpy as np
+import itertools
 from utils import *
 from sklearn.preprocessing import OneHotEncoder
+import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
 def make_features(round):
@@ -32,17 +34,19 @@ def make_features(round):
 
     # fill the datetime gaps
     # such that every time series have the same length both in train and test
-    train_min_time = train['week'].min()
-    train_max_time = train['week'].max()
-    train = train.groupby(['store', 'brand']).apply(
-        lambda df: fill_datetime_gap(df, min_time=train_min_time, max_time=train_max_time))
-    train = train.reset_index(level=[0, 1]).reset_index(drop=True)
+    store_list = train['store'].unique()
+    brand_list = train['brand'].unique()
+    train_week_list = range(bs.TRAIN_START_WEEK, bs.TRAIN_END_WEEK_LIST[round - 1] + 1)
+    test_week_list = range(bs.TEST_START_WEEK_LIST[round - 1] - 1, bs.TEST_END_WEEK_LIST[round - 1] + 1)
 
-    test_min_time = train['week'].max() + 1
-    test_max_time = test['week'].max()
-    test = test.groupby(['store', 'brand']).apply(
-        lambda df: fill_datetime_gap(df, min_time=test_min_time, max_time=test_max_time))
-    test = test.reset_index(level=[0, 1]).reset_index(drop=True)
+    train_item_list = list(itertools.product(store_list, brand_list, train_week_list))
+    train_item_df = pd.DataFrame.from_records(train_item_list, columns=['store', 'brand', 'week'])
+
+    test_item_list = list(itertools.product(store_list, brand_list, test_week_list))
+    test_item_df = pd.DataFrame.from_records(test_item_list, columns=['store', 'brand', 'week'])
+
+    train = train_item_df.merge(train, how='left', on=['store', 'brand', 'week'])
+    test = test_item_df.merge(test, how='left', on=['store', 'brand', 'week'])
 
     # sort the train, test, series_popularity by store and brand
     train = train.sort_values(by=['store', 'brand', 'week'], ascending=True)
@@ -99,42 +103,41 @@ def make_features(round):
     # 1) ts_value_train (#ts, #train_ts_length)
     # 2) feature_train (#ts, #train_ts_length, #features)
     # 3) feature_test (#ts, #test_ts_length, #features)
-    ts_number_train = len(series_popularity)
-    ts_number_test = test.groupby(['store', 'brand']).ngroups
-    # get the index
-    train_group_keys = sorted(train.groupby(['store', 'brand'], sort=True).groups.keys())
-    test_group_keys = sorted(test.groupby(['store', 'brand'], sort=True).groups.keys())
-    ts_test_index_in_train = [train_group_keys.index(t) for t in test_group_keys]
+    ts_number = len(series_popularity)
 
+    train_min_time = bs.TRAIN_START_WEEK
+    train_max_time = bs.TRAIN_END_WEEK_LIST[round - 1]
+    test_min_time = bs.TEST_START_WEEK_LIST[round - 1] - 1
+    test_max_time = bs.TEST_END_WEEK_LIST[round - 1]
     train_ts_length = train_max_time - train_min_time + 1
     test_ts_length = test_max_time - test_min_time + 1
 
     # ts_value_train
     ts_value_train = train['logmove'].values
-    ts_value_train = ts_value_train.reshape((ts_number_train, train_ts_length))
+    ts_value_train = ts_value_train.reshape((ts_number, train_ts_length))
     # fill missing value with zero
     ts_value_train = np.nan_to_num(ts_value_train)
 
     # feature_train
     series_popularity_train = np.repeat(series_popularity, train_ts_length).reshape(
-        (ts_number_train, train_ts_length, 1))
+        (ts_number, train_ts_length, 1))
 
     brand_number = brand_enc_train.shape[1]
     brand_enc_train = np.array(brand_enc_train).reshape(
-        (ts_number_train, train_ts_length, brand_number))
+        (ts_number, train_ts_length, brand_number))
     price_promo_features_train = train[['price', 'price_ratio', 'feat', 'deal']].values.reshape(
-        (ts_number_train, train_ts_length, 4))
+        (ts_number, train_ts_length, 4))
 
     feature_train = np.concatenate((series_popularity_train, brand_enc_train, price_promo_features_train), axis=-1)
 
     # feature_test
-    series_popularity_test = np.repeat(series_popularity[ts_test_index_in_train], test_ts_length).reshape(
-        (ts_number_test, test_ts_length, 1))
+    series_popularity_test = np.repeat(series_popularity, test_ts_length).reshape(
+        (ts_number, test_ts_length, 1))
 
     brand_enc_test = np.array(brand_enc_test).reshape(
-        (ts_number_test, test_ts_length, brand_number))
+        (ts_number, test_ts_length, brand_number))
     price_promo_features_test = test[['price', 'price_ratio', 'feat', 'deal']].values.reshape(
-        (ts_number_test, test_ts_length, 4))
+        (ts_number, test_ts_length, 4))
 
     feature_test = np.concatenate((series_popularity_test, brand_enc_test, price_promo_features_test), axis=-1)
 
