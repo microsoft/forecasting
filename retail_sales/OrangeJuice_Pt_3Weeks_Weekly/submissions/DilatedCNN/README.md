@@ -38,14 +38,18 @@ The following features have been used in the implementation of the forecast meth
 
 ### Hyperparameter tuning
 
-Default hyperparameters of the forecasting algorithm are used. Additionally, the frequency of the weekly sales time series is set to be 52, 
-since there are approximately 52 weeks in a year. 
+We tune the hyperparameters of the model with HyperDrive which is accessible through Azure ML SDK. A Batch AI cluster with GPU support is created 
+to distribute the computation. The hyperparameters tuned with HyperDrive and their ranges are as follows
+- input sequence length: [6, 8, 10, 12, 14, 16, 18, 20]
+- batch size: [16, 32, 64]
+- learning rate: [0.01, 0.015, 0.02, 0.025]
+- number of epochs: [3,4,5,6,8]
 
 ### Description of implementation scripts
 
 * `train_score.py`: Python script that trains the model and generates forecast results for each round
 * `train_score.ipynb` (optional): Jupyter notebook that trains the model and visualizes the results
-* `train_validate.py`: Python script that does training and validation with the 1st round training data 
+* `train_validate.py` (optional): Python script that does training and validation with the 1st round training data 
 * `hyperparameter_tuning.ipynb` (optional): Jupyter notebook that tries different model configurations and selects the best model by running 
 `train_validate.py` script in a Batch AI cluster with different sets of hyperparameters
 
@@ -60,12 +64,12 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd ~/TSPerf
-   git checkout chenhui/ets
+   git checkout chenhui/wavenet
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
    connect to Git repos via HTTPS authentication. If these don't work, you can try to [connect through SSH](https://docs.microsoft.com/en-us/vsts/repos/git/use-ssh-keys-to-authenticate?view=vsts). The above commands will download the 
-   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout chenhui/ets` once the submission branch is merged into the master branch.
+   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout chenhui/wavenet` once the submission branch is merged into the master branch.
 
 2. Create a conda environment for running the scripts of data downloading, data preparation, and result evaluation. To do this, you need 
 to check if conda has been installed by runnning command `conda -V`. If it is installed, you will see the conda version in the terminal. Otherwise, please follow the instructions [here](https://conda.io/docs/user-guide/install/linux.html) to install conda. Then, you can go to `TSPerf` directory in the VM and create a conda environment named `tsperf` by
