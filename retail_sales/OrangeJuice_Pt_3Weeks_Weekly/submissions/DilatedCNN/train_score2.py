@@ -81,7 +81,7 @@ DYNAMIC_FEATURES = ['deal', 'feat', 'month', 'week_of_month'] #['week', 'week_of
 #                     'price7', 'price8', 'price9', 'price10', 'price11']
 DYNAMIC_FEATURES += ['price_ratio']
 STATIC_FEATURES = ['store', 'brand']
-STORE_FEATURES = ['WORKWOM'] #['AGE60', 'EDUC', 'ETHNIC', 'INCOME', 'HHLARGE', 'WORKWOM', 'HVAL150', 'SSTRDIST', 'SSTRVOL', 'CPDIST5', 'CPWVOL5'] 
+STORE_FEATURES = ['AGE60', 'EDUC', 'ETHNIC', 'INCOME', 'HHLARGE', 'WORKWOM', 'HVAL150', 'SSTRDIST', 'SSTRVOL', 'CPDIST5', 'CPWVOL5']  #['WORKWOM']
 
 
 
@@ -237,11 +237,23 @@ def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_o
     conv_out = Flatten()(conv_out)
     
     # Store demographic features
-    store_fea_in = Input(shape=(1,), dtype='float32')
+    store_fea_in1 = Input(shape=(1,), dtype='float32')
+    store_fea_in2 = Input(shape=(1,), dtype='float32')
+    store_fea_in3 = Input(shape=(1,), dtype='float32')
+    store_fea_in4 = Input(shape=(1,), dtype='float32')
+    store_fea_in5 = Input(shape=(1,), dtype='float32')
+    store_fea_in6 = Input(shape=(1,), dtype='float32')
+    store_fea_in7 = Input(shape=(1,), dtype='float32')
+    store_fea_in8 = Input(shape=(1,), dtype='float32')
+    store_fea_in9 = Input(shape=(1,), dtype='float32')
+    store_fea_in10 = Input(shape=(1,), dtype='float32')
+    store_fea_in11 = Input(shape=(1,), dtype='float32')
 
     # Concatenate with categorical features
     #x = concatenate([conv_out, Flatten()(store_embed), Flatten()(brand_embed)])
-    x = concatenate([conv_out, Flatten()(store_embed), Flatten()(brand_embed), store_fea_in])
+    x = concatenate([conv_out, Flatten()(store_embed), Flatten()(brand_embed), store_fea_in1, store_fea_in2, \
+                     store_fea_in3, store_fea_in4, store_fea_in5, store_fea_in6, store_fea_in7, store_fea_in8, \
+                     store_fea_in9, store_fea_in10, store_fea_in11])
     #x = BatchNormalization()(x)
     #x = Dense(64, activation='relu')(x)
     #x = Dropout(0.25)(x)
@@ -249,7 +261,9 @@ def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_o
     #x = Dropout(0.6)(x)
     output = Dense(n_outputs, activation='linear')(x)
     
-    model = Model(inputs=[seq_in, cat_fea_in, store_fea_in], outputs=output)
+    model = Model(inputs=[seq_in, cat_fea_in, store_fea_in1, store_fea_in2, store_fea_in3, store_fea_in4, \
+                          store_fea_in5, store_fea_in6, store_fea_in7, store_fea_in8, store_fea_in9, \
+                          store_fea_in10, store_fea_in11], outputs=output)
     adam = optimizers.Adam(lr=args.learning_rate)
     model.compile(loss='mae', optimizer=adam, metrics=['mae'])
     return model
@@ -337,8 +351,18 @@ for r in range(12): #range(bs.NUM_ROUNDS):
     print(cat_fea_in.shape)
 
     # create storedemo features
-    store_fea_in = static_feature_array(data_filled, total_timesteps, STORE_FEATURES)
-    print(store_fea_in.shape)
+    store_fea_in1 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[0]])
+    store_fea_in2 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[1]])
+    store_fea_in3 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[2]])
+    store_fea_in4 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[3]])
+    store_fea_in5 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[4]])
+    store_fea_in6 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[5]])
+    store_fea_in7 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[6]])
+    store_fea_in8 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[7]])
+    store_fea_in9 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[8]])
+    store_fea_in10 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[9]])
+    store_fea_in11 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[10]])
+    print(store_fea_in1.shape)
 
     # Create training output
     start_timestep = SEQ_LEN+PRED_HORIZON-PRED_STEPS
@@ -367,14 +391,18 @@ for r in range(12): #range(bs.NUM_ROUNDS):
         callbacks_list = [checkpoint]
 
         #model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size)
-        history = model.fit([seq_in, cat_fea_in, store_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size, validation_split=0.05, callbacks=callbacks_list)
+        history = model.fit([seq_in, cat_fea_in, store_fea_in1, store_fea_in2, store_fea_in3, store_fea_in4, store_fea_in5, \
+                             store_fea_in6, store_fea_in7, store_fea_in8, store_fea_in9, store_fea_in10, store_fea_in11], \
+                             train_output, epochs=args.epochs, batch_size=args.batch_size, validation_split=0.05, callbacks=callbacks_list)
         val_loss = history.history['val_loss'][-1]
         print(val_loss)
     else:
         model = load_model(file_name)
         checkpoint = ModelCheckpoint(file_name, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
         callbacks_list = [checkpoint]        
-        history = model.fit([seq_in, cat_fea_in, store_fea_in], train_output, epochs=1, batch_size=args.batch_size, validation_split=0.05, callbacks=callbacks_list)
+        history = model.fit([seq_in, cat_fea_in, store_fea_in1, store_fea_in2, store_fea_in3, store_fea_in4, store_fea_in5, \
+                             store_fea_in6, store_fea_in7, store_fea_in8, store_fea_in9, store_fea_in10, store_fea_in11], \
+                             train_output, epochs=1, batch_size=args.batch_size, validation_split=0.05, callbacks=callbacks_list)
         val_loss = history.history['val_loss'][-1]
         print(val_loss)
         
@@ -405,9 +433,21 @@ for r in range(12): #range(bs.NUM_ROUNDS):
 
     total_timesteps = 1
     cat_fea_in = static_feature_array(data_filled, total_timesteps, STATIC_FEATURES)
-    store_fea_in = static_feature_array(data_filled, total_timesteps, STORE_FEATURES)
+    #store_fea_in = static_feature_array(data_filled, total_timesteps, STORE_FEATURES)
+    store_fea_in1 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[0]])
+    store_fea_in2 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[1]])
+    store_fea_in3 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[2]])
+    store_fea_in4 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[3]])
+    store_fea_in5 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[4]])
+    store_fea_in6 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[5]])
+    store_fea_in7 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[6]])
+    store_fea_in8 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[7]])
+    store_fea_in9 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[8]])
+    store_fea_in10 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[9]])
+    store_fea_in11 = static_feature_array(data_filled, total_timesteps, [STORE_FEATURES[10]])
 
-    pred = np.round(model.predict([seq_in, cat_fea_in, store_fea_in]))
+    pred = np.round(model.predict([seq_in, cat_fea_in, store_fea_in1, store_fea_in2, store_fea_in3, store_fea_in4, store_fea_in5, \
+                             store_fea_in6, store_fea_in7, store_fea_in8, store_fea_in9, store_fea_in10, store_fea_in11]))
     
     # Create dataframe for submission
     pred_df = exp_output.sort_values(['store', 'brand', 'week']).\
