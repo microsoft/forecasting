@@ -6,17 +6,16 @@ import tensorflow as tf
 from utils import *
 
 # define parameters
-MODE = 'predict'
 IS_TRAIN = False
 
 
 def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
-                submission_round, batch_size):
+                submission_round, batch_size, cut_mode='predict'):
     # build the dataset
     root_ds = tf.data.Dataset.from_tensor_slices(
         (ts_value_train, feature_train, feature_test)).repeat(1)
     batch = (root_ds
-             .map(lambda *x: cut(*x, cut_mode=MODE, train_window=hparams.train_window,
+             .map(lambda *x: cut(*x, cut_mode=cut_mode, train_window=hparams.train_window,
                                  predict_window=predict_window, ts_length=ts_value_train.shape[1], back_offset=0))
              .map(normalize_target)
              .batch(batch_size))
