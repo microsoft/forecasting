@@ -1,7 +1,6 @@
-
 # coding: utf-8
 
-# In[1]:
+# Perform cross validation of a Dilated Convolutional Neural Network (CNN) model on the training data of the 1st forecast round. 
 
 
 import os
@@ -23,7 +22,13 @@ from sklearn.preprocessing import MinMaxScaler
 
 from azureml.core import Run
 
-# Parse arguments
+# Append TSPerf path to sys.path
+nb_dir = os.path.split(os.getcwd())[0]
+tsperf_dir = os.path.dirname(os.path.dirname(os.path.dirname(nb_dir)))
+if tsperf_dir not in sys.path:
+    sys.path.append(tsperf_dir)
+
+# Parse input arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
 parser.add_argument('--seq-len', type=int, dest='seq_len', default=12, help='length of the input sequence')
@@ -35,32 +40,17 @@ parser.add_argument('--epochs', type=int, dest='epochs', default=4, help='# of e
 args = parser.parse_args()
 print(args)
 
-# start an Azure ML run
+# Start an Azure ML run
 run = Run.get_context()
 
-# In[2]:
-
-
-# Append TSPerf path to sys.path
-nb_dir = os.path.split(os.getcwd())[0]
-tsperf_dir = os.path.dirname(os.path.dirname(os.path.dirname(nb_dir)))
-if tsperf_dir not in sys.path:
-    sys.path.append(tsperf_dir)
-
-
-
-# In[3]:
-
-
 # Data paths
-DATA_DIR = args.data_folder #'../../data'
+DATA_DIR = args.data_folder 
 TRAIN_DIR = os.path.join(DATA_DIR, 'train')
 TEST_DIR = os.path.join(DATA_DIR, 'test')
 
-# Data parameters
+# Data and forecast problem parameters
 MAX_STORE_ID = 137
 MAX_BRAND_ID = 11
-
 NUM_ROUNDS = 12
 PRED_HORIZON = 3
 PRED_STEPS = 2
@@ -74,14 +64,11 @@ FIRST_WEEK_START = pd.to_datetime('1989-09-14 00:00:00')
 # Parameters of the model
 PRED_HORIZON = 3
 PRED_STEPS = 2
-SEQ_LEN = args.seq_len #12 #16 #50 #60 #72 #8
-DYNAMIC_FEATURES = ['deal', 'feat', 'month', 'week_of_month'] #['week', 'week_of_month'] #['profit', 'feat']
-#DYNAMIC_FEATURES += ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', \
-#                     'price7', 'price8', 'price9', 'price10', 'price11']
+SEQ_LEN = args.seq_len 
+DYNAMIC_FEATURES = ['deal', 'feat', 'month', 'week_of_month', 'price_ratio'] 
 STATIC_FEATURES = ['store', 'brand']
 
-
-# In[4]:
+# Utility functions
 def MAPE(predictions, actuals):
     return ((predictions - actuals).abs() / actuals).mean()
 
@@ -149,7 +136,8 @@ def gen_sequence_array(df_all, seq_len, seq_cols, start_timestep=0, end_timestep
     Returns:
         seq_array (Numpy Array): An array of the feature sequences of all stores and brands    
     """
-    seq_gen = (list(gen_sequence(df_all[(df_all['store']==cur_store) & (df_all['brand']==cur_brand)],                                  seq_len, seq_cols, start_timestep, end_timestep))               for cur_store, cur_brand in itertools.product(df_all['store'].unique(), df_all['brand'].unique()))
+    seq_gen = (list(gen_sequence(df_all[(df_all['store']==cur_store) & (df_all['brand']==cur_brand)], seq_len, seq_cols, start_timestep, end_timestep)) \
+                    for cur_store, cur_brand in itertools.product(df_all['store'].unique(), df_all['brand'].unique()))
     seq_array = np.concatenate(list(seq_gen)).astype(np.float32)
     return seq_array
 
@@ -164,7 +152,7 @@ def static_feature_array(df_all, total_timesteps, seq_cols):
     Return:
         fea_array (Numpy Array): An array of static features of all stores and brands
     """
-    fea_df = data_filled.groupby(['store', 'brand']).                          apply(lambda x: x.iloc[:total_timesteps,:]).                          reset_index(drop=True)
+    fea_df = data_filled.groupby(['store', 'brand']).apply(lambda x: x.iloc[:total_timesteps,:]).reset_index(drop=True)
     fea_array = fea_df[seq_cols].values
     return fea_array
 
@@ -185,32 +173,22 @@ def normalize_dataframe(df, seq_cols, scaler=MinMaxScaler()):
     df_scaled = pd.concat([df[cols_fixed], df_scaled], axis=1)
     return df_scaled, scaler
 
-def plot_result(results, store, brand):
-    """Plot out prediction results and actual sales.
-    
-    Args:
-        result (Dataframe): Input dataframe including predicted sales and actual sales
-        store (integer): store index
-        brand (integer): brand index
-        
-    Returns:
-        None
-    """
-    subset = results[(results.store==store) & (results.brand==brand)]
-    subset = subset[['week', 'prediction', 'actual']].set_index('week')
-    plt.figure()
-    ax = subset.plot()
-    ax.set_ylim(bottom=0)
-    ax.legend(labels=['predicted', 'actual'])
-
-
-# In[5]:
-
-
 # Model definition
 def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_outputs=1):
+    """Create a Dilated CNN model.
+
+    Args: 
+        seq_len (Integer): Input sequence length
+        kernel_size (Integer): Kernel size of each convolutional layer
+        n_filters (Integer): Number of filters in each convolutional layer
+        n_outputs (Integer): Number of outputs in the last layer
+
+    Returns:
+        Keras Model object
+    """
     # Sequential input
     seq_in = Input(shape=(seq_len, n_input_series))
+
     # Categorical input
     cat_fea_in = Input(shape=(2,), dtype='uint8')
     store_id = Lambda(lambda x: x[:, 0, None])(cat_fea_in)
@@ -225,189 +203,106 @@ def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_o
                 padding='causal', activation='relu')(c1)
     c3 = Conv1D(filters=n_filters, kernel_size=kernel_size, dilation_rate=4, 
                 padding='causal', activation='relu')(c2)
+
     # Skip connections
     c4 = concatenate([c1, c3])
+
     # Output of convolutional layers 
     conv_out = Conv1D(8, 1, activation='relu')(c4)
-    conv_out = Dropout(args.dropout_rate)(conv_out) #Dropout(0.25)(conv_out)
+    conv_out = Dropout(args.dropout_rate)(conv_out) 
     conv_out = Flatten()(conv_out)
     
     # Concatenate with categorical features
     x = concatenate([conv_out, Flatten()(store_embed), Flatten()(brand_embed)])
-    #x = BatchNormalization()(x)
-    #x = Dense(64, activation='relu')(x)
-    #x = Dropout(0.25)(x)
     x = Dense(16, activation='relu')(x)
-    #x = Dropout(0.6)(x)
     output = Dense(n_outputs, activation='linear')(x)
     
+    # Define model interface, loss function, and optimizer
     model = Model(inputs=[seq_in, cat_fea_in], outputs=output)
     adam = optimizers.Adam(lr=args.learning_rate)
     model.compile(loss='mae', optimizer=adam, metrics=['mae'])
     return model
 
-model = create_dcnn_model(seq_len=SEQ_LEN, n_input_series=4, n_outputs=PRED_STEPS)
-model.summary()
 
+# Train and validate the model using only the first round data
+r = 0
+print('---- Round ' + str(r+1) + ' ----')
+# Load training data
+train_df = pd.read_csv(os.path.join(TRAIN_DIR, 'train_round_'+str(r+1)+'.csv'))
+train_df['move'] = train_df['logmove'].apply(lambda x: round(math.exp(x)))
+train_df = train_df[['store', 'brand', 'week', 'profit', 'move']]
+# Create a dataframe to hold all necessary data
+store_list = train_df['store'].unique()
+brand_list = train_df['brand'].unique()
+week_list = range(TRAIN_START_WEEK, TEST_END_WEEK_LIST[r]+1)
+d = {'store': store_list,
+        'brand': brand_list,
+        'week': week_list}        
+data_grid = df_from_cartesian_product(d)
+data_filled = pd.merge(data_grid, train_df, how='left', 
+                        on=['store', 'brand', 'week'])
+# Get future price, deal, and advertisement info
+aux_df = pd.read_csv(os.path.join(TRAIN_DIR, 'aux_round_'+str(r+1)+'.csv'))  
+data_filled = pd.merge(data_filled, aux_df, how='left',  
+                        on=['store', 'brand', 'week'])
+# Create relative price feature
+price_cols = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', \
+                'price9', 'price10', 'price11']
+data_filled['price'] = data_filled.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
+data_filled['avg_price'] = data_filled[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
+data_filled['price_ratio'] = data_filled.apply(lambda x: x['price'] / x['avg_price'], axis=1)
+# Fill missing values
+data_filled = data_filled.groupby(['store', 'brand']). \
+                            apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
+# Create datetime features
+data_filled['week_start'] = data_filled['week'].apply(lambda x: FIRST_WEEK_START + datetime.timedelta(days=(x-1)*7))
+data_filled['month'] = data_filled['week_start'].apply(lambda x: x.month)
+data_filled['week_of_month'] = data_filled['week_start'].apply(lambda x: week_of_month(x))
+data_filled['day'] = data_filled['week_start'].apply(lambda x: x.day)
+data_filled.drop('week_start', axis=1, inplace=True)  
+# Normalize the dataframe of features
+cols_normalize = data_filled.columns.difference(['store','brand','week'])
+data_scaled, min_max_scaler = normalize_dataframe(data_filled, cols_normalize)
 
-# In[6]:
+# Create sequence array for 'move'
+start_timestep = 0
+end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK-PRED_HORIZON
+train_input1 = gen_sequence_array(data_scaled, SEQ_LEN, ['move'], start_timestep, end_timestep)
 
-pred_all = []
-combined_all = []
-metric_all = []
-for r in range(1): #range(NUM_ROUNDS):
-    print('---- Round ' + str(r+1) + ' ----')
-    # Load training data
-    train_df = pd.read_csv(os.path.join(TRAIN_DIR, 'train_round_'+str(r+1)+'.csv'))
-    train_df['move'] = train_df['logmove'].apply(lambda x: round(math.exp(x)))
-    #print(train_df.head(3))
-    #print('')
-    train_df = train_df[['store', 'brand', 'week', 'profit', 'move']]
-    # Fill missing values
-    store_list = train_df['store'].unique()
-    brand_list = train_df['brand'].unique()
-    week_list = range(TRAIN_START_WEEK, TEST_END_WEEK_LIST[r]+1)
-    d = {'store': store_list,
-         'brand': brand_list,
-         'week': week_list}        
-    data_grid = df_from_cartesian_product(d)
-    data_filled = pd.merge(data_grid, train_df, how='left', 
-                            on=['store', 'brand', 'week'])
-    aux_df = pd.read_csv(os.path.join(TRAIN_DIR, 'aux_round_'+str(r+1)+'.csv'))  
-    data_filled = pd.merge(data_filled, aux_df, how='left',  # Get future price, deal, and advertisement info
-                            on=['store', 'brand', 'week'])
-    #print('Number of missing rows is {}'.format(data_filled[data_filled.isnull().any(axis=1)].shape[0]))
-    #print('')
-    data_filled = data_filled.groupby(['store', 'brand']). \
-                              apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
-    #print(data_filled.head(3))
-    #print('')
-    # Create datetime features
-    data_filled['week_start'] = data_filled['week'].apply(lambda x: FIRST_WEEK_START + datetime.timedelta(days=(x-1)*7))
-    #data_filled['year'] = data_filled['week_start'].apply(lambda x: x.year)
-    data_filled['month'] = data_filled['week_start'].apply(lambda x: x.month)
-    data_filled['week_of_month'] = data_filled['week_start'].apply(lambda x: week_of_month(x))
-    data_filled['day'] = data_filled['week_start'].apply(lambda x: x.day)
-    data_filled.drop('week_start', axis=1, inplace=True)  
-    # Normalize the dataframe of features
-    cols_normalize = data_filled.columns.difference(['store','brand','week'])
-    data_scaled, min_max_scaler = normalize_dataframe(data_filled, cols_normalize)
-    #data_scaled.head()
+# Create sequence array for other dynamic features
+start_timestep = PRED_HORIZON
+end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK
+train_input2 = gen_sequence_array(data_scaled, SEQ_LEN, DYNAMIC_FEATURES, start_timestep, end_timestep)
 
-    # Create sequence array for 'move'
-    start_timestep = 0
-    end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK-PRED_HORIZON
-    train_input1 = gen_sequence_array(data_scaled, SEQ_LEN, ['move'], start_timestep, end_timestep)
-    #train_input1.shape
+seq_in = np.concatenate((train_input1, train_input2), axis=2)
 
-    # Create sequence array for other dynamic features
-    start_timestep = PRED_HORIZON
-    end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK
-    train_input2 = gen_sequence_array(data_scaled, SEQ_LEN, DYNAMIC_FEATURES, start_timestep, end_timestep)
-    #train_input2.shape
+# Create array of static features
+total_timesteps = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK-SEQ_LEN-PRED_HORIZON+2
+cat_fea_in = static_feature_array(data_filled, total_timesteps, STATIC_FEATURES)
 
-    seq_in = np.concatenate((train_input1, train_input2), axis=2)
-    #seq_in.shape
+# Create training output
+start_timestep = SEQ_LEN+PRED_HORIZON-PRED_STEPS
+end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK
+train_output = gen_sequence_array(data_filled, PRED_STEPS, ['move'], start_timestep, end_timestep)
+train_output = np.squeeze(train_output)
 
-    # Create array of static features
-    total_timesteps = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK-SEQ_LEN-PRED_HORIZON+2
-    cat_fea_in = static_feature_array(data_filled, total_timesteps, ['store', 'brand'])
-    #cat_fea_in.shape
+# Create model
+model = create_dcnn_model(seq_len=SEQ_LEN, n_input_series=1+len(DYNAMIC_FEATURES), n_outputs=PRED_STEPS)
+# Convert to GPU model
+try:
+    model = multi_gpu_model(model)
+    print('Training using multiple GPUs...')
+except:
+    print('Training using single GPU or CPU...')
 
-    # Create training output
-    start_timestep = SEQ_LEN+PRED_HORIZON-PRED_STEPS
-    end_timestep = TRAIN_END_WEEK_LIST[r]-TRAIN_START_WEEK
-    train_output = gen_sequence_array(data_filled, PRED_STEPS, ['move'], start_timestep, end_timestep)
-    train_output = np.squeeze(train_output)
-    #train_output.shape
+adam = optimizers.Adam(lr=args.learning_rate)
+model.compile(loss='mape', optimizer=adam, metrics=['mape', 'mae'])
 
-    # Create model
-    if r >= 0:
-        model = create_dcnn_model(seq_len=SEQ_LEN, n_input_series=1+len(DYNAMIC_FEATURES), n_outputs=PRED_STEPS)
-        # Convert to GPU model
-        try:
-            model = multi_gpu_model(model)
-            print('Training using multiple GPUs..')
-        except:
-            print('Training using single GPU or CPU..')
+history = model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size, validation_split=0.05)
+val_loss = history.history['val_loss'][-1]
+print('Validation loss is {}'.format(val_loss))
 
-        adam = optimizers.Adam(lr=args.learning_rate)
-        model.compile(loss='mape', optimizer=adam, metrics=['mape', 'mae'])
-        #model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size)
-        history = model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size, validation_split=0.05)
-        val_loss = history.history['val_loss'][-1]
-        print(val_loss)
-        
-    # Get expected test output
-    test_df = pd.read_csv(os.path.join(TEST_DIR, 'test_round_'+str(r+1)+'.csv'))
-    test_df['actual'] = test_df['logmove'].apply(lambda x: round(math.exp(x)))
-    test_df.drop('logmove', axis=1, inplace=True)
-
-    exp_output = data_filled[data_filled.week >= TEST_START_WEEK_LIST[r]].reset_index(drop=True)
-    exp_output = exp_output[['store', 'brand', 'week']]
-    exp_output = pd.merge(exp_output, test_df, on=['store', 'brand', 'week'], how='left')
-
-    start_timestep = 0
-    end_timestep = PRED_STEPS-1
-    exp_test_output = gen_sequence_array(exp_output, PRED_STEPS, ['actual'], start_timestep, end_timestep)
-    exp_test_output = np.squeeze(exp_test_output)
-
-    # Get inputs for prediction
-    start_timestep = TEST_START_WEEK_LIST[r] - TRAIN_START_WEEK - SEQ_LEN - PRED_HORIZON + PRED_STEPS
-    end_timestep = TEST_START_WEEK_LIST[r] - TRAIN_START_WEEK + PRED_STEPS - 1 - PRED_HORIZON
-    test_input1 = gen_sequence_array(data_scaled, SEQ_LEN, ['move'], start_timestep, end_timestep)
-
-    start_timestep = TEST_END_WEEK_LIST[r] - TRAIN_START_WEEK - SEQ_LEN + 1
-    end_timestep = TEST_END_WEEK_LIST[r] - TRAIN_START_WEEK
-    test_input2 = gen_sequence_array(data_scaled, SEQ_LEN, DYNAMIC_FEATURES, start_timestep, end_timestep)
-
-    seq_in = np.concatenate((test_input1, test_input2), axis=2)
-
-    total_timesteps = 1
-    cat_fea_in = static_feature_array(data_filled, total_timesteps, ['store', 'brand'])
-
-    pred = np.round(model.predict([seq_in, cat_fea_in]))
-    
-    # Create dataframe for submission
-    pred_df = exp_output.sort_values(['store', 'brand', 'week']).\
-                         loc[:,['store', 'brand', 'week']].\
-                         reset_index(drop=True)
-    pred_df['weeks_ahead'] = pred_df['week'] - TRAIN_END_WEEK_LIST[r]
-    pred_df['round'] = r+1
-    pred_df['prediction'] = np.reshape(pred, (pred.size, 1))
-    combined = pd.merge(pred_df, test_df, on=['store', 'brand', 'week'], how='left')
-
-    pred_all.append(pred_df)
-    combined_all.append(combined)
-    cur_metric = val_loss #np.nanmean(np.abs(pred-exp_test_output)/exp_test_output)*100
-    print('Current MAPE is {}'.format(cur_metric))
-    metric_all.append(cur_metric)
-
-# In[7]:
-
-
-#metric_all
-
-
-# In[8]:
-
-
-mape_value = np.mean(metric_all)
-
-
-# In[9]:
-
-
-# Generate submission
-# submission = pd.concat(pred_all, axis=0).reset_index(drop=True)
-# submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction']]
-# submission.to_csv('submission_seed_1.csv', index=False)
-# #submission.to_csv('submission_seed_2.csv', index=False)
-# #submission.to_csv('submission_seed_3.csv', index=False)
-# #submission.to_csv('submission_seed_4.csv', index=False)
-# #submission.to_csv('submission_seed_5.csv', index=False)
-# submission.head()
-
-run.log('MAPE', np.float(mape_value))
+# Log the validation loss/MAPE
+run.log('MAPE', np.float(val_loss))
 
 
