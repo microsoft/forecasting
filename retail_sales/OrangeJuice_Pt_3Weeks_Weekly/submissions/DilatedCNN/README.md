@@ -177,30 +177,30 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 **Quality:** 
 
-*MAPE run 1: 37.27%*
+*MAPE run 1: 38.46%*
 
-*MAPE run 2: 39.23%*
+*MAPE run 2: 39.28%*
 
-*MAPE run 3: 40.28%*
+*MAPE run 3: 39.76%*
 
-*MAPE run 4: 39.38%*
+*MAPE run 4: 37.52%*
 
-*MAPE run 5: 38.42%*
+*MAPE run 5: 37.82%*
 
-*median MAPE: 39.23%*
+*median MAPE: 38.46%*
 
 **Time:** 
 
-*run time 1: 1168.20 seconds*
+*run time 1: 1171.61 seconds*
 
-*run time 2: 1161.48 seconds*
+*run time 2: 1162.83 seconds*
 
-*run time 3: 1162.72 seconds*
+*run time 3: 1171.76 seconds*
 
-*run time 4: 1161.84 seconds*
+*run time 4: 1160.53 seconds*
 
-*run time 5: 1161.57 seconds*
+*run time 5: 1148.61 seconds*
 
 *median run time: 1161.84 seconds*
 
-**Cost:** The total cost is 1161.84/3600 $\times$ 2.160 = $0.6971.
+**Cost:** The total cost is 1162.83/3600 $\times$ 2.160 = $0.6977.
