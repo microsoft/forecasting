@@ -215,8 +215,6 @@ def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_o
 
 # Train and predict for all forecast rounds
 pred_all = []
-combined_all = []
-#metric_all = []
 file_name = os.path.join(SUBMISSION_DIR, 'dcnn_model.h5')
 for r in range(bs.NUM_ROUNDS):
     print('---- Round ' + str(r+1) + ' ----')
@@ -300,34 +298,13 @@ for r in range(bs.NUM_ROUNDS):
 
         # Define checkpoint and fit model
         checkpoint = ModelCheckpoint(file_name, monitor='loss', verbose=1, save_best_only=True, mode='min')
-        #checkpoint = ModelCheckpoint(file_name, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
         callbacks_list = [checkpoint]
         history = model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size, callbacks=callbacks_list)
-        #history = model.fit([seq_in, cat_fea_in], train_output, epochs=args.epochs, batch_size=args.batch_size, validation_split=0.05, callbacks=callbacks_list)
     else:
         model = load_model(file_name)
         checkpoint = ModelCheckpoint(file_name, monitor='loss', verbose=1, save_best_only=True, mode='min')
-        #checkpoint = ModelCheckpoint(file_name, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
         callbacks_list = [checkpoint]
         history = model.fit([seq_in, cat_fea_in], train_output, epochs=1, batch_size=args.batch_size, callbacks=callbacks_list)        
-        #history = model.fit([seq_in, cat_fea_in], train_output, epochs=1, batch_size=args.batch_size, validation_split=0.05, callbacks=callbacks_list)
-    
-    #val_loss = history.history['val_loss'][-1]
-    #print(val_loss)
-        
-    # Get expected test output
-    test_df = pd.read_csv(os.path.join(TEST_DIR, 'test_round_'+str(r+1)+'.csv'))
-    test_df['actual'] = test_df['logmove'].apply(lambda x: round(math.exp(x)))
-    test_df.drop('logmove', axis=1, inplace=True)
-
-    exp_output = data_filled[data_filled.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
-    exp_output = exp_output[['store', 'brand', 'week']]
-    exp_output = pd.merge(exp_output, test_df, on=['store', 'brand', 'week'], how='left')
-
-    # start_timestep = 0
-    # end_timestep = PRED_STEPS-1
-    # exp_test_output = gen_sequence_array(exp_output, PRED_STEPS, ['actual'], start_timestep, end_timestep)
-    # exp_test_output = np.squeeze(exp_test_output)
 
     # Get inputs for prediction
     start_timestep = bs.TEST_START_WEEK_LIST[r] - bs.TRAIN_START_WEEK - SEQ_LEN - PRED_HORIZON + PRED_STEPS
@@ -341,35 +318,28 @@ for r in range(bs.NUM_ROUNDS):
     seq_in = np.concatenate((test_input1, test_input2), axis=2)
 
     total_timesteps = 1
-    cat_fea_in = static_feature_array(data_filled, total_timesteps, ['store', 'brand'])
+    cat_fea_in = static_feature_array(data_filled, total_timesteps, STATIC_FEATURES)
 
     # Make prediction
     pred = np.round(model.predict([seq_in, cat_fea_in]))
     
     # Create dataframe for submission
+    exp_output = data_filled[data_filled.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
+    exp_output = exp_output[['store', 'brand', 'week']]
     pred_df = exp_output.sort_values(['store', 'brand', 'week']).\
                          loc[:,['store', 'brand', 'week']].\
                          reset_index(drop=True)
     pred_df['weeks_ahead'] = pred_df['week'] - bs.TRAIN_END_WEEK_LIST[r]
     pred_df['round'] = r+1
     pred_df['prediction'] = np.reshape(pred, (pred.size, 1))
-    combined = pd.merge(pred_df, test_df, on=['store', 'brand', 'week'], how='left')
-
     pred_all.append(pred_df)
-    combined_all.append(combined)
-    # cur_metric = np.nanmean(np.abs(pred-exp_test_output)/exp_test_output)*100
-    # print('Current MAPE is {}'.format(cur_metric))
-    # metric_all.append(cur_metric)
-
-# mape_value = np.mean(metric_all)
-# print('---------------------')
-# print(mape_value)
 
 # Generate submission
 submission = pd.concat(pred_all, axis=0).reset_index(drop=True)
 submission = submission[['round', 'store', 'brand', 'week', 'weeks_ahead', 'prediction']]
 filename = 'submission_seed_' + str(args.seed) + '.csv'
 submission.to_csv(os.path.join(SUBMISSION_DIR, filename), index=False)
+print('Done')
 
 
 
