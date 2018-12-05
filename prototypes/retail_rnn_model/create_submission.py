@@ -15,18 +15,15 @@ from utils import *
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
-def create_round_submission(submission_round, hparams):
-    # import hyper parameters
-    # TODO: add ema in the code to imporve the performance
-
+def create_round_prediction(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
+                            predict_cut_mode='predict'):
     # conduct feature engineering and save related numpy array to disk
-    make_features(submission_round=submission_round)
+    if make_features_flag:
+        make_features(submission_round=submission_round)
 
     # read the numpy arrays output from the make_features.py
     # file_dir = './prototypes/retail_rnn_model'
-    file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
-    data_dir = os.path.join(file_dir, data_relative_dir)
+
     intermediate_data_dir = os.path.join(data_dir, 'intermediate/round_{}'.format(submission_round))
 
     ts_value_train = np.load(os.path.join(intermediate_data_dir, 'ts_value_train.npy'))
@@ -43,15 +40,26 @@ def create_round_submission(submission_round, hparams):
     predict_window = feature_test.shape[1]
 
     # train the rnn model
-    tf.reset_default_graph()
-    rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, submission_round)
+    if train_model_flag:
+        tf.reset_default_graph()
+        rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
+                  submission_round, back_offset=train_back_offset)
+
 
     # make prediction
     tf.reset_default_graph()
     pred_batch_size = 1024
     pred_o = rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
-                         submission_round, pred_batch_size)
+                         submission_round, pred_batch_size, cut_mode=predict_cut_mode)
+    return pred_o
 
+
+def create_round_submission(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
+                            predict_cut_mode='predict'):
+
+
+    pred_o = create_round_prediction(data_dir, submission_round, hparams, make_features_flag=make_features_flag,
+                                     train_model_flag=train_model_flag, train_back_offset=train_back_offset, predict_cut_mode=predict_cut_mode)
     # get rid of prediction at horizon 1
     pred_sub = pred_o[:, 1:].reshape((-1))
 
@@ -84,13 +92,20 @@ def create_round_submission(submission_round, hparams):
 
 
 if __name__ == '__main__':
+    # set the data directory
+    file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
+    data_dir = os.path.join(file_dir, data_relative_dir)
+
+    # import hyper parameters
+    # TODO: add ema in the code to imporve the performance
     hparams_dict = hparams.hparams_manual
     hparams = training.HParams(**hparams_dict)
     num_round = len(bs.TEST_END_WEEK_LIST)
     pred_all = pd.DataFrame()
     for R in range(1, num_round + 1):
         print('create submission for round {}...'.format(R))
-        round_submission = create_round_submission(R, hparams)
+        round_submission = create_round_submission(data_dir, R, hparams)
         pred_all = pred_all.append(round_submission)
 
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))

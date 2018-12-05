@@ -8,7 +8,8 @@ MODE = 'train'
 IS_TRAIN = True
 
 
-def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, submission_round):
+def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir, submission_round,
+              back_offset=0):
     # TODO: shuffle the time series
     # TODO: filter the time series with too many zeros
     # TODO: prefetch? optimization of perforamnce in time, n_threads in map etc.
@@ -17,7 +18,7 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
         (ts_value_train, feature_train, feature_test)).repeat()
     batch = (root_ds
              .map(lambda *x: cut(*x, cut_mode=MODE, train_window=hparams.train_window,
-                                 predict_window=predict_window, ts_length=ts_value_train.shape[1], back_offset=0))
+                                 predict_window=predict_window, ts_length=ts_value_train.shape[1], back_offset=back_offset))
              .map(normalize_target)
              .batch(hparams.batch_size))
 
