@@ -11,6 +11,10 @@ hparams_manual = dict(
     decoder_output_dropout=[0.975],
     decoder_variational_dropout=[False],
     asgd_decay=None,
-    max_epoch=1
+    max_epoch=20,
+    learning_rate=0.001,
+    beta1=0.9,
+    beta2=0.999,
+    epsilon=1e-08
 )
 

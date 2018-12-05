@@ -42,8 +42,8 @@ def create_round_prediction(data_dir, submission_round, hparams, make_features_f
     # train the rnn model
     if train_model_flag:
         tf.reset_default_graph()
-        rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
-                  submission_round, back_offset=train_back_offset)
+        train_error = rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window,
+                                intermediate_data_dir, submission_round, back_offset=train_back_offset)
 
 
     # make prediction
@@ -51,14 +51,13 @@ def create_round_prediction(data_dir, submission_round, hparams, make_features_f
     pred_batch_size = 1024
     pred_o = rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
                          submission_round, pred_batch_size, cut_mode=predict_cut_mode)
-    return pred_o
+    return pred_o, train_error
 
 
 def create_round_submission(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
                             predict_cut_mode='predict'):
 
-
-    pred_o = create_round_prediction(data_dir, submission_round, hparams, make_features_flag=make_features_flag,
+    pred_o, _ = create_round_prediction(data_dir, submission_round, hparams, make_features_flag=make_features_flag,
                                      train_model_flag=train_model_flag, train_back_offset=train_back_offset, predict_cut_mode=predict_cut_mode)
     # get rid of prediction at horizon 1
     pred_sub = pred_o[:, 1:].reshape((-1))
