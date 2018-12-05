@@ -9,7 +9,9 @@ do
     echo "Run $i"
     if [ "$2" = "R" ]; then
         time -p Rscript $1/train_score.r --seed $i
-    else
+    elif [ "$2" = "Python" ]; then
         time -p python $1/train_score.py --seed $i
+    else
+        time -p python3 $1/train_score.py --seed $i
     fi
 done
