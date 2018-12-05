@@ -39,7 +39,8 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
 
     # Sum all losses
     total_loss = mape_loss
-    train_op, glob_norm, ema = make_train_op(total_loss, hparams.asgd_decay)
+    train_op, glob_norm, ema = make_train_op(total_loss, hparams.learning_rate,  hparams.beta1, hparams.beta2,
+                                             hparams.epsilon, hparams.asgd_decay)
 
     train_size = ts_value_train.shape[0]
     steps_per_epoch = train_size // hparams.batch_size
@@ -109,5 +110,7 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
     print(np.mean(results_mape_loss, axis=1))
     print('MAPE in epochs')
     print(np.mean(results_mape, axis=1))
+
+    return np.mean(results_mape, axis=1)[-1]
 
 

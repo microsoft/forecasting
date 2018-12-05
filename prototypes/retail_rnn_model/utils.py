@@ -273,6 +273,7 @@ def calc_mae_loss(true_y, predictions):
     mae_loss = tf.losses.absolute_difference(labels=true_y, predictions=predictions, weights=weights)
     return mae_loss
 
+
 def calc_differentiable_mape_loss(true_y, predictions):
     # calculate loss
     mask = tf.logical_not(tf.math.equal(true_y, tf.zeros_like(true_y)))
@@ -300,8 +301,9 @@ def calc_rounded_mape(true_y, predictions):
     return mape
 
 
-def make_train_op(loss, ema_decay=None, prefix=None):
-    optimizer = tf.train.AdamOptimizer()
+def make_train_op(loss, learning_rate,  beta1, beta2, epsilon, ema_decay=None, prefix=None):
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2,
+                                       epsilon=epsilon)
     glob_step = tf.train.get_global_step()
 
     # Add regularization losses
