@@ -44,7 +44,7 @@ def cut(ts_value_train_slice, feature_train_slice,
         if cut_mode == 'train':
             min_start_idx = 0
             max_start_idx = (ts_length - back_offset) - \
-                            (train_window + predict_window) + 1
+                            (train_window + predict_window)
             train_start = tf.random_uniform((), min_start_idx, max_start_idx,
                                             dtype=tf.int32)
         elif cut_mode == 'eval':

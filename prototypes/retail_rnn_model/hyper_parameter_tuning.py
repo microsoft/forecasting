@@ -4,7 +4,6 @@ import inspect
 import itertools
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 import tensorflow.contrib.training as training
 
 from create_submission import create_round_prediction
@@ -13,12 +12,34 @@ from utils import *
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 from common.metrics import MAPE
 
+from smac.configspace import ConfigurationSpace
+from smac.scenario.scenario import Scenario
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, \
+    UniformFloatHyperparameter, UniformIntegerHyperparameter
 
-def eval_function(hparams_dict, data_dir):
+LIST_HYPERPARAMETER = ['decoder_input_dropout', 'decoder_state_dropout', 'decoder_output_dropout']
+
+
+def eval_function(hparams_dict):
+    # set the data directory
+    file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
+    data_dir = os.path.join(file_dir, data_relative_dir)
+
+    hparams_dict = dict(hparams_dict)
+    for key in LIST_HYPERPARAMETER:
+        hparams_dict[key] = [hparams_dict[key]]
+
+    # add the value of other hyper parameters which are not tuned
+    hparams_dict['encoder_rnn_layers'] = 1
+    hparams_dict['decoder_rnn_layers'] = 1
+    hparams_dict['decoder_variational_dropout'] = [False]
+    hparams_dict['asgd_decay'] = None
+
     hparams = training.HParams(**hparams_dict)
     # use round 1 training data for hyper parameter tuning to avoid data leakage for later rounds
     submission_round = 1
-    make_features_flag = False  # no need to make feature since it is alreayd made and saved to disk
+    make_features_flag = False
     train_model_flag = True
     train_back_offset = 3  # equal to predict_window
     predict_cut_mode = 'eval'
@@ -56,19 +77,66 @@ def eval_function(hparams_dict, data_dir):
     return train_mape, eval_mape
 
 
-
 if __name__ == '__main__':
-    # set the data directory
-    file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
-    data_dir = os.path.join(file_dir, data_relative_dir)
+
+    # Build Configuration Space which defines all parameters and their ranges
+    cs = ConfigurationSpace()
+
+    # add parameters to the configuration space
+    train_window = UniformIntegerHyperparameter('train_window', 3, 60, default_value=26)
+    cs.add_hyperparameter(train_window)
+
+    batch_size = CategoricalHyperparameter('batch_size', [64, 128, 256, 1024], default_value=64)
+    cs.add_hyperparameter(batch_size)
+
+    rnn_depth = UniformIntegerHyperparameter('rnn_depth', 100, 500, default_value=400)
+    cs.add_hyperparameter(rnn_depth)
+
+    encoder_dropout = UniformFloatHyperparameter('encoder_dropout', 0.0, 0.05, default_value=0.03)
+    cs.add_hyperparameter(encoder_dropout)
+
+    gate_dropout = UniformFloatHyperparameter('gate_dropout', 0.95, 1.0, default_value=0.997)
+    cs.add_hyperparameter(gate_dropout)
+
+    decoder_input_dropout = UniformFloatHyperparameter('decoder_input_dropout', 0.95, 1.0, default_value=1.0)
+    cs.add_hyperparameter(decoder_input_dropout)
+
+    decoder_state_dropout = UniformFloatHyperparameter('decoder_state_dropout', 0.95, 1.0, default_value=0.99)
+    cs.add_hyperparameter(decoder_state_dropout)
+
+    decoder_output_dropout = UniformFloatHyperparameter('decoder_output_dropout', 0.95, 1.0, default_value=0.975)
+    cs.add_hyperparameter(decoder_output_dropout)
+
+    max_epoch = CategoricalHyperparameter('max_epoch', [20, 50, 100], default_value=20)
+    cs.add_hyperparameter(max_epoch)
+
+    learning_rate = CategoricalHyperparameter('learning_rate', [0.001, 0.01, 0.1], default_value=0.001)
+    cs.add_hyperparameter(learning_rate)
+
+    beta1 = UniformFloatHyperparameter('beta1', 0.5, 0.9999, default_value=0.9)
+    cs.add_hyperparameter(beta1)
+
+    beta2 = UniformFloatHyperparameter('beta2', 0.5, 0.9999, default_value=0.999)
+    cs.add_hyperparameter(beta2)
+
+    epsilon = CategoricalHyperparameter('epsilon', [1e-08, 0.00001, 0.0001, 0.1, 1], default_value=1e-08)
+    cs.add_hyperparameter(epsilon)
+
+    scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternatively runtime)
+                         "runcount-limit": 2,  # maximum function evaluations
+                         "cs": cs,  # configuration space
+                         "deterministic": "true"
+                         })
+
+
 
     # import hyper parameters
     # TODO: add ema in the code to imporve the performance
-    hparams_dict = hparams.hparams_manual
-    eval_function(hparams_dict, data_dir)
+    # hparams_dict = hparams.hparams_manual
+    # eval_function(hparams_dict, data_dir)
 
-    print(1)
+    def_value = eval_function(cs.get_default_configuration())
+    print("Default Value: %.2f" % (def_value))
 
 
 
