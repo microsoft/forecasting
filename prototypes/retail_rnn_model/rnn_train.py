@@ -72,6 +72,10 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
                     ops = [inc_step]
                     ops.extend([train_op])
                     ops.extend([mae_loss, mape, mape_loss, glob_norm])
+
+                    # for debug
+                    # ops.extend([predictions, true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std])
+
                     results = sess.run(ops)
 
                     # get the results
@@ -80,6 +84,16 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
                     step_mae = results[2]
                     step_mape = results[3]
                     step_mape_loss = results[4]
+
+                    # for debug
+                    # step_predictions = results[6]
+                    # step_true_x = results[7]
+                    # step_true_y = results[8]
+                    # step_feature_x = results[9]
+                    # step_feature_y = results[10]
+                    # step_norm_x = results[11]
+                    # step_norm_mean = results[12]
+                    # step_norm_std = results[13]
 
                     print(
                         'step: {}, MAE: {}, MAPE: {}, MAPE_LOSS: {}'.format(step, step_mae, step_mape, step_mape_loss))
