@@ -14,7 +14,7 @@
 
 **Submission branch:** [chenhui/wavenet](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Fwavenet)
 
-**Pull request:** [Added Dilated CNN method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150743?_a=overview)
+**Pull request:** [Added Dilated CNN method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/171897?_a=overview)
 
 **Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FDilatedCNN&version=GBchenhui%2Fwavenet)
 
@@ -152,7 +152,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Resource location:** South Central US 
 
-**Hardware:** Standard NC12 (2 GPUs, 12 vCPUs, 112 GB memory, 680 GB temporary storage) Ubuntu Linux VM
+**Hardware:** Standard NC6 (1 GPU, 6 vCPUs, 56 GB memory, 340 GB temporary storage) Ubuntu Linux VM
 
 **Data storage:** Standard HDD
 
@@ -170,37 +170,37 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 * Azure Linux VM deployment
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
   - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a Data 
-  Science Virtual Machine for Linux (Ubuntu). Select *NC12* as the virtual machine size.
+  Science Virtual Machine for Linux (Ubuntu). Select *NC6* as the virtual machine size.
 
 
 ## Implementation evaluation
 
 **Quality:** 
 
-*MAPE run 1: 38.46%*
+*MAPE run 1: 37.60%*
 
-*MAPE run 2: 39.28%*
+*MAPE run 2: 39.86%*
 
-*MAPE run 3: 39.76%*
+*MAPE run 3: 37.79%*
 
-*MAPE run 4: 37.52%*
+*MAPE run 4: 37.06%*
 
-*MAPE run 5: 37.82%*
+*MAPE run 5: 37.75%*
 
-*median MAPE: 38.46%*
+*median MAPE: 37.75%*
 
 **Time:** 
 
-*run time 1: 1171.61 seconds*
+*run time 1: 884.04 seconds*
 
-*run time 2: 1162.83 seconds*
+*run time 2: 880.81 seconds*
 
-*run time 3: 1171.76 seconds*
+*run time 3: 879.73 seconds*
 
-*run time 4: 1160.53 seconds*
+*run time 4: 867.42 seconds*
 
-*run time 5: 1148.61 seconds*
+*run time 5: 875.60 seconds*
 
-*median run time: 1161.84 seconds*
+*median run time: 879.73 seconds*
 
-**Cost:** The total cost is 1162.83/3600 $\times$ 2.160 = $0.6977.
+**Cost:** The total cost is 879.73/3600 $\times$ 1.080 = $0.2639.
