@@ -71,6 +71,16 @@ def cut(ts_value_train_slice, feature_train_slice,
     return true_x, true_y, feature_x, feature_y
 
 
+def reject_filter(max_train_empty, true_x, *args):
+    """
+    Rejects timeseries having too many zero datapoints (more than self.max_train_empty)
+    """
+
+    zeros_x = tf.reduce_sum(tf.to_int32(tf.equal(true_x, 0.0)))
+    keep = zeros_x <= max_train_empty
+    return keep
+
+
 def normalize_target(true_x, true_y, feature_x, feature_y):
     """
     normalize the target variable.
@@ -331,3 +341,7 @@ def make_train_op(loss, learning_rate,  beta1, beta2, epsilon, ema_decay=None, p
         training_op = sgd_op
         ema = None
     return training_op, glob_norm, ema
+
+
+
+
