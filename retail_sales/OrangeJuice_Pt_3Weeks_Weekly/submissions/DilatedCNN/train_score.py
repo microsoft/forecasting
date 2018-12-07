@@ -286,13 +286,6 @@ for r in range(bs.NUM_ROUNDS):
     # Create and train model
     if r == 0:
         model = create_dcnn_model(seq_len=SEQ_LEN, n_input_series=1+len(DYNAMIC_FEATURES), n_outputs=PRED_STEPS)
-        # Convert to GPU model
-        try:
-           model = multi_gpu_model(model, gpus=2)
-           print('Training using multiple GPUs...')
-        except:
-           print('Training using single GPU or CPU...')
-
         adam = optimizers.Adam(lr=args.learning_rate)
         model.compile(loss='mape', optimizer=adam, metrics=['mape', 'mae'])
 
