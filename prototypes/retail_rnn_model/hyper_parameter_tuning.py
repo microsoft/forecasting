@@ -83,7 +83,7 @@ if __name__ == '__main__':
     cs = ConfigurationSpace()
 
     # add parameters to the configuration space
-    train_window = UniformIntegerHyperparameter('train_window', 3, 60, default_value=26)
+    train_window = UniformIntegerHyperparameter('train_window', 3, 70, default_value=60)
     cs.add_hyperparameter(train_window)
 
     batch_size = CategoricalHyperparameter('batch_size', [64, 128, 256, 1024], default_value=64)
