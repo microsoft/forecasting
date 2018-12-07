@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
     # import hyper parameters
     # TODO: add ema in the code to imporve the performance
-    hparams_dict = hparams.hparams_manual
+    hparams_dict = hparams.hparams_smac
     hparams = training.HParams(**hparams_dict)
     num_round = len(bs.TEST_END_WEEK_LIST)
     pred_all = pd.DataFrame()

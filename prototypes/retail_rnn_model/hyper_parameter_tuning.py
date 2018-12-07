@@ -139,7 +139,28 @@ if __name__ == '__main__':
 
     incumbent = smac.optimize()
     inc_value = eval_function(incumbent)
-    print('the vest hyper parameter sets are:')
+    print('the best hyper parameter sets are:')
     print(incumbent)
     print('the corresponding MAPE is: {}'.format(inc_value))
+
+    # following are the print out:
+    # the best hyper parameter sets are:
+    # Configuration:
+    # batch_size, Value: 64
+    # beta1, Value: 0.7763754022206656
+    # beta2, Value: 0.7923825287287111
+    # decoder_input_dropout, Value: 0.9975650671957902
+    # decoder_output_dropout, Value: 0.9732177111192211
+    # decoder_state_dropout, Value: 0.9743711264734845
+    # encoder_dropout, Value: 0.024688459483309007
+    # epsilon, Value: 1e-08
+    # gate_dropout, Value: 0.980832247298109
+    # learning_rate, Value: 0.001
+    # max_epoch, Value: 100
+    # rnn_depth, Value: 387
+    # train_window, Value: 26
+
+    # the corresponding MAPE is: 0.36703585613035433
+
+
 
