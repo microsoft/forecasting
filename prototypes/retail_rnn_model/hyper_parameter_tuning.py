@@ -16,6 +16,8 @@ from smac.configspace import ConfigurationSpace
 from smac.scenario.scenario import Scenario
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, \
     UniformFloatHyperparameter, UniformIntegerHyperparameter
+from smac.facade.smac_facade import SMAC
+
 
 LIST_HYPERPARAMETER = ['decoder_input_dropout', 'decoder_state_dropout', 'decoder_output_dropout']
 
@@ -74,7 +76,7 @@ def eval_function(hparams_dict):
     # calculate MAPE on the evaluate set
     result = result.loc[result['sales'].notnull()]
     eval_mape = MAPE(result['prediction'], result['sales'])
-    return train_mape, eval_mape
+    return eval_mape
 
 
 if __name__ == '__main__':
@@ -123,7 +125,7 @@ if __name__ == '__main__':
     cs.add_hyperparameter(epsilon)
 
     scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternatively runtime)
-                         "runcount-limit": 2,  # maximum function evaluations
+                         "runcount-limit": 50,  # maximum function evaluations
                          "cs": cs,  # configuration space
                          "deterministic": "true"
                          })
@@ -132,14 +134,12 @@ if __name__ == '__main__':
 
     # import hyper parameters
     # TODO: add ema in the code to imporve the performance
-    # hparams_dict = hparams.hparams_manual
-    # eval_function(hparams_dict, data_dir)
+    smac = SMAC(scenario=scenario, rng=np.random.RandomState(42),
+                tae_runner=eval_function)
 
-    def_value = eval_function(cs.get_default_configuration())
-    print("Default Value: %.2f" % (def_value))
-
-
-
-
-
+    incumbent = smac.optimize()
+    inc_value = eval_function(incumbent)
+    print('the vest hyper parameter sets are:')
+    print(incumbent)
+    print('the corresponding MAPE is: {}'.format(inc_value))
 
