@@ -18,3 +18,22 @@ hparams_manual = dict(
     epsilon=1e-08
 )
 
+hparams_smac = dict(
+    train_window=26,
+    batch_size=64,
+    encoder_rnn_layers=1,
+    decoder_rnn_layers=1,
+    rnn_depth=387,
+    encoder_dropout=0.024688459483309007,
+    gate_dropout=0.980832247298109,
+    decoder_input_dropout=[0.9975650671957902],
+    decoder_state_dropout=[0.9743711264734845],
+    decoder_output_dropout=[0.9732177111192211],
+    decoder_variational_dropout=[False],
+    asgd_decay=None,
+    max_epoch=100,
+    learning_rate=0.001,
+    beta1=0.7763754022206656,
+    beta2=0.7923825287287111,
+    epsilon=1e-08
+)
