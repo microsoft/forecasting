@@ -49,7 +49,7 @@ No parameter tuning was done.
 0. Follow the instructions [here](#resource-deployment-instructions) to provision a Linux virtual machine and log into the provisioned
 VM.
 
-1. Clone the TSPerf repo to the home directory of your machine and check out the baseline model branch
+1. Clone the TSPerf repo to the home directory of your machine and check out the fnn model branch
 
    ```bash
    cd ~/TSPerf
@@ -123,7 +123,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    ```
    source activate tsperf
-   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_score_vm.sh
+   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_score_vm.sh > out.txt &
    ```
    After generating the forecast results, you can exit the Docker container by command `exit`.
 
