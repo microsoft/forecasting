@@ -48,6 +48,9 @@ RUN apt-get update && \
 RUN pip3 install --upgrade pip
 RUN pip3 install --upgrade setuptools
 
+# install the numpy due to requirements from ConfigSpace
+RUN pip install numpy==1.14.5
+
 # install swig for SMAC package
 # https://sillycodes.com/quick-tip-couldnt-create-temporary-file/
 RUN apt-get clean
