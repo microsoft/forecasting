@@ -1,4 +1,8 @@
-# SMAC package requirements
+# other requirements
+pandas==0.23.0
+tensorflow-gpu==1.10
+
+# SMAC package pre - requirements
 setuptools
 cython
 numpy>=1.7.1
@@ -21,7 +25,6 @@ statsmodels
 emcee>=2.1.0
 george
 
-# other requirements
-pandas==0.23.0
-tensorflow-gpu==1.10
+# install smac
+smac==0.9.0
 
