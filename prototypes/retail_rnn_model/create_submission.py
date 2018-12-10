@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import tensorflow.contrib.training as training
+import argparse
 
 from rnn_train import rnn_train
 from rnn_predict import rnn_predict
@@ -16,7 +17,7 @@ import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
 def create_round_prediction(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
-                            predict_cut_mode='predict'):
+                            predict_cut_mode='predict', random_seed=1):
     # conduct feature engineering and save related numpy array to disk
     if make_features_flag:
         make_features(submission_round=submission_round)
@@ -42,7 +43,7 @@ def create_round_prediction(data_dir, submission_round, hparams, make_features_f
     # train the rnn model
     if train_model_flag:
         tf.reset_default_graph()
-        tf.set_random_seed(1)
+        tf.set_random_seed(seed=random_seed)
         train_error = rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window,
                                 intermediate_data_dir, submission_round, back_offset=train_back_offset)
 
@@ -56,10 +57,11 @@ def create_round_prediction(data_dir, submission_round, hparams, make_features_f
 
 
 def create_round_submission(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
-                            predict_cut_mode='predict'):
+                            predict_cut_mode='predict', random_seed=1):
 
     pred_o, _ = create_round_prediction(data_dir, submission_round, hparams, make_features_flag=make_features_flag,
-                                     train_model_flag=train_model_flag, train_back_offset=train_back_offset, predict_cut_mode=predict_cut_mode)
+                                        train_model_flag=train_model_flag, train_back_offset=train_back_offset,
+                                        predict_cut_mode=predict_cut_mode, random_seed=random_seed)
     # get rid of prediction at horizon 1
     pred_sub = pred_o[:, 1:].reshape((-1))
 
@@ -92,6 +94,12 @@ def create_round_submission(data_dir, submission_round, hparams, make_features_f
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', type=int, dest='seed', default=1, help='random seed')
+    args = parser.parse_args()
+    random_seed = args.seed
+
+
     # set the data directory
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
@@ -105,7 +113,7 @@ if __name__ == '__main__':
     pred_all = pd.DataFrame()
     for R in range(1, num_round + 1):
         print('create submission for round {}...'.format(R))
-        round_submission = create_round_submission(data_dir, R, hparams)
+        round_submission = create_round_submission(data_dir, R, hparams, random_seed=random_seed)
         pred_all = pred_all.append(round_submission)
 
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
