@@ -42,6 +42,7 @@ def create_round_prediction(data_dir, submission_round, hparams, make_features_f
     # train the rnn model
     if train_model_flag:
         tf.reset_default_graph()
+        tf.set_random_seed(1)
         train_error = rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window,
                                 intermediate_data_dir, submission_round, back_offset=train_back_offset)
 
