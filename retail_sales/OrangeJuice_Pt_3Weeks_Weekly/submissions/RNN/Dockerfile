@@ -58,7 +58,7 @@ RUN mv /var/lib/apt/lists /tmp
 RUN mkdir -p /var/lib/apt/lists/partial
 RUN apt-get clean
 RUN apt-get update
-RUN apt-get -y install swig
+RUN apt-get -y install build-essential swig
 
 ## Mount Python dependency file into the docker container and install dependencies 
 WORKDIR /tmp
