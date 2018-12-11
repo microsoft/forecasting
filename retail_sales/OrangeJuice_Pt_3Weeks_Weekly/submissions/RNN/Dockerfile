@@ -69,7 +69,7 @@ RUN pip3 install smac==0.9.0
 # Fix the symlink issue of tensorflow (https://github.com/tensorflow/tensorflow/issues/10776)
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1
 ENV LD_LIBRARY_PATH='/usr/local/cuda/lib64/stubs/:${LD_LIBRARY_PATH}'
-RUN rm /usr/local/cuda/lib64/stubs/libcuda.so.1
+# RUN rm /usr/local/cuda/lib64/stubs/libcuda.so.1
 
 WORKDIR /
 RUN rm -rf tmp
