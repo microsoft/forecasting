@@ -49,8 +49,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install --upgrade setuptools
 
 # install the numpy due to requirements from ConfigSpace
-RUN pip install numpy==1.14.5
-RUN pip install scipy==1.1.0
+RUN pip3 install numpy==1.14.5
 
 # install swig for SMAC package
 # https://sillycodes.com/quick-tip-couldnt-create-temporary-file/
@@ -65,6 +64,7 @@ RUN apt-get -y install swig
 WORKDIR /tmp
 ADD ./python_dependencies.txt /tmp
 RUN pip3 install -r python_dependencies.txt
+RUN pip3 install smac==0.9.0
 
 # Fix the symlink issue of tensorflow (https://github.com/tensorflow/tensorflow/issues/10776)
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1
