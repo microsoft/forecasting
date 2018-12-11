@@ -25,6 +25,4 @@ statsmodels
 emcee>=2.1.0
 george
 
-# install smac
-smac==0.9.0
 
