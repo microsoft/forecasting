@@ -1,0 +1,16 @@
+name: rnnenv
+channels:
+  - defaults
+dependencies:
+  - python=3.5   
+  - pandas=0.23.0
+  - scikit-learn=0.20.0
+  - pip:
+    - tensorflow-gpu==1.10
+    # temporary instructions for installing SMAC https://github.com/automl/SMAC3/
+    # make the yaml file work later when working on submission
+    # conda activate rnnenv
+    # conda install gxx_linux-64 gcc_linux-64 swig
+    # wget https://raw.githubusercontent.com/automl/SMAC3/master/requirements.txt
+    # pip install -r requirements.txt
+    # pip install smac
