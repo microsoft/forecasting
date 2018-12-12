@@ -61,7 +61,7 @@ def cut(ts_value_train_slice, feature_train_slice,
 
     else:
         train_start = ts_length - train_window
-        train_end = train_start + train_window
+        train_end = ts_length
 
         true_x = ts_value_train_slice[train_start: train_end]
         true_y = tf.fill((predict_window,), np.nan)
@@ -236,8 +236,7 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, pre
     targets = targets_ta.stack()
     # [time, batch_size, 1] -> [time, batch_size]
     targets = tf.squeeze(targets, axis=-1)
-    raw_outputs = None
-    return targets, raw_outputs
+    return targets
 
 
 def decode_predictions(decoder_readout, norm_mean, norm_std):
@@ -265,7 +264,7 @@ def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_w
                                        dropout=hparams.gate_dropout if is_train else 1.0)
 
     # Run decoder
-    decoder_targets, decoder_outputs = decoder(encoder_state, feature_y, norm_x[:, -1], hparams, is_train=is_train,
+    decoder_targets = decoder(encoder_state, feature_y, norm_x[:, -1], hparams, is_train=is_train,
                                                predict_window=predict_window)
 
     # get predictions
