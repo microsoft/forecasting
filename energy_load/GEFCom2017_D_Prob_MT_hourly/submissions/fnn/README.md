@@ -23,7 +23,7 @@
 
 ### Modelling approach
 
-In this submission, we implement a quantile regression feed forward neutral network model using the `qrnn` package in R.
+In this submission, we implement a quantile regression neutral network model using the `qrnn` package in R.
 
 ### Feature engineering
 
@@ -159,32 +159,32 @@ Please follow the instructions below to deploy the Linux DSVM.
 **Quality:**  
 Note there is no randomness in this fnn model, so the model quality is the same for all five runs.
 
-* Pinball loss run 1: 90.84
+* Pinball loss run 1: 82.59
 
-* Pinball loss run 2: 86.24
+* Pinball loss run 2: 82.58
 
-* Pinball loss run 3: 86.20
+* Pinball loss run 3: 82.58
 
-* Pinball loss run 4: 86.36
+* Pinball loss run 4: 82.60
 
-* Pinball loss run 5: 86.09
+* Pinball loss run 5: 82.52
 
-* Median Pinball loss: 86.24
+* Median Pinball loss: 82.58
 
 **Time:**
 
-* Run time 1:  4758 seconds
+* Run time 1:  1724 seconds
 
-* Run time 2:  4740 seconds
+* Run time 2:  1784 seconds
 
-* Run time 3:  4756 seconds
+* Run time 3:  1765 seconds
 
-* Run time 4:  4745 seconds
+* Run time 4:  1740 seconds
 
-* Run time 5:  4750 seconds
+* Run time 5:  1722 seconds
 
-* Median run time:  4750 seconds
+* Median run time:  1740 seconds
 
 **Cost:**  
 The hourly cost of the Standard D8s DSVM is 0.3840 USD based on the price at the submission date.   
-Thus, the total cost is 4750/3600 * 0.3840 = $0.5067.
+Thus, the total cost is 1740/3600 * 0.3840 = $0.1856.
