@@ -69,9 +69,7 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
             results_epoch_mape = []
             results_epoch_mape_loss = []
 
-            tqr = range(steps_per_epoch)
-
-            for _ in tqr:
+            for _ in range(steps_per_epoch):
                 try:
                     ops = [inc_step]
                     ops.extend([train_op])
