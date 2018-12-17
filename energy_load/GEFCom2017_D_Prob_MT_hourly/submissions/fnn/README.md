@@ -107,7 +107,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    ```bash
    docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
    ```
-   
+
    You can run the similar command to pull the Docker image fnn_cv_image:v1 as well.
 
 5. Tune Hyperparameter **within Docker container**.
@@ -120,7 +120,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
 
-   5.2   
+   5.2 Train and validate
 
    ```
    source activate tsperf
