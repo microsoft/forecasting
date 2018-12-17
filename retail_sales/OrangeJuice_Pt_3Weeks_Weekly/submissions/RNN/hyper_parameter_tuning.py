@@ -20,12 +20,12 @@ from smac.facade.smac_facade import SMAC
 
 
 LIST_HYPERPARAMETER = ['decoder_input_dropout', 'decoder_state_dropout', 'decoder_output_dropout']
+data_relative_dir = '../../data'
 
 
 def eval_function(hparams_dict):
     # set the data directory
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
 
     hparams_dict = dict(hparams_dict)

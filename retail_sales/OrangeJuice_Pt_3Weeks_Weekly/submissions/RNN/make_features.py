@@ -11,12 +11,12 @@ from utils import *
 from sklearn.preprocessing import OneHotEncoder
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
+data_relative_dir = '../../data'
+
 
 def make_features(submission_round):
     # read in data
-    # file_dir = './prototypes/retail_rnn_model'
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
 
     train_file = os.path.join(data_dir, 'train/train_round_{}.csv'.format(submission_round))
