@@ -2,32 +2,32 @@
 
 ## Submission details
 
-**Submission date**: 11/29/2018
+**Submission date**: 12/17/2018
 
 **Benchmark name:** OrangeJuice_Pt_3Weeks_Weekly
 
-**Submitter(s):** Chenhui Hu
+**Submitter(s):** Yiyu Chen
 
-**Submitter(s) email:** chenhhu@microsoft.com
+**Submitter(s) email:** yiychen@microsoft.com
 
-**Submission name:** DilatedCNN
+**Submission name:** RNN
 
-**Submission branch:** [chenhui/wavenet](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Fwavenet)
+**Submission branch:** [yiychen/retail_rnn_submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GByiychen%2Fretail_rnn_submission)
 
-**Pull request:** [Added Dilated CNN method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/171897?_a=overview)
+**Pull request:** [Added Dilated CNN method for retail sales forecasting](To be Updated)
 
-**Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FDilatedCNN&version=GBchenhui%2Fwavenet)
+**Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/RNN](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FRNN&version=GByiychen%2Fretail_rnn_submission)
 
 
 ## Implementation description
 
-### Modelling approach
+### Modelling approach [Yiyu: to be updated]
 
 In this submission, we implement a Dilated Convolutional Neural Network (CNN) model using Keras package. Dilated CNN is a class of CNN that was initially 
 proposed to improve audio waveform generation in [this paper](https://arxiv.org/abs/1609.03499) by Oord et al in 2016. Later this model has shown great 
 performance in solving time series forecasting problems of several recent machine learning competitions. 
 
-### Feature engineering
+### Feature engineering [Yiyu: to be updated]
 
 The following features have been used in the implementation of the forecast method:
 
@@ -36,7 +36,7 @@ The following features have been used in the implementation of the forecast meth
 - other dynamic features including *deal* and  *feat* columns 
 - static features including store index and brand index
 
-### Hyperparameter tuning
+### Hyperparameter tuning [Yiyu: to be updated]
 
 We tune the hyperparameters of the model with HyperDrive which is accessible through Azure ML SDK. A Batch AI cluster with GPU support is created 
 to distribute the computation. The hyperparameters tuned with HyperDrive and their ranges are as follows
@@ -45,7 +45,7 @@ to distribute the computation. The hyperparameters tuned with HyperDrive and the
 - learning rate: [0.01, 0.015, 0.02, 0.025]
 - number of epochs: [3,4,5,6,8]
 
-### Description of implementation scripts
+### Description of implementation scripts [Yiyu: to be updated]
 
 * `train_score.py`: Python script that trains the model and generates forecast results for each round
 * `train_score.ipynb` (optional): Jupyter notebook that trains the model and visualizes the results
@@ -64,12 +64,12 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd ~/TSPerf
-   git checkout chenhui/wavenet
+   git checkout yiychen/retail_rnn_submission
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
    connect to Git repos via HTTPS authentication. If these don't work, you can try to [connect through SSH](https://docs.microsoft.com/en-us/vsts/repos/git/use-ssh-keys-to-authenticate?view=vsts). The above commands will download the 
-   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout chenhui/wavenet` once the submission branch is merged into the master branch.
+   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout yiychen/retail_rnn_submission` once the submission branch is merged into the master branch.
 
 2. Create a conda environment for running the scripts of data downloading, data preparation, and result evaluation. To do this, you need 
 to check if conda has been installed by runnning command `conda -V`. If it is installed, you will see the conda version in the terminal. Otherwise, please follow the instructions [here](https://conda.io/docs/user-guide/install/linux.html) to install conda. Then, you can go to `TSPerf` directory in the VM and create a conda environment named `tsperf` by
@@ -99,7 +99,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    `/test` under the data directory, respectively. After running the above command, you can deactivate the conda environment by running 
    `source deactivate`.
 
-5. Log into Azure Container Registry (ACR):
+5. Log into Azure Container Registry (ACR): [Yiyu: To be updated]
    
    ```bash
    docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
@@ -110,7 +110,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    Unix group and add users to it by following the instructions 
    [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-6. Pull a Docker image from ACR using the following command   
+6. Pull a Docker image from ACR using the following command [Yiyu: To be updated]   
 
    ```bash
    docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/dcnn_image:v1
@@ -146,7 +146,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    benchmark quality declared in benchmark submission.
 
 
-## Implementation resources
+## Implementation resources 
 
 **Platform:** Azure Cloud 
 
@@ -164,7 +164,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
     - tensorflow-gpu==1.12.0
     - keras==2.2.4
 
-## Resource deployment instructions
+## Resource deployment instructions 
 
 We use Azure Linux VM to develop the baseline methods. Please follow the instructions below to deploy the resource.
 * Azure Linux VM deployment
@@ -173,7 +173,7 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
   Science Virtual Machine for Linux (Ubuntu). Select *NC6* as the virtual machine size.
 
 
-## Implementation evaluation
+## Implementation evaluation [Yiyu: to be updated]
 
 **Quality:** 
 
