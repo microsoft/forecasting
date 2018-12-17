@@ -1,7 +1,6 @@
 pkgs <- c(
   'data.table',
-  'qrnn',
-  'rjson'
+  'qrnn'
 )
 
 install.packages(pkgs)
