@@ -35,13 +35,14 @@ The following features are used:
 
 ### Model tuning
 
-The data of January - April of 2016 were used as validation dataset for some minor model tuning. Based on the model performance on this validation dataset, a larger feature set was narrowed down to the features described above.
-No parameter tuning was done.
+The data of January - April of 2016 were used as validation dataset for some minor model tuning. Based on the model performance on this validation dataset, a larger feature set was narrowed down to the features described above. The model hyperparameter tuning is done on the first train round data. The best model is selected by cross validation using this training data in the 6 forecast rounds. The set of hyperparameters which yield the best cross validation pinball loss will be used to train models and forecast energy load across all 6 forecast rounds.
 
 ### Description of implementation scripts
 
 * `feature_engineering.py`: Python script for computing features and generating feature files.
+* `train_validate.R`: R script that trains Quantile Regression Neutral Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters.
 * `train_predict.R`: R script that trains Quantile Regression Neutral Network models and predicts on each round of test data.
+* `train_validate_vm.sh`: Bash script that runs `feature_engineering.py` and `train_validate.R` multiple times to generate cross validation result files and measure model tuning time.
 * `train_score_vm.sh`: Bash script that runs `feature_engineering.py` and `train_predict.R` five times to generate five submission files and measure model running time.
 
 ### Steps to reproduce results
@@ -84,8 +85,10 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    ```
 
 4. Prepare Docker container for model training and predicting.  
-   
-   Change to a root user by the command 
+   > NOTE: To execute docker commands without
+   sudo as a non-root user, you need to create a
+   Unix group and add users to it by following the instructions
+   [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user). Otherwise, simply change to a root user by the following command:
 
    ```bash
    sudo -i
@@ -98,20 +101,36 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    ```
 
    The `<ACR Acccess Key>` can be found [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/accessKey).   
-   If want to execute docker commands without
-   sudo as a non-root user, you need to create a
-   Unix group and add users to it by following the instructions
-   [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
    4.2 Pull the Docker image from ACR to your VM
 
    ```bash
    docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
    ```
+   
+   You can run the similar command to pull the Docker image fnn_cv_image:v1 as well.
 
-5. Train and predict **within Docker container**.
+5. Tune Hyperparameter **within Docker container**.
 
    5.1 Start a Docker container from the image  
+
+   ```bash
+   docker run -it -v ~/TSPerf:/TSPerf --name fnn_cv_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_cv_image:v1
+   ```
+
+   Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
+
+   5.2   
+
+   ```
+   source activate tsperf
+   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_validate_vm.sh > cv_out.txt &
+   ```
+   After generating the cross validation results, you can exit the Docker container by command `exit`. Based on the average pinball loss obtained at each set of hyperparameters, you can choose the best set of hyperparameters and use it in the Rscript of `train_predict.R`.
+
+6. Train and predict **within Docker container**.
+
+   6.1 Start a Docker container from the image  
 
    ```bash
    docker run -it -v ~/TSPerf:/TSPerf --name fnn_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
@@ -119,7 +138,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
 
-   5.2 Train and predict  
+   6.2 Train and predict  
 
    ```
    source activate tsperf
@@ -127,7 +146,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    ```
    After generating the forecast results, you can exit the Docker container by command `exit`.
 
-6. Model evaluation **on the VM**
+7. Model evaluation **on the VM**.
 
    ```bash
    source activate tsperf
@@ -140,7 +159,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 **Platform:** Azure Cloud  
 **Hardware:** Standard D8s v3 (8 vcpus, 32 GB memory) Linux Data Science Virtual Machine (DSVM)  
 **Data storage:** Premium SSD  
-**Docker image:** tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image  
+**Docker image:** tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1  
 
 **Key packages/dependencies:**
   * Python
@@ -149,6 +168,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
     - r-base==3.5.1  
     - qrnn==2.0.2
     - data.table==1.10.4.3
+    - rjson==0.2.20
 
 ## Resource deployment instructions
 Please follow the instructions below to deploy the Linux DSVM.
