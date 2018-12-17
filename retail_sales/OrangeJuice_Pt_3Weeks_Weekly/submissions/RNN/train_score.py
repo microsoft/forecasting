@@ -15,6 +15,8 @@ import hparams
 from utils import *
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
+data_relative_dir = '../../data'
+
 
 def create_round_prediction(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
                             predict_cut_mode='predict', random_seed=1):
@@ -102,7 +104,6 @@ if __name__ == '__main__':
 
     # set the data directory
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
 
     # import hyper parameters
