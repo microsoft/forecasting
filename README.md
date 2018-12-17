@@ -17,7 +17,7 @@ A complete documentation of TSPerf, along with the instructions for submitting a
 | Submission Name | Pinball Loss | Training and Scoring Time | Training and Scoring Cost | Architecture | Framework | Algorithm | Submission Folder URL |
 | -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
 | Baseline | 84.66 | 446 sec | $0.05 | Linux DSVM (Standard D8s v3, Premium SSD) | quantreg package of R | Linear Quantile Regression  | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions%2Fbaseline&version=GBmaster) |
-| GBM      | 78.73 | 1055sec | $0.113 | Linux DSVM (Standard D8s v3, Premium SSD) | gbm package of R | Gradient Boosting Decision Tree | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions%2FGBM%2FREADME.md&version=GBvapaunic%2Fgbm) |
+| GBM      | 78.73 | 1055 sec | $0.113 | Linux DSVM (Standard D8s v3, Premium SSD) | gbm package of R | Gradient Boosting Decision Tree | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions%2FGBM%2FREADME.md&version=GBvapaunic%2Fgbm) |
 
 ### Retail sales forecasting performance board
 
