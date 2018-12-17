@@ -118,12 +118,12 @@ if __name__ == '__main__':
         pred_all = pred_all.append(round_submission)
 
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    submission_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/RNN'
+    submission_relative_dir = '../'
     submission_dir = os.path.join(file_dir, submission_relative_dir)
     if not os.path.isdir(submission_dir):
         os.makedirs(submission_dir)
 
-    submission_file = os.path.join(submission_dir, 'submission.csv')
+    submission_file = os.path.join(submission_dir, 'submission_seed_{}.csv'.format(str(random_seed)))
     pred_all.to_csv(submission_file, index=False)
 
 
