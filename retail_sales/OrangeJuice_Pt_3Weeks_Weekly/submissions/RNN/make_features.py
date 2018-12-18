@@ -3,12 +3,22 @@ This .py file creates features for the RNN model.
 """
 
 # import packages
-import pandas as pd
-import inspect, os
-import numpy as np
 import itertools
+import sys
+import inspect
+import os
+import pandas as pd
+import numpy as np
 from utils import *
 from sklearn.preprocessing import OneHotEncoder
+
+# Add TSPerf root directory to sys.path
+file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+tsperf_dir = os.path.join(file_dir, '../../../../')
+
+if tsperf_dir not in sys.path:
+    sys.path.append(tsperf_dir)
+
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 data_relative_dir = '../../data'
