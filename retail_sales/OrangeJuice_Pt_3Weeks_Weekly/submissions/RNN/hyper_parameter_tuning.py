@@ -2,13 +2,21 @@
 import os
 import inspect
 import itertools
+import sys
 import numpy as np
 import pandas as pd
 import tensorflow.contrib.training as training
 
 from train_score import create_round_prediction
-import hparams
 from utils import *
+
+# Add TSPerf root directory to sys.path
+file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+tsperf_dir = os.path.join(file_dir, '../../../../')
+
+if tsperf_dir not in sys.path:
+    sys.path.append(tsperf_dir)
+
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 from common.metrics import MAPE
 
