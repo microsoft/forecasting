@@ -7,8 +7,10 @@ import pandas as pd
 import tensorflow.contrib.training as training
 
 from train_score import create_round_prediction
-import hparams
 from utils import *
+
+
+
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 from common.metrics import MAPE
 
