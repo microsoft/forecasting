@@ -96,9 +96,9 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
                     # step_norm_x = results[11]
                     # step_norm_mean = results[12]
                     # step_norm_std = results[13]
-
-                    print(
-                        'step: {}, MAE: {}, MAPE: {}, MAPE_LOSS: {}'.format(step, step_mae, step_mape, step_mape_loss))
+                    # 
+                    # print(
+                    #     'step: {}, MAE: {}, MAPE: {}, MAPE_LOSS: {}'.format(step, step_mae, step_mape, step_mape_loss))
 
                     results_epoch_mae.append(step_mae)
                     results_epoch_mape.append(step_mape)
