@@ -2,7 +2,7 @@
 
 ## Submission details
 
-**Submission date**: 12/17/2018
+**Submission date**: 12/21/2018
 
 **Benchmark name:** OrangeJuice_Pt_3Weeks_Weekly
 
@@ -14,44 +14,42 @@
 
 **Submission branch:** [yiychen/retail_rnn_submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GByiychen%2Fretail_rnn_submission)
 
-**Pull request:** [Added Dilated CNN method for retail sales forecasting](To be Updated)
+**Pull request:** [RNN implementation for retail dataset](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/175622?_a=overview)
 
 **Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/RNN](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FRNN&version=GByiychen%2Fretail_rnn_submission)
 
 
 ## Implementation description
 
-### Modelling approach [Yiyu: to be updated]
+### Modelling approach 
 
-In this submission, we implement a Dilated Convolutional Neural Network (CNN) model using Keras package. Dilated CNN is a class of CNN that was initially 
-proposed to improve audio waveform generation in [this paper](https://arxiv.org/abs/1609.03499) by Oord et al in 2016. Later this model has shown great 
-performance in solving time series forecasting problems of several recent machine learning competitions. 
+In this submission, we implement an Encoder-Decoder Recurrent Neural Network (RNN) model using [Tensorflow](https://www.tensorflow.org/) package. The implementation is heavily referencing the winning solution of the [Web Traffic Time Series Forecasting Kaggle competition](https://www.kaggle.com/c/web-traffic-time-series-forecasting) which is hosted on the Github [here](https://github.com/Arturus/kaggle-web-traffic). For more details about the RNN model and its architecture, please see [here](https://github.com/Arturus/kaggle-web-traffic/blob/master/how_it_works.md#model-core).
 
-### Feature engineering [Yiyu: to be updated]
+### Feature engineering 
 
 The following features have been used in the implementation of the forecast method:
 
-- datetime features including week of the month and month number
-- weekly sales of each orange juice in recent weeks 
-- other dynamic features including *deal* and  *feat* columns 
-- static features including store index and brand index
+- weekly sales of each orange juice in recent weeks.
+- series popularity which is defined as the sales median of each time series.
+- orange juice price and price ratio. The price ratio is defined as orange juice price divided by the average orange juice price of the store which measures the price competitiveness of a orange juice brand.
+- promotaion realted features: `feat` and `deal`.
+- orange juice brance with One Hot Encoding.
 
-### Hyperparameter tuning [Yiyu: to be updated]
+All the features are normalized before feeding into the model.
 
-We tune the hyperparameters of the model with HyperDrive which is accessible through Azure ML SDK. A Batch AI cluster with GPU support is created 
-to distribute the computation. The hyperparameters tuned with HyperDrive and their ranges are as follows
-- input sequence length: [6, 8, 10, 12, 14, 16, 18, 20]
-- batch size: [16, 32, 64]
-- learning rate: [0.01, 0.015, 0.02, 0.025]
-- number of epochs: [3,4,5,6,8]
+### Hyperparameter tuning 
 
-### Description of implementation scripts [Yiyu: to be updated]
+The hyperparameters are tuned with [SMAC package](https://github.com/automl/SMAC3).
+
+### Description of implementation scripts 
 
 * `train_score.py`: Python script that trains the model and generates forecast results for each round
-* `train_score.ipynb` (optional): Jupyter notebook that trains the model and visualizes the results
-* `train_validate.py` (optional): Python script that does training and validation with the 1st round training data 
-* `hyperparameter_tuning.ipynb` (optional): Jupyter notebook that tries different model configurations and selects the best model by running 
-`train_validate.py` script in a Batch AI cluster with different sets of hyperparameters
+* `hyper_parameter_tuning.py`: Python script for hyperparameter tuning.
+* `hparams.py`: Python script contains manual selected hyperparameter and the hyperparameter selected by the hyperparameter tuning script.
+* `make_features.py`: Python script contains the function for creating the features.
+* `rnn_train.py`: Python script contains the function for creating and training the RNN model.
+* `rnn_predict.py`: Python script contains the function for making predictions by loading the saved model.
+* `utils.py`: Python script contains all the utility functions used across multiple other scripts.
 
 ### Steps to reproduce results
 
