@@ -128,8 +128,7 @@ if __name__ == '__main__':
         pred_all = pred_all.append(round_submission)
 
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    submission_relative_dir = '../'
-    submission_dir = os.path.join(file_dir, submission_relative_dir)
+    submission_dir = file_dir
     if not os.path.isdir(submission_dir):
         os.makedirs(submission_dir)
 

@@ -97,7 +97,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    `/test` under the data directory, respectively. After running the above command, you can deactivate the conda environment by running 
    `source deactivate`.
 
-5. Log into Azure Container Registry (ACR): [Yiyu: To be updated]
+5. Log into Azure Container Registry (ACR): 
    
    ```bash
    docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
@@ -111,13 +111,13 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 6. Pull a Docker image from ACR using the following command [Yiyu: To be updated]   
 
    ```bash
-   docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/dcnn_image:v1
+   docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/rnn_image:v1
    ```
 
 7. Choose a name for a new Docker container (e.g. dcnn_container) and create it using command:   
    
    ```bash
-   docker run -it -v $(pwd):/TSPerf --runtime=nvidia --name dcnn_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/dcnn_image:v1
+   docker run -it -v $(pwd):/TSPerf --runtime=nvidia --name rnn_container tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/rnn_image:v1
    ```
    
    Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have 
@@ -126,7 +126,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 8. Inside `/TSPerf` folder, train the model and make predictions by running
 
    ```bash
-   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN Python3
+   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/RNN Python3
    ``` 
  
    This will generate 5 `submission_seed_<seed number>.csv` files in the submission directory, where \<seed number\> 
@@ -137,7 +137,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 9. Activate conda environment again by `source activate tsperf`. Then, evaluate the benchmark quality by running
    
    ```bash
-   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
+   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/RNN ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
    ```
 
    This command will output 5 benchmark quality values (MAPEs). Their median should be compared against the 
