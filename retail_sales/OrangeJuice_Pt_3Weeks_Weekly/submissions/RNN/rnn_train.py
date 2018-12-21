@@ -120,12 +120,12 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
 
     # look at the training results
     # examine step_mae and step_mape_loss
-    print('MAE in epochs')
-    print(np.mean(results_mae, axis=1))
-    print('MAPE LOSS in epochs')
-    print(np.mean(results_mape_loss, axis=1))
-    print('MAPE in epochs')
-    print(np.mean(results_mape, axis=1))
+    # print('MAE in epochs')
+    # print(np.mean(results_mae, axis=1))
+    # print('MAPE LOSS in epochs')
+    # print(np.mean(results_mape_loss, axis=1))
+    # print('MAPE in epochs')
+    # print(np.mean(results_mape, axis=1))
 
     return np.mean(results_mape, axis=1)[-1]
 
