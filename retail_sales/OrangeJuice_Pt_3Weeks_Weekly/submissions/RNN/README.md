@@ -108,7 +108,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    Unix group and add users to it by following the instructions 
    [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-6. Pull a Docker image from ACR using the following command [Yiyu: To be updated]   
+6. Pull a Docker image from ACR using the following command:  
 
    ```bash
    docker pull tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/rnn_image:v1
@@ -154,13 +154,15 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Data storage:** Standard HDD
 
-**Docker image:** tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/dcnn_image:v1
+**Docker image:** tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/rnn_image:v1
 
 **Key packages/dependencies:**  
   * Python 
-    - pandas==0.23.1  
-    - tensorflow-gpu==1.12.0
-    - keras==2.2.4
+    - numpy>=1.7.1
+    - scikit-learn==0.20.0
+    - pandas==0.23.0 
+    - tensorflow-gpu==1.10
+    - smac==0.9.0
 
 ## Resource deployment instructions 
 
@@ -171,34 +173,34 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
   Science Virtual Machine for Linux (Ubuntu). Select *NC6* as the virtual machine size.
 
 
-## Implementation evaluation [Yiyu: to be updated]
+## Implementation evaluation 
 
 **Quality:** 
 
-*MAPE run 1: 37.60%*
+*MAPE run 1: 38.87%*
 
-*MAPE run 2: 39.86%*
+*MAPE run 2: 38.09%*
 
-*MAPE run 3: 37.79%*
+*MAPE run 3: 37.88%*
 
-*MAPE run 4: 37.06%*
+*MAPE run 4: 37.80%*
 
-*MAPE run 5: 37.75%*
+*MAPE run 5: 37.70%*
 
-*median MAPE: 37.75%*
+*median MAPE: 37.80%*
 
 **Time:** 
 
-*run time 1: 884.04 seconds*
+*run time 1: 824.66 seconds*
 
-*run time 2: 880.81 seconds*
+*run time 2: 802.17 seconds*
 
-*run time 3: 879.73 seconds*
+*run time 3: 827.06 seconds*
 
-*run time 4: 867.42 seconds*
+*run time 4: 794.81 seconds*
 
-*run time 5: 875.60 seconds*
+*run time 5: 815.31 seconds*
 
-*median run time: 879.73 seconds*
+*median run time: 815.31 seconds*
 
-**Cost:** The total cost is 879.73/3600 $\times$ 1.080 = $0.2639.
+**Cost:** The total cost is 815.31/3600 $\times$ 1.080 = $0.2446.
