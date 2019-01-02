@@ -240,7 +240,7 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, pre
 
 def decode_predictions(decoder_readout, norm_mean, norm_std):
     """
-    Converts normalized prediction values to log1p(pageviews), e.g. reverts normalization
+    Reverts normalization on the prediction.
     :param decoder_readout: Decoder output, shape [n_days, batch]
     :param inp: Input tensors
     :return:
