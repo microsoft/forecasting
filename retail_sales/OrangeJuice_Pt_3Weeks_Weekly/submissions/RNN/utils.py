@@ -121,7 +121,6 @@ def convert_cudnn_state_v2(h_state, hparams, dropout=1.0):
     """
     Converts RNN state tensor from cuDNN representation to TF RNNCell compatible representation.
     :param h_state: tensor [num_layers, batch_size, depth]
-    :param c_state: LSTM additional state, should be same shape as h_state
     :return: TF cell representation matching RNNCell.state_size structure for compatible cell
     """
 

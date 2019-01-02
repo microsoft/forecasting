@@ -78,7 +78,7 @@ def make_features(submission_round):
 
     train['price'] = train.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
     train['avg_price'] = train[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
-    train['price_ratio'] = train.apply(lambda x: x['price'] / x['avg_price'], axis=1)
+    train['price_ratio'] = train['price'] / train['avg_price']
 
     test['price'] = test.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
     test['avg_price'] = test[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))

@@ -32,8 +32,8 @@ The following features have been used in the implementation of the forecast meth
 - weekly sales of each orange juice in recent weeks.
 - series popularity which is defined as the sales median of each time series.
 - orange juice price and price ratio. The price ratio is defined as orange juice price divided by the average orange juice price of the store which measures the price competitiveness of a orange juice brand.
-- promotaion realted features: `feat` and `deal`.
-- orange juice brance with One Hot Encoding.
+- promotion related features: `feat` and `deal`.
+- orange juice brand with One Hot Encoding.
 
 All the features are normalized before feeding into the model.
 
