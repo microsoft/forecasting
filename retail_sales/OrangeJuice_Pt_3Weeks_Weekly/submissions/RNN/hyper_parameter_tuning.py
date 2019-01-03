@@ -117,7 +117,7 @@ if __name__ == '__main__':
     decoder_output_dropout = UniformFloatHyperparameter('decoder_output_dropout', 0.95, 1.0, default_value=0.975)
     cs.add_hyperparameter(decoder_output_dropout)
 
-    max_epoch = CategoricalHyperparameter('max_epoch', [20, 50, 100], default_value=20)
+    max_epoch = CategoricalHyperparameter('max_epoch', [50, 100, 150, 200], default_value=100)
     cs.add_hyperparameter(max_epoch)
 
     learning_rate = CategoricalHyperparameter('learning_rate', [0.001, 0.01, 0.1], default_value=0.001)
@@ -133,11 +133,13 @@ if __name__ == '__main__':
     cs.add_hyperparameter(epsilon)
 
     scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternatively runtime)
-                         "runcount-limit": 50,  # maximum function evaluations
+                         "runcount-limit": 100,  # maximum function evaluations
                          "cs": cs,  # configuration space
                          "deterministic": "true"
                          })
 
+    # test the default configuration works
+    # eval_function(cs.get_default_configuration())
 
 
     # import hyper parameters
@@ -149,7 +151,7 @@ if __name__ == '__main__':
     inc_value = eval_function(incumbent)
     print('the best hyper parameter sets are:')
     print(incumbent)
-    print('the corresponding MAPE is: {}'.format(inc_value))
+    print('the corresponding MAPE on validation datset is: {}'.format(inc_value))
 
     # following are the print out:
     # the best hyper parameter sets are:
