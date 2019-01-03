@@ -123,7 +123,8 @@ def make_features(submission_round):
     test_ts_length = test_max_time - test_min_time + 1
 
     # ts_value_train
-    ts_value_train = train['logmove'].values
+    # the target variable fed into the neural network are: log(sales + 1), where sales = exp(logmove).
+    ts_value_train = np.log(np.exp(train['logmove'].values) + 1)
     ts_value_train = ts_value_train.reshape((ts_number, train_ts_length))
     # fill missing value with zero
     ts_value_train = np.nan_to_num(ts_value_train)
