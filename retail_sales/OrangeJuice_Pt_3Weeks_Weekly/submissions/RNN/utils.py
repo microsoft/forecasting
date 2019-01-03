@@ -90,7 +90,6 @@ def normalize_target(true_x, true_y, feature_x, feature_y):
     norm_mean = tf.reduce_mean(masked_true_x)
     norm_std = tf.sqrt(tf.reduce_mean(tf.squared_difference(masked_true_x, norm_mean)))
     norm_x = (true_x - norm_mean) / norm_std
-    # question: the std returned is actually 1 / std?
     return true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std
 
 

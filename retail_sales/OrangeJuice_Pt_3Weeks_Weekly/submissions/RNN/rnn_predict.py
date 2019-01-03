@@ -42,7 +42,7 @@ def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_wi
         pred, = sess.run([predictions])
 
     # invert the prediction back to original scale
-    pred_o = np.exp(pred)
+    pred_o = np.exp(pred) - 1
     return pred_o
 
 
