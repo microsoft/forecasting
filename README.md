@@ -29,6 +29,8 @@ A complete documentation of TSPerf, along with the instructions for submitting a
 | MeanForecast |  70.74 | 69.88 sec | $0.002 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Mean forecast  | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FMeanForecast&version=GBmaster) |
 | SeasonalNaive | 165.06 | 160.45 sec | $0.004 | Linux DSVM (Standard D2s v3, Premium SSD) | forecast package of R | Seasonal Naive  | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FSeasonalNaive&version=GBmaster) |
 | LightGBM | 51.74 | 430.93 sec | $0.0115 | Linux DSVM (Standard D2s v3, Premium SSD) | lightGBM package of Python | Gradient Boosting Decision Tree  | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FLightGBM&version=GBmaster) |
+| DilatedCNN | 37.75 | 873 sec | $0.26 | Ubuntu VM (NC6, Standard HDD) | Keras, Tensorflow, Python | Dilated convolutional neural network  | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FDilatedCNN&version=GBchenhui%2Fwavenet) |
+| RNN Encoder-Decoder | 37.8 | 815 sec | $0.24 | Ubuntu VM (NC6, Standard HDD) | Tensorflow, Python | Encoder-decoder architecture of recurrent neural network | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FRNN&version=GByiychen%2Fretail_rnn_submission) |
 
 
 
