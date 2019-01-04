@@ -43,6 +43,8 @@ def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_wi
 
     # invert the prediction back to original scale
     pred_o = np.exp(pred) - 1
+    pred_o = pred_o.astype(int)
+
     return pred_o
 
 
