@@ -1,7 +1,8 @@
 # Retrieves the orangeJuice dataset from the bayesm R package
 # and saves as csv
 
-install.packages("bayesm", repos = "http://mran.revolutionanalytics.com/snapshot/2018-08-27/")
+#install.packages("bayesm", repos = "http://mran.revolutionanalytics.com/snapshot/2018-08-27/")
+install.packages("bayesm")
 
 library(bayesm)
 
