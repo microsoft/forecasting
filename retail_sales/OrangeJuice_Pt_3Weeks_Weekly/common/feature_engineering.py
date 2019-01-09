@@ -61,60 +61,63 @@ def moving_averages(df, start_step, window_size=None):
 
 
 if __name__ == '__main__':
-    # define the round
-    submission_round = 1
+    for submission_round in range(1, bs.NUM_ROUNDS + 1):
+        print('creating features for round {}...'.format(submission_round))
+        # read in data
+        train_file = os.path.join(DATA_DIR, 'train/train_round_{}.csv'.format(submission_round))
+        aux_file = os.path.join(DATA_DIR, 'train/aux_round_{}.csv'.format(submission_round))
+        train_df = pd.read_csv(train_file, index_col=False)
+        aux_df = pd.read_csv(aux_file, index_col=False)
 
-    # read in data
-    train_file = os.path.join(DATA_DIR, 'train/train_round_{}.csv'.format(submission_round))
-    aux_file = os.path.join(DATA_DIR, 'train/aux_round_{}.csv'.format(submission_round))
-    train_df = pd.read_csv(train_file, index_col=False)
-    aux_df = pd.read_csv(aux_file, index_col=False)
+        # calculate move
+        train_df['move'] = train_df['logmove'].apply(lambda x: round(math.exp(x)))
+        train_df = train_df[['store', 'brand', 'week', 'profit', 'move', 'logmove']]
 
-    # calculate move
-    train_df['move'] = train_df['logmove'].apply(lambda x: round(math.exp(x)))
-    train_df = train_df[['store', 'brand', 'week', 'profit', 'move', 'logmove']]
+        # merge train_df with aux_df
+        all_df = pd.merge(train_df, aux_df, how='right', on=['store', 'brand', 'week'])
 
-    # merge train_df with aux_df
-    all_df = pd.merge(train_df, aux_df, how='right', on=['store', 'brand', 'week'])
+        # fill missing datetime gaps
+        store_list = all_df['store'].unique()
+        brand_list = all_df['brand'].unique()
+        week_list = range(bs.TRAIN_START_WEEK, bs.TEST_END_WEEK_LIST[submission_round - 1] + 1)
 
-    # fill missing datetime gaps
-    store_list = all_df['store'].unique()
-    brand_list = all_df['brand'].unique()
-    week_list = range(bs.TRAIN_START_WEEK, bs.TEST_END_WEEK_LIST[submission_round - 1] + 1)
+        item_list = list(itertools.product(store_list, brand_list, week_list))
+        item_df = pd.DataFrame.from_records(item_list, columns=['store', 'brand', 'week'])
+        all_df = item_df.merge(all_df, how='left', on=['store', 'brand', 'week'])
 
-    item_list = list(itertools.product(store_list, brand_list, week_list))
-    item_df = pd.DataFrame.from_records(item_list, columns=['store', 'brand', 'week'])
-    all_df = item_df.merge(all_df, how='left', on=['store', 'brand', 'week'])
+        # calculate features
+        # (1) price and price ratio
+        # Create relative price feature
+        price_cols = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', \
+                      'price9', 'price10', 'price11']
+        all_df['price'] = all_df.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
+        all_df['avg_price'] = all_df[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
+        all_df['price_ratio'] = all_df['price'] / all_df['avg_price']
 
-    # calculate features
-    # (1) price and price ratio
-    # Create relative price feature
-    price_cols = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', \
-                  'price9', 'price10', 'price11']
-    all_df['price'] = all_df.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
-    all_df['avg_price'] = all_df[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
-    all_df['price_ratio'] = all_df['price'] / all_df['avg_price']
+        # (2) week of month
+        all_df['week_start'] = all_df['week'].apply(
+            lambda x: bs.FIRST_WEEK_START + datetime.timedelta(days=(x - 1) * 7))
+        all_df['week_of_month'] = all_df['week_start'].apply(lambda x: week_of_month(x))
 
-    # (2) week of month
-    all_df['week_start'] = all_df['week'].apply(
-        lambda x: bs.FIRST_WEEK_START + datetime.timedelta(days=(x - 1) * 7))
-    all_df['week_of_month'] = all_df['week_start'].apply(lambda x: week_of_month(x))
+        # (3) lag features and moving average features
+        all_df = all_df.sort_values(by=['store', 'brand', 'week'])
+        lags = [2, 3, 4]
+        # fill the NA sales before calculating the lag and moving average features
+        filled_sales = all_df[['store', 'brand', 'move']].apply(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
+        lagged_fea = filled_sales.groupby(['store', 'brand']).apply(lambda x: lagged_features(x[['move']], lags))
+        moving_avg = filled_sales.groupby(['store', 'brand']).apply(lambda x: moving_averages(x[['move']], 2, 10))
+        all_df = pd.concat([all_df, lagged_fea, moving_avg], axis=1)
 
-    # (3) lag features and moving average features
-    lags = [2, 3, 4]
-    lagged_fea = lagged_features(all_df[['move']], lags)
-    moving_avg = moving_averages(all_df[['move']], 2, 10)
-    tmp = pd.concat([all_df, lagged_fea, moving_avg], axis=1)
+        # write the feature engineering results to csv
+        # the final data frame has the following columns:
+        # ['store', 'brand', 'week', 'profit', 'move', 'logmove', 'price1',
+        #  'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8',
+        #  'price9', 'price10', 'price11', 'deal', 'feat', 'price', 'avg_price',
+        #  'price_ratio', 'week_start', 'week_of_month', 'move_lag2', 'move_lag3',
+        #  'move_lag4', 'move_mean']
+        FEATURE_DATA_DIR = os.path.join(DATA_DIR, 'feature_engineering')
+        if not os.path.isdir(FEATURE_DATA_DIR):
+            os.mkdir(FEATURE_DATA_DIR)
 
-    # feature columns
-    feature_cols = ['store', 'brand', 'week', 'profit', 'move', 'logmove', 'price1',
-       'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8',
-       'price9', 'price10', 'price11', 'deal', 'feat', 'price', 'avg_price',
-       'price_ratio', 'week_start', 'week_of_month', 'move_lag2', 'move_lag3',
-       'move_lag4', 'move_mean']
-
-    # write the feature engineering results to csv
-    
-
-
-
+        file_name = os.path.join(FEATURE_DATA_DIR, 'feature_engineering_round_{}.csv'.format(submission_round))
+        all_df.to_csv(file_name, index=False)
