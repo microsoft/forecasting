@@ -53,10 +53,11 @@ def moving_averages(df, start_step, window_size=None):
     Returns:
         fea (Dataframe): Dataframe consisting of the moving averages
     """
-    if window_size == None:  # Use a large window to compute average over all historical data
+    if window_size == None:
+        # Use a large window to compute average over all historical data
         window_size = df.shape[0]
     fea = df.shift(start_step).rolling(min_periods=1, center=False, window=window_size).mean()
-    fea.columns = fea.columns + '_mean'
+    fea.columns = fea.columns + '_mean' + str(window_size)
     return fea
 
 
@@ -94,12 +95,18 @@ if __name__ == '__main__':
         all_df['avg_price'] = all_df[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
         all_df['price_ratio'] = all_df['price'] / all_df['avg_price']
 
-        # (2) week of month
+        # (2) date time related features: week of month, year, month, day
         all_df['week_start'] = all_df['week'].apply(
             lambda x: bs.FIRST_WEEK_START + datetime.timedelta(days=(x - 1) * 7))
         all_df['week_of_month'] = all_df['week_start'].apply(lambda x: week_of_month(x))
 
+        all_df['year'] = all_df['week_start'].apply(lambda x: x.year)
+        all_df['month'] = all_df['week_start'].apply(lambda x: x.month)
+        all_df['day'] = all_df['week_start'].apply(lambda x: x.day)
+
         # (3) lag features and moving average features
+        # You could also change the lags to create your own lag features as
+        # needed
         all_df = all_df.sort_values(by=['store', 'brand', 'week'])
         lags = [2, 3, 4]
         # fill the NA sales before calculating the lag and moving average features
