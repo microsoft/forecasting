@@ -23,7 +23,6 @@ def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_wi
     iterator = batch.make_initializable_iterator()
     it_tensors = iterator.get_next()
     true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std = it_tensors
-    encoder_feature_depth = feature_x.shape[2].value
 
     # build the model, get the predictions
     predictions = build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, IS_TRAIN, hparams)
@@ -43,7 +42,9 @@ def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_wi
         pred, = sess.run([predictions])
 
     # invert the prediction back to original scale
-    pred_o = np.exp(pred)
+    pred_o = np.exp(pred) - 1
+    pred_o = pred_o.astype(int)
+
     return pred_o
 
 

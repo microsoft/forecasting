@@ -2,13 +2,21 @@
 import os
 import inspect
 import itertools
+import sys
 import numpy as np
 import pandas as pd
 import tensorflow.contrib.training as training
 
-from create_submission import create_round_prediction
-import hparams
+from train_score import create_round_prediction
 from utils import *
+
+# Add TSPerf root directory to sys.path
+file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+tsperf_dir = os.path.join(file_dir, '../../../../')
+
+if tsperf_dir not in sys.path:
+    sys.path.append(tsperf_dir)
+
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 from common.metrics import MAPE
 
@@ -20,12 +28,12 @@ from smac.facade.smac_facade import SMAC
 
 
 LIST_HYPERPARAMETER = ['decoder_input_dropout', 'decoder_state_dropout', 'decoder_output_dropout']
+data_relative_dir = '../../data'
 
 
 def eval_function(hparams_dict):
     # set the data directory
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
 
     hparams_dict = dict(hparams_dict)
@@ -109,7 +117,7 @@ if __name__ == '__main__':
     decoder_output_dropout = UniformFloatHyperparameter('decoder_output_dropout', 0.95, 1.0, default_value=0.975)
     cs.add_hyperparameter(decoder_output_dropout)
 
-    max_epoch = CategoricalHyperparameter('max_epoch', [20, 50, 100], default_value=20)
+    max_epoch = CategoricalHyperparameter('max_epoch', [50, 100, 150, 200], default_value=100)
     cs.add_hyperparameter(max_epoch)
 
     learning_rate = CategoricalHyperparameter('learning_rate', [0.001, 0.01, 0.1], default_value=0.001)
@@ -125,11 +133,13 @@ if __name__ == '__main__':
     cs.add_hyperparameter(epsilon)
 
     scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternatively runtime)
-                         "runcount-limit": 50,  # maximum function evaluations
+                         "runcount-limit": 100,  # maximum function evaluations
                          "cs": cs,  # configuration space
                          "deterministic": "true"
                          })
 
+    # test the default configuration works
+    # eval_function(cs.get_default_configuration())
 
 
     # import hyper parameters
@@ -141,7 +151,7 @@ if __name__ == '__main__':
     inc_value = eval_function(incumbent)
     print('the best hyper parameter sets are:')
     print(incumbent)
-    print('the corresponding MAPE is: {}'.format(inc_value))
+    print('the corresponding MAPE on validation datset is: {}'.format(inc_value))
 
     # following are the print out:
     # the best hyper parameter sets are:

@@ -29,7 +29,6 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
     iterator = batch.make_initializable_iterator()
     it_tensors = iterator.get_next()
     true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std = it_tensors
-    encoder_feature_depth = feature_x.shape[2].value
 
     # build the model, get the predictions
     predictions = build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, IS_TRAIN, hparams)
@@ -96,9 +95,9 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
                     # step_norm_x = results[11]
                     # step_norm_mean = results[12]
                     # step_norm_std = results[13]
-
-                    print(
-                        'step: {}, MAE: {}, MAPE: {}, MAPE_LOSS: {}'.format(step, step_mae, step_mape, step_mape_loss))
+                    #
+                    # print(
+                    #     'step: {}, MAE: {}, MAPE: {}, MAPE_LOSS: {}'.format(step, step_mae, step_mape, step_mape_loss))
 
                     results_epoch_mae.append(step_mae)
                     results_epoch_mape.append(step_mape)
@@ -120,12 +119,12 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
 
     # look at the training results
     # examine step_mae and step_mape_loss
-    print('MAE in epochs')
-    print(np.mean(results_mae, axis=1))
-    print('MAPE LOSS in epochs')
-    print(np.mean(results_mape_loss, axis=1))
-    print('MAPE in epochs')
-    print(np.mean(results_mape, axis=1))
+    # print('MAE in epochs')
+    # print(np.mean(results_mae, axis=1))
+    # print('MAPE LOSS in epochs')
+    # print(np.mean(results_mape_loss, axis=1))
+    # print('MAPE in epochs')
+    # print(np.mean(results_mape, axis=1))
 
     return np.mean(results_mape, axis=1)[-1]
 
