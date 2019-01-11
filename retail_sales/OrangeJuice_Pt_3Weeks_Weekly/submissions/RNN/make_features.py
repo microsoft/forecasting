@@ -3,20 +3,30 @@ This .py file creates features for the RNN model.
 """
 
 # import packages
-import pandas as pd
-import inspect, os
-import numpy as np
 import itertools
+import sys
+import inspect
+import os
+import pandas as pd
+import numpy as np
 from utils import *
 from sklearn.preprocessing import OneHotEncoder
+
+# Add TSPerf root directory to sys.path
+file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+tsperf_dir = os.path.join(file_dir, '../../../../')
+
+if tsperf_dir not in sys.path:
+    sys.path.append(tsperf_dir)
+
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
+
+data_relative_dir = '../../data'
 
 
 def make_features(submission_round):
     # read in data
-    # file_dir = './prototypes/retail_rnn_model'
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
 
     train_file = os.path.join(data_dir, 'train/train_round_{}.csv'.format(submission_round))
@@ -68,7 +78,7 @@ def make_features(submission_round):
 
     train['price'] = train.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
     train['avg_price'] = train[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
-    train['price_ratio'] = train.apply(lambda x: x['price'] / x['avg_price'], axis=1)
+    train['price_ratio'] = train['price'] / train['avg_price']
 
     test['price'] = test.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
     test['avg_price'] = test[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
@@ -113,7 +123,8 @@ def make_features(submission_round):
     test_ts_length = test_max_time - test_min_time + 1
 
     # ts_value_train
-    ts_value_train = train['logmove'].values
+    # the target variable fed into the neural network are: log(sales + 1), where sales = exp(logmove).
+    ts_value_train = np.log(np.exp(train['logmove'].values) + 1)
     ts_value_train = ts_value_train.reshape((ts_number, train_ts_length))
     # fill missing value with zero
     ts_value_train = np.nan_to_num(ts_value_train)

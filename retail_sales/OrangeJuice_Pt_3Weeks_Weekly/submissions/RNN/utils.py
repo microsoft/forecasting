@@ -90,7 +90,6 @@ def normalize_target(true_x, true_y, feature_x, feature_y):
     norm_mean = tf.reduce_mean(masked_true_x)
     norm_std = tf.sqrt(tf.reduce_mean(tf.squared_difference(masked_true_x, norm_mean)))
     norm_x = (true_x - norm_mean) / norm_std
-    # question: the std returned is actually 1 / std?
     return true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std
 
 
@@ -121,7 +120,6 @@ def convert_cudnn_state_v2(h_state, hparams, dropout=1.0):
     """
     Converts RNN state tensor from cuDNN representation to TF RNNCell compatible representation.
     :param h_state: tensor [num_layers, batch_size, depth]
-    :param c_state: LSTM additional state, should be same shape as h_state
     :return: TF cell representation matching RNNCell.state_size structure for compatible cell
     """
 
@@ -241,7 +239,7 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, pre
 
 def decode_predictions(decoder_readout, norm_mean, norm_std):
     """
-    Converts normalized prediction values to log1p(pageviews), e.g. reverts normalization
+    Reverts normalization on the prediction.
     :param decoder_readout: Decoder output, shape [n_days, batch]
     :param inp: Input tensors
     :return:

@@ -2,18 +2,30 @@
 import os
 import inspect
 import itertools
+import argparse
+import sys
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import tensorflow.contrib.training as training
-import argparse
+
 
 from rnn_train import rnn_train
 from rnn_predict import rnn_predict
 from make_features import make_features
 import hparams
 from utils import *
+
+# Add TSPerf root directory to sys.path
+file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+tsperf_dir = os.path.join(file_dir, '../../../../')
+
+if tsperf_dir not in sys.path:
+    sys.path.append(tsperf_dir)
+
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
+
+data_relative_dir = '../../data'
 
 
 def create_round_prediction(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
@@ -102,7 +114,6 @@ if __name__ == '__main__':
 
     # set the data directory
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    data_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
     data_dir = os.path.join(file_dir, data_relative_dir)
 
     # import hyper parameters
@@ -117,12 +128,11 @@ if __name__ == '__main__':
         pred_all = pred_all.append(round_submission)
 
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    submission_relative_dir = '../../retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/RNN'
-    submission_dir = os.path.join(file_dir, submission_relative_dir)
+    submission_dir = file_dir
     if not os.path.isdir(submission_dir):
         os.makedirs(submission_dir)
 
-    submission_file = os.path.join(submission_dir, 'submission.csv')
+    submission_file = os.path.join(submission_dir, 'submission_seed_{}.csv'.format(str(random_seed)))
     pred_all.to_csv(submission_file, index=False)
 
 
