@@ -115,7 +115,7 @@ From the `TSPerf` directory on the VM create a conda environment named `tsperf` 
 
    ```
    source activate tsperf
-   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/GBM/train_score_vm.sh > out.txt &
+   bash ~/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/GBM/train_score_vm.sh > out.txt &
    ```
    After generating the forecast results, you can exit the Docker container with command `exit`.
 
