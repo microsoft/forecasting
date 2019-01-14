@@ -20,12 +20,12 @@ def split_train_test(full_df, output_dir,
     in benchmark_settings.py, and writes the output into specified csv files.
 
     Args:
-        full_df:  Full data frame to be split. For robustness and simplicity,
+        full_df (pandas.DataFrame):  Full data frame to be split. For robustness and simplicity,
             it's required that full_df is indexed by datetime at level 0.
-        output_dir: Directory in which to store the output files.
-        train_file_prefix: These files each contains a subset of data to be 
+        output_dir (str): Directory in which to store the output files.
+        train_file_prefix (str): These files each contains a subset of data to be 
             added to train_base_file to form the training data of a particular round.
-        test_file_prefix: These files each contains testing data for a particular round.
+        test_file_prefix (str): These files each contains testing data for a particular round.
     """
 
     train_data_dir = os.path.join(output_dir, 'train')
