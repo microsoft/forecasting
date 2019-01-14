@@ -1,5 +1,5 @@
 """
-This script takes a back test configuration file as input and generates a cross
+This script takes a backtest configuration file as input and generates a cross
 validation setting file containing training and validation time ranges for
 each cross validation round. See the backtest_config.json file and
 cv_settings.json file for examples the configuration files.
@@ -33,6 +33,10 @@ from common.train_utils import TSCVSplitter
 
 
 def main(config_file):
+    """
+    Main functions that takes backtest configuration file as input and generates a cross- validation settings file containing training and validation time ranges for each cross validation round.
+    """
+
     with open(config_file) as f:
         config = json.load(f)
 
