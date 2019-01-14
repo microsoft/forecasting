@@ -23,7 +23,7 @@
 
 ### Modelling approach
 
-In this submission, we implement a simple quantile regression model using the `gbm` package in R.
+In this submission, we implement a simple Gradient Boosting Machine model for quantile regression task using the `gbm` package in R.
 
 ### Feature engineering
 
@@ -41,7 +41,7 @@ No parameter tuning was done.
 ### Description of implementation scripts
 
 * `feature_engineering.py`: Python script for computing features and generating feature files.
-* `train_predict.R`: R script that trains Quantile Regression models and predicts on each round of test data.
+* `train_predict.R`: R script that trains Gradient Boosting Machine model for quantile regression task and predicts on each round of test data.
 * `train_score_vm.sh`: Bash script that runs `feature_engineering.py`and `train_predict.R` five times to generate five submission files and measure model running time.
 
 ### Steps to reproduce results
@@ -54,7 +54,7 @@ VM.
    ```bash
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
-   git checkout <insert branch>
+   git checkout vapaunic/gbm
    ```
    Use one of the following options to securely connect to the Git repo:
    * [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts)  
@@ -115,7 +115,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    ```
    source activate tsperf
-   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/GBM/train_score_vm.sh
+   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/GBM/train_score_vm.sh > out.txt &
    ```
    After generating the forecast results, you can exit the Docker container by command `exit`.
 6. Model evaluation **on the VM**
