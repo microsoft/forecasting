@@ -76,3 +76,34 @@ here (TODO: Add link). Specifically, it should include
     * cost in each run 
 
 11. Create pull request for review
+
+### Batch AI
+
+[Batch AI](https://azure.microsoft.com/services/batch-ai/) is an Azure product which enables the training of machine learning models in parallel on a cluster of VMs. In the context of TSPerf, it can be used in two ways:
+
+- Train models and generate forecasts for multiple time series in parallel. For example, in retail sales forecasting benchmarks, it could be used to train/score models for multiple products concurrently.
+- For benchmark implementations where an ensemble of forecasts is generated, Batch AI can be used to parallelize the training of these models.
+
+Note that it is **not** permissible to use Batch AI to parallelize the generation forecasts across test folds. In order to be realistic, test predictions must be made sequentially for each test fold.
+
+To make a submission that utilizes Batch AI, complete points 0 to 4 as in the *Standalone VM* section, and then complete the following steps:
+
+1. Create your model training and scoring script(s) to be run on the Batch AI cluster. These script(s) can be in any language and must include all code necessary to train your models and maeke predictions on the test periods. You may have multiple scripts (one for each model in an ensemble for example) to be executed on separate nodes of the cluster. Alternatively, you may create a single script which can run differently on separate nodes based on the value of a script parameter. Each execution of these scripts will be a single Batch AI job to be run on a single node. If the output of the model(s) is non-deterministic (if it varies based on weight initialization for example), the script must accept the seed value as a parameter.
+
+2. Create a job execution script named `execute_jobs.*`. This script performs several functions:
+
+    - Create the job.json files to define each Batch AI job. 
+    - Create the Batch AI experiment
+    - Trigger each job
+    - Download the job scripts' output files from blob storage
+    - Combine results into a `submission_seed_<seed value>.csv` which includes the test fold predictions in the required format.
+
+    This script can be written in any language but Python is recommended due to the availability of [utilities](https://github.com/Azure/BatchAI/tree/master/utilities) for Batch AI in this language.
+
+3. Report five run results produced using the integer random number generator seeds 1 through 5. If your script is written in Python, this can be done by running the following
+    ```bash
+    time -p python <submission directory>/execute_jobs.py <seed value>
+    ```
+    where `<seed value>` is an integer between 1 and 5.
+
+Complete the submission by following steps 7-11 in the *Standalone VM* section. For step 9, you will need a docker image for running the `execute_jobs.*` script and a docker image for running the training/scoring scripts on each cluster node. For simplicity, you may choose to use the same docker image for both sets of scripts.
