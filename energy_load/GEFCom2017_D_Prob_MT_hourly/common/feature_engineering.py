@@ -208,8 +208,8 @@ def main(train_dir, test_dir, output_dir, datetime_colname, holiday_colname):
     features functions to create features for each train and test round.
     
     Args:
-        train_df (pandas.DataFrame): data frame containing training data
-        test_df (pandas.DataFrame): data frame containing testing data
+        train_dir (str): directory containing training data
+        test_dir (str): directory containing testing data
         output_dir (str): directory to which to save the output files
         datetime_colname (str): name of Datetime column
         holiday_colname (str): name of Holiday column
