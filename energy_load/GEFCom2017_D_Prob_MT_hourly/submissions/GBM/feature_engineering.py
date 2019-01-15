@@ -80,7 +80,8 @@ def annual_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of     the Fourier series for all harmonies.
+        output_dict: Output dictionary containing sine and cosine components of
+            the Fourier series for all harmonies.
     """
     day_of_year = datetime_col.dt.dayofyear
 
@@ -103,7 +104,8 @@ def weekly_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of     the Fourier series for all harmonies.
+        output_dict: Output dictionary containing sine and cosine components of
+            the Fourier series for all harmonies.
     """
     day_of_week = datetime_col.dt.dayofweek
 
@@ -126,7 +128,8 @@ def daily_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of     the Fourier series for all harmonies.
+        output_dict: Output dictionary containing sine and cosine components of 
+            the Fourier series for all harmonies.
     """
     hour_of_day = datetime_col.dt.hour + 1
 
@@ -150,12 +153,16 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
         datetime_col: Datetime column.
         value_col: Feature value column to create lag feature from.
         n_years: Number of previous years data to use. Default value 3.
-        week_window: Number of weeks before and after the same week to use,         which should help reduce noise in the data. Default value 1.
-        agg_func: aggregation function to apply on multiple previous values.        Default value 'mean'.
-        output_colname: name of the output lag feature column. Default value        'SameWeekHourLag'.
+        week_window: Number of weeks before and after the same week to use,
+            which should help reduce noise in the data. Default value 1.
+        agg_func: aggregation function to apply on multiple previous values.
+            Default value 'mean'.
+        output_colname: name of the output lag feature column. Default value
+            'SameWeekHourLag'.
 
     Returns:
-        df[[output_colname]]: pandas DataFrame containing the newly created lag     feature as a column.
+        df[[output_colname]]: pandas DataFrame containing the newly created lag
+            feature as a column.
     """
 
     if not is_datetime_like(datetime_col):
@@ -204,12 +211,16 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
         datetime_col: Datetime column.
         value_col: Feature value column to create lag feature from.
         n_years: Number of previous years data to use. Default value 3.
-        day_window: Number of days before and after the same day to use, which      should help reduce noise in the data. Default value 1.
-        agg_func: aggregation function to apply on multiple previous values.        Default value 'mean'.
-        output_colname: name of the output lag feature column. Default value        'SameDayHourLag'.
+        day_window: Number of days before and after the same day to use, which
+            should help reduce noise in the data. Default value 1.
+        agg_func: aggregation function to apply on multiple previous values.
+            Default value 'mean'.
+        output_colname: name of the output lag feature column. Default value
+            'SameDayHourLag'.
     
     Returns:
-        df[[output_colname]]: pandas DataFrame containing the newly created lag     feature as a column.
+        df[[output_colname]]: pandas DataFrame containing the newly created lag
+            feature as a column.
     """
 
     if not is_datetime_like(datetime_col):
@@ -260,11 +271,14 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
         window_size: Number of weeks used to compute the average.
         start_week: First week of the first moving average feature.
         average_count: Number of moving average features to create.
-        forecast_creation_time: The time point when the feature is created.         This value is used to prevent using data that are not available at      forecast creation time to compute features.
-        output_col_prefix: Prefix of the output columns. The start week of each     moving average feature is added at the end. Default value               'moving_average_lag_'.
+        forecast_creation_time: The time point when the feature is created.
+            This value is used to prevent using data that are not available at forecast creation time to compute features.
+        output_col_prefix: Prefix of the output columns. The start week of each 
+            moving average feature is added at the end. Default value           'moving_average_lag_'.
 
     Returns:
-        df: pandas DataFrame containing the newly created lag features as           columns.
+        df: pandas DataFrame containing the newly created lag features as 
+            columns.
 
     For example, start_week = 9, window_size=4, and average_count = 3 will
     create three moving average features.
@@ -367,11 +381,14 @@ def create_advanced_features(train_df, test_df, datetime_colname,
         train_df (pandas.DataFrame): data frame containing training data
         test_df (pandas.DataFrame): data frame containing testing data
         datetime_colname (str): name of Datetime column
-        holiday_colname (str): name of Holiday column (if present), default         value is None
+        holiday_colname (str): name of Holiday column (if present), default
+            value is None
 
     Returns:
-        output_df_train (pandas.DataFrame): output containing newly constructed     features on training data
-        output_df_test (pandas.DataFrame): output containing newly constructed      features on testing data
+        output_df_train (pandas.DataFrame): output containing newly constructed
+            features on training data
+        output_df_test (pandas.DataFrame): output containing newly constructed
+            features on testing data
         
     """
     output_df = pd.concat([train_df, test_df], sort=True)
