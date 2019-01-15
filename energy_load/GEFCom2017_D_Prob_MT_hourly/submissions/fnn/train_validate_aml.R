@@ -1,0 +1,146 @@
+args = commandArgs(trailingOnly=TRUE)
+
+install.packages('qrnn', repo="http://cran.rstudio.com/")
+library('data.table')
+library('qrnn')
+library("optparse")
+library("rjson")
+
+option_list = list(
+  make_option(c("-d", "--path"), type="character", default=NULL, 
+              help="Path to the data files"),
+  make_option(c("-n", "--n_hidden_1"), type="integer", default=NULL, 
+              help="Number of neurons in layer 1"),
+  make_option(c("-m", "--n_hidden_2"), type="integer", default=NULL, 
+              help="Number of neurons in layer 2"),
+  make_option(c("-i", "--iter_max"), type="integer", default=NULL, 
+              help="Number of maximum iterations"),
+  make_option(c("-p", "--penalty"), type="integer", default=NULL, 
+              help="Penalty")
+); 
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser)
+
+path = opt$path
+n.hidden = opt$n_hidden_1
+n.hidden2= opt$n_hidden_2
+iter.max = opt$iter_max
+penalty = opt$penalty
+
+
+data_dir = paste(path, '/features', sep='')
+train_dir = file.path(data_dir, 'train')
+
+train_file_prefix = 'train_round_'
+
+# Define cross validation split settings
+# cv_file = file.path(paste(path, 'cv_settings.json', sep=""))
+cv_file = file.path('cv_settings.json')
+cv_settings = fromJSON(file=cv_file)
+
+
+# Data and forecast parameters
+features = c('LoadLag', 'DryBulbLag',
+             'annual_sin_1', 'annual_cos_1', 'annual_sin_2', 
+             'annual_cos_2', 'annual_sin_3', 'annual_cos_3', 
+             'weekly_sin_1', 'weekly_cos_1', 'weekly_sin_2', 
+             'weekly_cos_2', 'weekly_sin_3', 'weekly_cos_3')
+
+normalize_columns = list('LoadLag', 'DryBulbLag')
+quantiles = seq(0.1, 0.9, by = 0.1)
+subset_columns_train = c(features, 'DEMAND')
+subset_columns_validation = c(features, 'DEMAND', 'Zone', 'Datetime', 'LoadRatio')
+
+# Utility function
+pinball_loss <- function(q, y, f) {
+  L = ifelse(y>=f, q * (y-f), (1-q) * (f-y))
+  return(L)
+}
+
+# Cross Validation on the first round train data
+result_all = list()
+counter = 1
+for (i in 1:length(cv_settings)){
+# for (i in 1:1){
+  
+  round = paste("cv_round_", i, sep='')
+  cv_settings_round = cv_settings[[round]]
+  print(round)
+  
+  for (iR in 1:6){
+  # for (iR in 1:1){
+    print(iR)
+    
+    train_file = file.path(train_dir, paste(train_file_prefix, as.character(iR), '.csv', sep=''))
+    
+    cvdata_df = fread(train_file)
+    
+    cv_settings_cur = cv_settings_round[[as.character(iR)]]
+    train_range = cv_settings_cur$train_range
+    validation_range = cv_settings_cur$validation_range
+    
+    train_data = cvdata_df[Datetime >=train_range[1] & Datetime <= train_range[2]]
+    validation_data = cvdata_df[Datetime >= validation_range[1] & Datetime <= validation_range[2]]
+    
+    zones = unique(validation_data$Zone)
+    hours = unique(validation_data$Hour)
+    
+    for (c in normalize_columns){
+      min_c = min(train_data[, ..c])
+      max_c = max(train_data[, ..c])
+      train_data[, c] = (train_data[, ..c] - min_c)/(max_c - min_c)
+      validation_data[, c] = (validation_data[, ..c] - min_c)/(max_c - min_c)
+    }
+    
+    validation_data$AverageLoadRatio = rowMeans(validation_data[,c('LoadRatio_10', 'LoadRatio_11', 'LoadRatio_12', 
+                                                                   'LoadRatio_13', 'LoadRatio_14', 'LoadRatio_15', 'LoadRatio_16')], na.rm=TRUE)
+    validation_data[, LoadRatio:=mean(AverageLoadRatio), by=list(Hour, MonthOfYear)]
+    
+    for (z in zones) {
+      print(paste('Zone', z))
+      for (h in hours){
+        train_df_sub = train_data[Zone == z & Hour == h, ..subset_columns_train]
+        validation_df_sub = validation_data[Zone == z & Hour == h, ..subset_columns_validation]
+        
+        result = data.table(Zone=validation_df_sub$Zone, Datetime=validation_df_sub$Datetime, Round=iR, CVRound=i)
+        
+        train_x <- as.matrix(train_df_sub[, ..features, drop=FALSE])
+        train_y <- as.matrix(train_df_sub[, c('DEMAND'), drop=FALSE])
+        
+        validation_x <- as.matrix(validation_df_sub[, ..features, drop=FALSE])
+        
+        for (tau in quantiles){
+          
+          model = qrnn2.fit(x=train_x, y=train_y, 
+                            n.hidden=n.hidden, n.hidden2=n.hidden2,
+                            tau=tau, Th=tanh,
+                            iter.max=iter.max, n.trials=1,
+                            penalty=penalty)
+          
+          result$Prediction = qrnn2.predict(model, x=validation_x) * validation_df_sub$LoadRatio
+          result$DEMAND = validation_df_sub$DEMAND
+          result$loss = pinball_loss(tau, validation_df_sub$DEMAND, result$Prediction)
+          result$q = tau
+          
+          result_all[[counter]] = result
+          counter = counter + 1
+        }
+      }
+    }
+  }
+}
+
+result_final = rbindlist(result_all)
+
+# average_PL = round(colMeans(result_final[, 'loss'], na.rm = TRUE), 2)
+# print(paste('Average Pinball Loss:', average_PL))
+# 
+# output_file_name = paste(output_file_name, 'APL', average_PL, sep="_")
+# output_file_name = paste(output_file_name, '.csv', sep="")
+
+output_file_name = 'cv_output.csv'
+
+output_file = file.path(paste(path, '/',  output_file_name, sep=""))
+
+fwrite(result_final, output_file)
