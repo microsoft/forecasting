@@ -9,6 +9,8 @@ library("rjson")
 option_list = list(
   make_option(c("-d", "--path"), type="character", default=NULL, 
               help="Path to the data files"),
+  make_option(c("-c", "--cv_path"), type="character", default=NULL, 
+              help="Path to the cv setting files"),            
   make_option(c("-n", "--n_hidden_1"), type="integer", default=NULL, 
               help="Number of neurons in layer 1"),
   make_option(c("-m", "--n_hidden_2"), type="integer", default=NULL, 
@@ -16,27 +18,32 @@ option_list = list(
   make_option(c("-i", "--iter_max"), type="integer", default=NULL, 
               help="Number of maximum iterations"),
   make_option(c("-p", "--penalty"), type="integer", default=NULL, 
-              help="Penalty")
+              help="Penalty"),
+  make_option(c("-t", "--time_stamp"), type="character", default=NULL, 
+              help="Timestamp")
 ); 
 
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser)
 
 path = opt$path
+cvpath = opt$cv_path
 n.hidden = opt$n_hidden_1
 n.hidden2= opt$n_hidden_2
 iter.max = opt$iter_max
 penalty = opt$penalty
+ts = opt$time_stamp
 
 
-data_dir = paste(path, '/features', sep='')
-train_dir = file.path(data_dir, 'train')
+# data_dir = paste(path, '/features', sep='')
+# train_dir = file.path(data_dir, 'train')
+train_dir = path
 
 train_file_prefix = 'train_round_'
 
 # Define cross validation split settings
-# cv_file = file.path(paste(path, 'cv_settings.json', sep=""))
-cv_file = file.path('cv_settings.json')
+cv_file = file.path(cvpath, 'cv_settings.json')
+# cv_file = file.path('cv_settings.json')
 cv_settings = fromJSON(file=cv_file)
 
 
@@ -139,8 +146,8 @@ result_final = rbindlist(result_all)
 # output_file_name = paste(output_file_name, 'APL', average_PL, sep="_")
 # output_file_name = paste(output_file_name, '.csv', sep="")
 
-output_file_name = 'cv_output.csv'
+output_file_name = paste("cv_output_", ts, ".csv", sep = "")
 
-output_file = file.path(paste(path, '/',  output_file_name, sep=""))
+output_file = file.path(paste(cvpath, '/',  output_file_name, sep=""))
 
 fwrite(result_final, output_file)
