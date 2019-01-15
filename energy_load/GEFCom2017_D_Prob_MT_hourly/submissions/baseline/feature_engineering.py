@@ -149,7 +149,7 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
     Args:
         datetime_col: Datetime column.
         value_col: Feature value column to create lag feature from.
-        n_years: Number of previous years data to use.
+        n_years: Number of previous years data to use. Default value 3.
         week_window: Number of weeks before and after the same week to use,         which should help reduce noise in the data. Default value 1.
         agg_func: aggregation function to apply on multiple previous values.        Default value 'mean'.
         output_colname: name of the output lag feature column. Default value        'SameWeekHourLag'.
