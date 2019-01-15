@@ -28,11 +28,7 @@ if __name__ == '__main__':
             iter_max = arg
         elif opt == '--penalty':
             penalty = arg
-<<<<<<< HEAD
     time_stamp = datetime.now().strftime('%Y%m%d%H%M%S')
-=======
-    time_stamp = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
->>>>>>> d2baee228c220622209b577dedb8c19f293bb14a
     task = " ".join([base_command,
                     '--path', path,
                     '--cv_path', cv_path,
