@@ -93,11 +93,11 @@ def create_advanced_features(train_df, test_df, datetime_colname,
         train_df (pandas.DataFrame): data frame containing training data
         test_df (pandas.DataFrame): data frame containing testing data
         datetime_colname (str): name of Datetime column
-        holiday_colname (str): name of Holiday column (if present), default         value is None
+        holiday_colname (str): name of Holiday column (if present), default value is None
 
     Returns:
-        output_df_train (pandas.DataFrame): output containing newly constructed     features on training data
-        output_df_test (pandas.DataFrame): output containing newly constructed      features on testing data
+        output_df_train (pandas.DataFrame): output containing newly constructed features on training data
+        output_df_test (pandas.DataFrame): output containing newly constructed features on testing data
 
     """
     output_df = pd.concat([train_df, test_df], sort=True)

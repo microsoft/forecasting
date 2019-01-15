@@ -240,7 +240,7 @@ def main(preprocess_flag):
     Main function to extract the downloaded data.
 
     Args:
-        preprocess_flag (bool): A boolean flag that determines whether data         preprocessing should be applied to the extracted data. If True,         zero values will be filled by linear interpolation, outliers caused     by end of Daylight Saving Time will be divided by 2. This step is       recommended, but you can also set this flag to False and preprocess     the data use your own code.
+        preprocess_flag (bool): A boolean flag that determines whether data preprocessing should be applied to the extracted data. If True, zero values will be filled by linear interpolation, outliers caused by end of Daylight Saving Time will be divided by 2. This step is recommended, but you can also set this flag to False and preprocess the data use your own code.
     """
     # Make sure all files are downloaded to the data directory
     check_data_exist(DATA_DIR)
