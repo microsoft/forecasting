@@ -5,23 +5,28 @@ library('data.table')
 library('qrnn')
 library("optparse")
 library("rjson")
+library('doParallel')
+
+cl <- parallel::makeCluster(4)
+parallel::clusterEvalQ(cl, lapply(c("qrnn", "data.table"), library, character.only = TRUE))
+registerDoParallel(cl)
 
 option_list = list(
-  make_option(c("-d", "--path"), type="character", default=NULL, 
+  make_option(c("-d", "--path"), type="character", default=NULL,
               help="Path to the data files"),
-  make_option(c("-c", "--cv_path"), type="character", default=NULL, 
-              help="Path to the cv setting files"),            
-  make_option(c("-n", "--n_hidden_1"), type="integer", default=NULL, 
+  make_option(c("-c", "--cv_path"), type="character", default=NULL,
+              help="Path to the cv setting files"),
+  make_option(c("-n", "--n_hidden_1"), type="integer", default=NULL,
               help="Number of neurons in layer 1"),
-  make_option(c("-m", "--n_hidden_2"), type="integer", default=NULL, 
+  make_option(c("-m", "--n_hidden_2"), type="integer", default=NULL,
               help="Number of neurons in layer 2"),
-  make_option(c("-i", "--iter_max"), type="integer", default=NULL, 
+  make_option(c("-i", "--iter_max"), type="integer", default=NULL,
               help="Number of maximum iterations"),
-  make_option(c("-p", "--penalty"), type="integer", default=NULL, 
+  make_option(c("-p", "--penalty"), type="integer", default=NULL,
               help="Penalty"),
-  make_option(c("-t", "--time_stamp"), type="character", default=NULL, 
+  make_option(c("-t", "--time_stamp"), type="character", default=NULL,
               help="Timestamp")
-); 
+);
 
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser)
@@ -34,30 +39,27 @@ iter.max = opt$iter_max
 penalty = opt$penalty
 ts = opt$time_stamp
 
+# path = '../cv_data/'
+# cvpath = '../cv_data/'
+# n.hidden = 5
+# n.hidden2= 5
+# iter.max = 3
+# penalty = 0
+# ts = 'debug'
 
-# data_dir = paste(path, '/features', sep='')
-# train_dir = file.path(data_dir, 'train')
+
 train_dir = path
-
 train_file_prefix = 'train_round_'
 
 # Define cross validation split settings
 cv_file = file.path(cvpath, 'cv_settings.json')
-# cv_file = file.path('cv_settings.json')
 cv_settings = fromJSON(file=cv_file)
 
 
 # Data and forecast parameters
-features = c('LoadLag', 'DryBulbLag',
-             'annual_sin_1', 'annual_cos_1', 'annual_sin_2', 
-             'annual_cos_2', 'annual_sin_3', 'annual_cos_3', 
-             'weekly_sin_1', 'weekly_cos_1', 'weekly_sin_2', 
-             'weekly_cos_2', 'weekly_sin_3', 'weekly_cos_3')
-
 normalize_columns = list('LoadLag', 'DryBulbLag')
 quantiles = seq(0.1, 0.9, by = 0.1)
-subset_columns_train = c(features, 'DEMAND')
-subset_columns_validation = c(features, 'DEMAND', 'Zone', 'Datetime', 'LoadRatio')
+
 
 # Utility function
 pinball_loss <- function(q, y, f) {
@@ -65,7 +67,7 @@ pinball_loss <- function(q, y, f) {
   return(L)
 }
 
-# Cross Validation on the first round train data
+# Cross Validation
 result_all = list()
 counter = 1
 for (i in 1:length(cv_settings)){
@@ -100,12 +102,23 @@ for (i in 1:length(cv_settings)){
       validation_data[, c] = (validation_data[, ..c] - min_c)/(max_c - min_c)
     }
     
-    validation_data$AverageLoadRatio = rowMeans(validation_data[,c('LoadRatio_10', 'LoadRatio_11', 'LoadRatio_12', 
-                                                                   'LoadRatio_13', 'LoadRatio_14', 'LoadRatio_15', 'LoadRatio_16')], na.rm=TRUE)
+    validation_data$AverageLoadRatio = rowMeans(validation_data[, c('LoadRatio_10', 'LoadRatio_11', 'LoadRatio_12', 
+                                                                    'LoadRatio_13', 'LoadRatio_14', 'LoadRatio_15', 'LoadRatio_16')], na.rm=TRUE)
     validation_data[, LoadRatio:=mean(AverageLoadRatio), by=list(Hour, MonthOfYear)]
     
-    for (z in zones) {
+    result_all_zones = foreach(z = zones, .combine = rbind) %dopar% {
       print(paste('Zone', z))
+      
+      features = c('LoadLag', 'DryBulbLag',
+                   'annual_sin_1', 'annual_cos_1', 'annual_sin_2', 
+                   'annual_cos_2', 'annual_sin_3', 'annual_cos_3', 
+                   'weekly_sin_1', 'weekly_cos_1', 'weekly_sin_2', 
+                   'weekly_cos_2', 'weekly_sin_3', 'weekly_cos_3')
+      subset_columns_train = c(features, 'DEMAND')
+      subset_columns_validation = c(features, 'DEMAND', 'Zone', 'Datetime', 'LoadRatio')
+      
+      result_all_hours = list()
+      hour_counter = 1
       for (h in hours){
         train_df_sub = train_data[Zone == z & Hour == h, ..subset_columns_train]
         validation_df_sub = validation_data[Zone == z & Hour == h, ..subset_columns_validation]
@@ -116,6 +129,9 @@ for (i in 1:length(cv_settings)){
         train_y <- as.matrix(train_df_sub[, c('DEMAND'), drop=FALSE])
         
         validation_x <- as.matrix(validation_df_sub[, ..features, drop=FALSE])
+        
+        result_all_quantiles = list()
+        quantile_counter = 1
         
         for (tau in quantiles){
           
@@ -130,11 +146,17 @@ for (i in 1:length(cv_settings)){
           result$loss = pinball_loss(tau, validation_df_sub$DEMAND, result$Prediction)
           result$q = tau
           
-          result_all[[counter]] = result
-          counter = counter + 1
+          result_all_quantiles[[quantile_counter]] = result
+          quantile_counter = quantile_counter + 1
+
         }
+        result_all_hours[[hour_counter]] = rbindlist(result_all_quantiles)
+        hour_counter = hour_counter + 1
       }
+      rbindlist(result_all_hours)
     }
+    result_all[[counter]] = result_all_zones
+    counter = counter + 1
   }
 }
 
@@ -151,3 +173,6 @@ output_file_name = paste("cv_output_", ts, ".csv", sep = "")
 output_file = file.path(paste(cvpath, '/',  output_file_name, sep=""))
 
 fwrite(result_final, output_file)
+
+parallel::stopCluster(cl)
+
