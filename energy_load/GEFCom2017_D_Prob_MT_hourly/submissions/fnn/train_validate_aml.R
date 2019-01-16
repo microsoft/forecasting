@@ -138,7 +138,7 @@ for (i in 1:length(cv_settings)){
           model = qrnn2.fit(x=train_x, y=train_y, 
                             n.hidden=n.hidden, n.hidden2=n.hidden2,
                             tau=tau, Th=tanh,
-                            iter.max=iter.max, n.trials=1,
+                            iter.max=iter.max,
                             penalty=penalty)
           
           result$Prediction = qrnn2.predict(model, x=validation_x) * validation_df_sub$LoadRatio
