@@ -1,5 +1,6 @@
 args = commandArgs(trailingOnly=TRUE)
 parameter_set = args[1]
+
 library('data.table')
 library('qrnn')
 library('rjson')
@@ -9,14 +10,13 @@ data_dir = 'energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/feature
 train_dir = file.path(data_dir, 'train')
 
 train_file_prefix = 'train_round_'
-train_file = file.path(train_dir, paste(train_file_prefix, '1', '.csv', sep=''))
-
-cvdata_df = fread(train_file)
+#train_file = file.path(train_dir, paste(train_file_prefix, '1', '.csv', sep=''))
+#cvdata_df = fread(train_file)
 
 # Define parameter grid
-n.hidden_choice = c(5, 10)
-n.hidden2_choice = c(5)
-iter.max_choice = c(3, 6)
+n.hidden_choice = c(8, 16)
+n.hidden2_choice = c(4, 8)
+iter.max_choice = c(2, 4, 6, 8, 10)
 penalty_choice = c(0)
 
 param_grid = expand.grid(n.hidden_choice,
@@ -73,6 +73,10 @@ for (i in 1:length(cv_settings)){
 
   for (iR in 1:6){
     print(iR)
+
+    train_file = file.path(train_dir, paste(train_file_prefix, as.character(iR), '.csv', sep=''))
+    cvdata_df = fread(train_file)
+
     cv_settings_cur = cv_settings_round[[as.character(iR)]]
     train_range = cv_settings_cur$train_range
     validation_range = cv_settings_cur$validation_range
