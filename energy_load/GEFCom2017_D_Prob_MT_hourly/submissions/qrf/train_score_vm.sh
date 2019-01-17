@@ -7,7 +7,7 @@ do
     python $path/submissions/qrf/feature_engineering.py --submission qrf
 
     echo 'Training and predicting...'
-    python $path/submissions/qrf/train_score.py --data-folder . --seed $i
+    python $path/submissions/qrf/train_score.py --data-folder data --seed $i
 
     end=`date +%s`
     echo 'Running time '$((end-start))' seconds'
