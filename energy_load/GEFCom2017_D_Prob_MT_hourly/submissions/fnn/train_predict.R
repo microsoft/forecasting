@@ -2,14 +2,20 @@ args = commandArgs(trailingOnly=TRUE)
 seed_value = args[1]
 library('data.table')
 library('qrnn')
-data_dir = 'energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/features'
+library('doParallel')
+
+cl <- parallel::makeCluster(4)
+parallel::clusterEvalQ(cl, lapply(c("qrnn", "data.table"), library, character.only = TRUE))
+registerDoParallel(cl)
+
+data_dir = 'C:/Users/hlu/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/features'
 train_dir = file.path(data_dir, 'train')
 test_dir = file.path(data_dir, 'test')
 
 train_file_prefix = 'train_round_'
 test_file_prefix = 'test_round_'
 
-output_file = file.path(paste('energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/submission_seed_', seed_value, '.csv', sep=""))
+output_file = file.path(paste('C:/Users/hlu/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/submission_seed_', seed_value, '.csv', sep=""))
 
 normalize_columns = list('LoadLag', 'DryBulbLag')
 
@@ -44,8 +50,12 @@ for (iR in 1:6){
   test_df[, LoadRatio:=mean(AverageLoadRatio), by=list(Hour, MonthOfYear)]
   
   
-  for (z in zones) {
+  result_all_zones = foreach(z = zones, .combine = rbind) %dopar% {
     print(paste('Zone', z))
+    
+    result_all_hours = list()
+    hour_counter = 1
+    
     for (h in hours){
       train_df_sub = train_df[Zone == z & Hour == h]
       test_df_sub = test_df[Zone == z & Hour == h]
@@ -62,24 +72,35 @@ for (iR in 1:6){
                            'annual_sin_1', 'annual_cos_1', 'annual_sin_2', 'annual_cos_2', 'annual_sin_3', 'annual_cos_3', 
                            'weekly_sin_1', 'weekly_cos_1', 'weekly_sin_2', 'weekly_cos_2', 'weekly_sin_3', 'weekly_cos_3'), 
                            drop=FALSE])
+     
+      result_all_quantiles = list()
+      quantile_counter = 1
 
       for (tau in quantiles){
 
         model = qrnn2.fit(x=train_x, y=train_y, 
-                          n.hidden=5, n.hidden2=5,
+                          n.hidden=8, n.hidden2=4,
                           tau=tau, Th=tanh,
-                          iter.max=2, n.trials=1)
+                          iter.max=1)
        
         result$Prediction = qrnn2.predict(model, x=test_x) * test_df_sub$LoadRatio
         result$q = tau
         
-        result_all[[counter]] = result
-        counter = counter + 1
+        result_all_quantiles[[quantile_counter]] = result
+        quantile_counter = quantile_counter + 1
       }
+      result_all_hours[[hour_counter]] = rbindlist(result_all_quantiles)
+      hour_counter = hour_counter + 1
     }
+    rbindlist(result_all_hours)
   }
+  result_all[[counter]] = result_all_zones
+  counter = counter + 1
 }
 
 result_final = rbindlist(result_all)
 
 fwrite(result_final, output_file)
+
+parallel::stopCluster(cl)
+
