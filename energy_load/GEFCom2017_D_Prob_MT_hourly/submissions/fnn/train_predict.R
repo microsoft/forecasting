@@ -9,14 +9,14 @@ cl <- parallel::makeCluster(4)
 parallel::clusterEvalQ(cl, lapply(c("qrnn", "data.table"), library, character.only = TRUE))
 registerDoParallel(cl)
 
-data_dir = 'C:/Users/hlu/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/features'
+data_dir = 'energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/features'
 train_dir = file.path(data_dir, 'train')
 test_dir = file.path(data_dir, 'test')
 
 train_file_prefix = 'train_round_'
 test_file_prefix = 'test_round_'
 
-output_file = file.path(paste('C:/Users/hlu/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/submission_seed_', seed_value, '.csv', sep=""))
+output_file = file.path(paste('energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/submission_seed_', seed_value, '.csv', sep=""))
 
 normalize_columns = list('LoadLag', 'DryBulbLag')
 
