@@ -1,15 +1,16 @@
 args = commandArgs(trailingOnly=TRUE)
-seed_value = args[1]
+# seed_value = args[1]
+seed_value = 1
 library('data.table')
 library('qrnn')
-data_dir = 'energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/features'
+data_dir = 'C:/Users/honglu/OneDrive - Microsoft/Projects/ForecastBenchmark/code/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn2/data/features'
 train_dir = file.path(data_dir, 'train')
 test_dir = file.path(data_dir, 'test')
 
 train_file_prefix = 'train_round_'
 test_file_prefix = 'test_round_'
 
-output_file = file.path(paste('energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/submission_seed_', seed_value, '.csv', sep=""))
+output_file = file.path(paste('C:/Users/honglu/OneDrive - Microsoft/Projects/ForecastBenchmark/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/submission_seed_', seed_value, '.csv', sep=""))
 
 normalize_columns = list('LoadLag', 'DryBulbLag')
 
@@ -66,9 +67,10 @@ for (iR in 1:6){
       for (tau in quantiles){
 
         model = qrnn2.fit(x=train_x, y=train_y, 
-                          n.hidden=5, n.hidden2=5,
+                          n.hidden=8, n.hidden2=8,
                           tau=tau, Th=tanh,
-                          iter.max=2, n.trials=1)
+                          iter.max=10,
+                          penalty=0.001)
        
         result$Prediction = qrnn2.predict(model, x=test_x) * test_df_sub$LoadRatio
         result$q = tau
