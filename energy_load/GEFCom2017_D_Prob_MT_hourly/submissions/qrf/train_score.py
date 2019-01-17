@@ -8,11 +8,12 @@ import time
 
 # get seed value 
 parser = argparse.ArgumentParser()
+parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
 parser.add_argument('--seed', type=int, dest='seed', help='random seed')
 args = parser.parse_args()
 
 # initialize location of input and output files
-data_dir = join('energy_data', 'features')
+data_dir = join(args.data_folder, 'features')
 train_dir = join(data_dir, 'train')
 test_dir = join(data_dir, 'test')
 output_file = join('outputs','submission_seed_{}.csv'.format(args.seed))
