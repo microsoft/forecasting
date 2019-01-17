@@ -1,6 +1,6 @@
 name: tsperf
 channels:
-  - defaults
+  - conda-forge
 dependencies:
   - python=3.6
   - numpy=1.15.1
