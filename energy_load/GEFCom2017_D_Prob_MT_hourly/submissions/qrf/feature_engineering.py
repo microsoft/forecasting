@@ -44,20 +44,12 @@ def create_basic_features(input_df, datetime_colname):
 
     # Basic temporal features
     output_df['Hour'] = hour_of_day(datetime_col)
-    output_df['DayOfWeek'] = day_of_week(datetime_col)   # new
-    output_df['DayOfMonth'] = day_of_month(datetime_col) # new
+    output_df['DayOfWeek'] = day_of_week(datetime_col)   
+    output_df['DayOfMonth'] = day_of_month(datetime_col) 
     output_df['TimeOfYear'] = time_of_year(datetime_col)
     output_df['WeekOfYear'] = week_of_year(datetime_col)
     output_df['MonthOfYear'] = month_of_year(datetime_col)
     
-    # Basic categortical features
-    #enc_month_of_year = encoded_month_of_year(output_df['MonthOfYear'])
-    #enc_day_of_week = encoded_day_of_week(output_df['DayOfWeek'])
-    #enc_day_of_month = encoded_day_of_month(output_df['DayOfMonth'])
-    #enc_week_of_year = encoded_week_of_year(output_df['WeekOfYear'])
-    #output_df = pd.concat([output_df, enc_month_of_year, enc_day_of_week, enc_day_of_month, enc_week_of_year], axis=1)
-    #output_df = pd.concat([output_df, enc_day_of_week], axis=1)
-
     # Fourier approximation features
     annual_fourier_approx = annual_fourier(datetime_col, n_harmonics=3)
     weekly_fourier_approx = weekly_fourier(datetime_col, n_harmonics=3)
@@ -186,20 +178,6 @@ def create_advanced_features(train_df, test_df, datetime_colname,
         [output_df, same_week_day_hour_load_lag,
          same_day_hour_drewpnt_lag, same_day_hour_drybulb_lag,
          load_moving_average, drybulb_moving_average, dewpnt_moving_average])
-
-    #for i in range(10,18):
-    #    output_colname = 'LoadRatio_' + str(i)
-    #    recent_colname = 'RecentLoad_' + str(i)
-    #    lag_colname = 'LoadLag_' + str(i)
-    #    same_week_day_hour_load_lag = output_df[[datetime_colname, recent_colname, 'Zone']].groupby('Zone').apply(
-    #            lambda g: same_week_day_hour_lag(g[datetime_colname],
-    #                                             g[recent_colname],
-    #                                             output_colname=lag_colname,
-    #                                             n_years=5,
-    #                                             week_window=0))
-    #    same_week_day_hour_load_lag.reset_index(inplace=True)
-    #    output_df = pd.merge(output_df,same_week_day_hour_load_lag,on=[datetime_colname, 'Zone'])
-    #    output_df[output_colname] = output_df[recent_colname]/output_df[lag_colname]
 
     # Split train and test data and return separately
     train_end = max(train_df[datetime_colname])
