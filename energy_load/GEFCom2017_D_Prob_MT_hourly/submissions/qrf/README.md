@@ -12,7 +12,7 @@
 
 **Submission name:** Quantile Random Forest
 
-**Submission branch:** [hlu/energy_forecast_baseline_model](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBdmitry%2Fqrf)
+**Submission branch:** [dmitry/qrf](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions&version=GBdmitry%2Fqrf)
 
 **Pull request:** [GEFCom2017_D_Prob_MT_hourly - baseline submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150805?_a=overview)
 
@@ -28,33 +28,38 @@ In this submission, we implement a quantile random forest model using the `sciki
 ### Feature engineering
 
 The following features are used:  
-**LoadLag**: Average load based on the same-day and same-hour load values of the same week, the week before the same week, and the week after the same week of the previous three years, i.e. 9 values are averaged to compute this feature.  
-**DryBulbLag**:  Average DryBulb temperature based on the same-hour DryBulb values of the same day, the day before the same day, and the day after the same day of the previous three years, i.e. 9 values are averaged to compute this feature.  
-**Weekly Fourier Series**: weekly_sin_1, weekly_cos_1,  weekly_sin_2, weekly_cos_2, weekly_sin_3, weekly_cos_3  
-**Annual Fourier Series**: annual_sin_1, annual_cos_1, annual_sin_2, annual_cos_2, annual_sin_3, annual_cos_3  
+**Basic temporal features**: hour of day, day of week, day of month, time of the year (normalized to range [0,1]), week of the year, month of the year  
+**RecentLoad**: moving average of load values of the same day of
+week and same hour of day of at the window of 4 weeks. We use 8 moving windows, the first one at weeks 10-13 before forecasting week, the last one is at weeks 17-20 before forecasting week. Each window generates a separate RecentLoad feature.  
+**RecentDryBulb**:  moving average of Dry Bulb values of the same day of
+week and same hour of day of at the window of 4 weeks. We use 8 moving windows, the first one at weeks 9-12 before forecasting week, the last one is at weeks 16-19 before forecasting week. Each window generates a separate RecentDryBulb feature.  
+**RecentDewPnt**:  moving average of Dew Point values of the same day of
+week and same hour of day of at the window of 4 weeks. We use 8 windows, the first one at weeks 9-12 before forecasting week, the last one is at weeks 16-19 before forecasting week. Each window generates a separate RecentDewPnt feature.  
+**Daily Fourier Series features**: sine and cosine of the hour of the day, with harmonics 1 and 2. Altogether we generate 4 such features.  
+**Weekly Fourier Series features**: sine and cosine of the day of the week, with harmonics 1, 2 and 3. Altogether we generate 6 such features.  
+**Annual Fourier Series features**:  sine and cosine of the day of the year, with harmonics 1, 2 and 3. Altogether we generate 6 such features.
 
 ### Model tuning
 
-The data of January - April of 2016 were used as validation dataset for some minor model tuning. Based on the model performance on this validation dataset, a larger feature set was narrowed down to the features described above.
-No parameter tuning was done.
+We chose hyperparameter values that minimize average pinball loss over validation folds. 
+We used 2 validation time frames, the first one in January-April 2015, the second one at the same months in 2016. Each validation timeframe was partitioned into 6 folds, each one spanning entire month. The training set of each fold ends one or two months before the first date of validation fold.
 
 ### Description of implementation scripts
 
 * `feature_engineering.py`: Python script for computing features and generating feature files.
-* `train_predict.R`: R script that trains Quantile Regression models and predicts on each round of test data.
-* `train_score_vm.sh`: Bash script that runs `feature_engineering.py`and `train_predict.R` five times to generate five submission files and measure model running time.
+* `train_score.py`: Python script that trains Quantile Random Forest models and predicts on each round of test data.
+* `train_score_vm.sh`: Bash script that runs `feature_engineering.py`and `train_score.py` five times to generate five submission files and measure model running time.
 
 ### Steps to reproduce results
 
-0. Follow the instructions [here](#resource-deployment-instructions) to provision a Linux virtual machine and log into the provisioned
-VM.
+0. Follow the instructions [here](#resource-deployment-instructions) to provision a Linux Data Science Virtual Machine and log into it.
 
 1. Clone the TSPerf repo to the home directory of your machine and check out the baseline model branch
 
    ```bash
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
-   git checkout hlu/energy_forecast_baseline_model
+   git checkout dmitry/qrf
    ```
    Use one of the following options to securely connect to the Git repo:
    * [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts)  
@@ -87,7 +92,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    4.1 Log into Azure Container Registry (ACR)
 
    ```bash
-   docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
+   sudo docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
    ```
 
    The `<ACR Acccess Key>` can be found [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/accessKey).   
@@ -99,14 +104,14 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    4.2 Pull the Docker image from ACR to your VM
 
    ```bash
-   docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/baseline_image
+   sudo docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image
    ```
 
 5. Train and predict **within Docker container**
   5.1 Start a Docker container from the image  
 
    ```bash
-   docker run -it -v ~/TSPerf:/TSPerf --name baseline_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/baseline_image
+   sudo docker run -it -v ~/TSPerf:/TSPerf --name qrf_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image
    ```
 
    Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
@@ -115,40 +120,51 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    ```
    source activate tsperf
-   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/baseline/train_score_vm.sh
+   nohup bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/qrf/train_score_vm.sh >& out.txt &
    ```
-   After generating the forecast results, you can exit the Docker container by command `exit`.
+   The last command will take about 31 hours to complete. You can monitor its progress by checking out.txt file. Also during the run you can disconnect from VM. After reconnecting to VM, use the command  
+
+   ```
+   sudo docker exec -it qrf_container /bin/bash
+   tail out.txt
+   ```
+   to connect to the running container and check the status of the run.  
+   After generating the forecast results, you can exit the Docker container by command `exit`.   
+
 6. Model evaluation **on the VM**
 
   ```bash
   source activate tsperf
   cd ~/TSPerf
-  bash ./common/evaluate submissions/baseline energy_load/GEFCom2017_D_Prob_MT_hourly
+  bash ./common/evaluate submissions/qrf energy_load/GEFCom2017_D_Prob_MT_hourly
   ```
 
 ## Implementation resources
 
 **Platform:** Azure Cloud  
-**Hardware:** Standard D8s v3 (8 vcpus, 32 GB memory) Linux Data Science Virtual Machine (DSVM)  
-**Data storage:** Premium SSD  
-**Docker image:** tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/baseline_image  
+**Hardware:** F72s v2 (72 vcpus, 144 GB memory) Linux Data Science Virtual Machine (DSVM)  
+**Data storage:** Standard SSD  
+**Docker image:** tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image  
 
 **Key packages/dependencies:**
   * Python
     - python==3.6    
-  * R
-    - r-base==3.5.1  
-    - quantreg==5.34
-    - data.table==1.10.4.3
+    - numpy=1.15.1
+    - pandas=0.23.4
+    - xlrd=1.1.0
+    - urllib3=1.21.1
+    - scikit-garden=0.1.3
+    - joblib=0.12.5  
 
 ## Resource deployment instructions
 Please follow the instructions below to deploy the Linux DSVM.
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
-  - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a *Data Science Virtual Machine for Linux (Ubuntu)*.
+  - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a *Data Science Virtual Machine for Linux (Ubuntu)*.  
+  - Choose F72s v2 size of VM when deploying DSVM
+
 
 ## Implementation evaluation
 **Quality:**  
-Note there is no randomness in this baseline model, so the model quality is the same for all five runs.
 
 * Pinball loss run 1: 76.48
 
@@ -164,17 +180,17 @@ Note there is no randomness in this baseline model, so the model quality is the 
 
 **Time:**
 
-* Run time 1: 19933 seconds
+* Run time 1: 22289 seconds
 
-* Run time 2: 20188 seconds
+* Run time 2: 22188 seconds
 
-* Run time 3: 20121 seconds
+* Run time 3: 22121 seconds
 
-* Run time 4: 20253 seconds
+* Run time 4: 22253 seconds
 
-* Run time 5: 20190 seconds
+* Run time 5: 22190 seconds
 
-* Median run time: 20188 seconds (5.6 hours)
+* Median run time: 22190 seconds (6.2 hours)
 
 **Cost:**  
 The hourly cost of the F72s v2 DSVM is 3.045 USD based on the price at the submission date.   
