@@ -59,6 +59,7 @@ We used 2 validation time frames, the first one in January-April 2015, the secon
    ```bash
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
+   cd TSPerf
    git checkout dmitry/qrf
    ```
    Use one of the following options to securely connect to the Git repo:
