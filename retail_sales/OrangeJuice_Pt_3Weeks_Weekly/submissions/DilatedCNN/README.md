@@ -33,25 +33,22 @@ The following features have been used in the implementation of the forecast meth
 
 - datetime features including week of the month and month number
 - weekly sales of each orange juice in recent weeks 
-- other dynamic features including *deal* and  *feat* columns 
+- other dynamic features including deal information (*deal* column), feature advertisement information (*feat* column), price, and relative price  
 - static features including store index and brand index
 
 ### Hyperparameter tuning
 
-We tune the hyperparameters of the model with HyperDrive which is accessible through Azure ML SDK. A Batch AI cluster with GPU support is created 
-to distribute the computation. The hyperparameters tuned with HyperDrive and their ranges are as follows
-- input sequence length: [6, 8, 10, 12, 14, 16, 18, 20]
-- batch size: [16, 32, 64]
-- learning rate: [0.01, 0.015, 0.02, 0.025]
-- number of epochs: [3,4,5,6,8]
+We tune the hyperparameters of the model with HyperDrive which is accessible through Azure ML SDK. A remote compute cluster with GPU support is created 
+to distribute the computation. The hyperparameters tuned with HyperDrive and their ranges can be found in hyperparameter_tuning.ipynb. 
 
 ### Description of implementation scripts
 
+* `utils.py`: Python script including utility functions for building the Dilated CNN model
 * `train_score.py`: Python script that trains the model and generates forecast results for each round
 * `train_score.ipynb` (optional): Jupyter notebook that trains the model and visualizes the results
 * `train_validate.py` (optional): Python script that does training and validation with the 1st round training data 
 * `hyperparameter_tuning.ipynb` (optional): Jupyter notebook that tries different model configurations and selects the best model by running 
-`train_validate.py` script in a Batch AI cluster with different sets of hyperparameters
+`train_validate.py` script in a remote compute cluster with different sets of hyperparameters
 
 ### Steps to reproduce results
 
@@ -64,7 +61,8 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd ~/TSPerf
-   git checkout chenhui/wavenet
+   # The following step is for reviewers only
+   git checkout chenhui/wavenet 
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
@@ -125,9 +123,10 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have 
    access to the source code in the container. 
 
-8. Inside `/TSPerf` folder, train the model and make predictions by running
+8. Train the model and make predictions from `/TSPerf` folder by running
 
    ```bash
+   cd /TSPerf
    source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/DilatedCNN Python3
    ``` 
  
@@ -150,9 +149,9 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Platform:** Azure Cloud 
 
-**Resource location:** South Central US 
+**Resource location:** East US 2
 
-**Hardware:** Standard NC6 (1 GPU, 6 vCPUs, 56 GB memory, 340 GB temporary storage) Ubuntu Linux VM
+**Hardware:** Standard NC6 (1 GPU, 6 vCPUs, 56 GB memory) Ubuntu Linux VM
 
 **Data storage:** Standard HDD
 
@@ -161,6 +160,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 **Key packages/dependencies:**  
   * Python 
     - pandas==0.23.1  
+    - scikit-learn==0.19.1
     - tensorflow-gpu==1.12.0
     - keras==2.2.4
 
@@ -177,30 +177,30 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 **Quality:** 
 
-*MAPE run 1: 37.60%*
+*MAPE run 1: 36.76%*
 
-*MAPE run 2: 39.86%*
+*MAPE run 2: 39.01%*
 
-*MAPE run 3: 37.79%*
+*MAPE run 3: 37.76%*
 
-*MAPE run 4: 37.06%*
+*MAPE run 4: 36.36%*
 
-*MAPE run 5: 37.75%*
+*MAPE run 5: 37.09%*
 
-*median MAPE: 37.75%*
+*median MAPE: 37.09%*
 
 **Time:** 
 
-*run time 1: 884.04 seconds*
+*run time 1: 412.89 seconds*
 
-*run time 2: 880.81 seconds*
+*run time 2: 412.73 seconds*
 
-*run time 3: 879.73 seconds*
+*run time 3: 419.58 seconds*
 
-*run time 4: 867.42 seconds*
+*run time 4: 412.71 seconds*
 
-*run time 5: 875.60 seconds*
+*run time 5: 414.30 seconds*
 
-*median run time: 879.73 seconds*
+*median run time: 412.89 seconds*
 
-**Cost:** The total cost is 879.73/3600 $\times$ 1.080 = $0.2639.
+**Cost:** The total cost is 412.89/3600 $\times$ 0.90 = $0.1032.
