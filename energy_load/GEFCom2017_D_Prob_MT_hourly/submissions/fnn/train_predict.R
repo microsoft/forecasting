@@ -1,13 +1,7 @@
 args = commandArgs(trailingOnly=TRUE)
-# seed_value = args[1]
-seed_value = 1
+seed_value = args[1]
 library('data.table')
 library('qrnn')
-library('doParallel')
-
-cl <- parallel::makeCluster(4)
-parallel::clusterEvalQ(cl, lapply(c("qrnn", "data.table"), library, character.only = TRUE))
-registerDoParallel(cl)
 
 data_dir = 'energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/features'
 train_dir = file.path(data_dir, 'train')
@@ -51,11 +45,8 @@ for (iR in 1:6){
   test_df[, LoadRatio:=mean(AverageLoadRatio), by=list(Hour, MonthOfYear)]
   
   
-  result_all_zones = foreach(z = zones, .combine = rbind) %dopar% {
+for (z in zones){
     print(paste('Zone', z))
-    
-    result_all_hours = list()
-    hour_counter = 1
     
     for (h in hours){
       train_df_sub = train_df[Zone == z & Hour == h]
@@ -73,9 +64,6 @@ for (iR in 1:6){
                            'annual_sin_1', 'annual_cos_1', 'annual_sin_2', 'annual_cos_2', 'annual_sin_3', 'annual_cos_3', 
                            'weekly_sin_1', 'weekly_cos_1', 'weekly_sin_2', 'weekly_cos_2', 'weekly_sin_3', 'weekly_cos_3'), 
                            drop=FALSE])
-     
-      result_all_quantiles = list()
-      quantile_counter = 1
 
       for (tau in quantiles){
 
@@ -87,21 +75,14 @@ for (iR in 1:6){
         result$Prediction = qrnn2.predict(model, x=test_x) * test_df_sub$LoadRatio
         result$q = tau
         
-        result_all_quantiles[[quantile_counter]] = result
-        quantile_counter = quantile_counter + 1
+        result_all[[counter]] = result
+        counter = counter + 1
       }
-      result_all_hours[[hour_counter]] = rbindlist(result_all_quantiles)
-      hour_counter = hour_counter + 1
     }
-    rbindlist(result_all_hours)
   }
-  result_all[[counter]] = result_all_zones
-  counter = counter + 1
 }
 
 result_final = rbindlist(result_all)
 
 fwrite(result_final, output_file)
-
-parallel::stopCluster(cl)
 
