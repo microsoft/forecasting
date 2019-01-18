@@ -105,14 +105,14 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    4.2 Pull the Docker image from ACR to your VM
 
    ```bash
-   sudo docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image
+   sudo docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image:v1
    ```
 
 5. Train and predict **within Docker container**
   5.1 Start a Docker container from the image  
 
    ```bash
-   sudo docker run -it -v ~/TSPerf:/TSPerf --name qrf_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image
+   sudo docker run -it -v ~/TSPerf:/TSPerf --name qrf_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image:v1
    ```
 
    Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
