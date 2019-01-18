@@ -15,7 +15,7 @@
 4. [Development of benchmark implementation](#development-of-benchmark-implementation)  
     4.1 [Feature engineering](#feature-engineering)  
     4.2 [Guideline for creating Docker images](#guideline-for-creating-docker-images)  
-    4.2 [Guideline for measuring performance](#guideline-for-measuring-performance) 
+    4.3 [Guideline for measuring performance](#guideline-for-measuring-performance) 
 5. [Submission of benchmark implementation](#submission-of-benchmark-implementation)  
     5.1 [Guideline for submitting reproduction instructions](#guideline-for-submitting-reproduction-instructions)  
     5.2 [Guideline for submitting the code](#guideline-for-submitting-the-code)   
@@ -30,7 +30,7 @@
 
 ### Vision
 
-Our vision it to establish a leading framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework will allow data scientists or customers to discover the best approach that fits their use case from cost, time and quality perspective.
+Our vision is to establish a leading framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework will allow data scientists or customers to discover the best approach that fits their use case from cost, time and quality perspective.
 TSPerf framework is designed to facilitate data science community participation and contribution through the development of implementations against a given set of forecasting problems and datasets. Once submitted, implementations will be measured in terms of standard metrics of model accuracy, training cost and model training time. Each implementation will include all the necessary instruction and tools that will ensure reproducibility on Azure customer's subscription.
 Note: The TSPerf vision shared common principles with the [MLPerf](https://mlperf.org/) vision and designed to be proposed as a new track after an internal validation of the concept. 
 
@@ -185,7 +185,7 @@ In this section we provide a number of guidelines for developing reproducible re
 
 ### Feature engineering
 
-To accelerate the development of benchamrk implementations, we provide a number of  common feature engineering functions. Benchmark-independent feature engineering functions are stored in `common/feature_utils.py` file. Benchmark-specific feature engineering functions are stored in `<benchmark vertical>/<benchmark dataset>/common/feature_engineering.py` files. Currently these are `energy_load/GEFCom2017_D_Prob_MT_hourly/common/feature_engineering.py` and `retail_sales/OrangeJuice_Pt_3Weeks_Weekly/common/feature_engineering.py` files. When developing a new benchmark implementation, submitter should reuse provided feature engineering functions as much as possible.
+To accelerate the development of benchmark implementations, we provide a number of  common feature engineering functions. Benchmark-independent feature engineering functions are stored in `common/feature_utils.py` file. Benchmark-specific feature engineering functions are stored in `<benchmark vertical>/<benchmark dataset>/common/feature_engineering.py` files. Currently these are `energy_load/GEFCom2017_D_Prob_MT_hourly/common/feature_engineering.py` and `retail_sales/OrangeJuice_Pt_3Weeks_Weekly/common/feature_engineering.py` files. When developing a new benchmark implementation, submitter should reuse provided feature engineering functions as much as possible.
 
 ### Guideline for creating Docker images
 
@@ -237,7 +237,9 @@ After customizing the Dockerfile and dependency files, you can build a local Doc
         ```bash
         docker run -it -v $(pwd):/TSPerf --name <container name> <image name>
         ```
-        Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have access to the source code and data in the container. Here `<container name>` is the name of the Docker container, e.g. `lightgbm_container`. You will automatically enter the Docker container after executing the above command. 
+        Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have access to the source code and data in the container. Here `<container name>` is the name of the Docker container, e.g. `lightgbm_container`. You will automatically enter the Docker container after executing the above command.  
+        For Docker images with GPU support, you will need to run the above command with an additional argument `--runtime=nvidia`.  
+
     * 3.2 Inside the Docker container, train the model and make predictions by running the following command from `/TSPerf` folder
         ```bash
         source ./common/train_score_vm <submission path> <script type> 
@@ -361,7 +363,7 @@ forecasted periods in the required format. This script should be named as `train
 6. Report five run results produced using the integer random number generator seeds 1 through 5. This can be done by running the model 
 training and scoring script as follows
    ```bash
-   time -p python <submission directory>/train_score.py <seed value>
+   time -p python <submission directory>/train_score.py --seed <seed value>
    ```
    where `<seed value>` is an integer between 1 and 5. This command also computes the running time of each run. 
 
@@ -386,10 +388,9 @@ dependencies for running your benchmark submission. The Dockerfile can point to 
    ```
    Note that you will need to log into the ACR before publishing the image.
 
-
 10. Include a submission form in the submission folder as README.md file. The submission form documents the submitter's information, method utlized in the 
 benchmark implementation, information about the scripts, obtained results, and steps of reproducing the results. An example submission form can be found 
-here (TODO: Add link). Specifically, it should include
+[here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FLightGBM&version=GBmaster). Specifically, it should include
     * name of the branch with submission code
     * benchmark path, e.g. `/TSPerf/energy_load/problem1`
     * path to submission directory, e.g. `/TSPerf/energy_load/problem1/submissions/submission1`
@@ -407,13 +408,13 @@ here (TODO: Add link). Specifically, it should include
 [Batch AI](https://azure.microsoft.com/services/batch-ai/) is an Azure product which enables the training of machine learning models in parallel on a cluster of VMs. In the context of TSPerf, it can be used in two ways:
 
 - Train models and generate forecasts for multiple time series in parallel. For example, in retail sales forecasting benchmarks, it could be used to train/score models for multiple products concurrently.
-- For benchmark implementations where an ensemble of forecasts is generated, Batch AI can be used to parallelize the training of these models.
+- For benchmark implementations where an ensemble of forecasts is generated, Batch AI can be used to parallelize the training of these models. Batch AI can also be used for tuning hyperparameters.
 
 Note that it is **not** permissible to use Batch AI to parallelize the generation forecasts across test folds. In order to be realistic, test predictions must be made sequentially for each test fold.
 
 To make a submission that utilizes Batch AI, complete points 0 to 4 as in the *Standalone VM* section, and then complete the following steps:
 
-1. Create your model training and scoring script(s) to be run on the Batch AI cluster. These script(s) can be in any language and must include all code necessary to train your models and maeke predictions on the test periods. You may have multiple scripts (one for each model in an ensemble for example) to be executed on separate nodes of the cluster. Alternatively, you may create a single script which can run differently on separate nodes based on the value of a script parameter. Each execution of these scripts will be a single Batch AI job to be run on a single node. If the output of the model(s) is non-deterministic (if it varies based on weight initialization for example), the script must accept the seed value as a parameter.
+1. Create your model training and scoring script(s) to be run on the Batch AI cluster. These script(s) can be in any language and must include all code necessary to train your models and make predictions on the test periods. You may have multiple scripts (one for each model in an ensemble for example) to be executed on separate nodes of the cluster. Alternatively, you may create a single script which can run differently on separate nodes based on the value of a script parameter. Each execution of these scripts will be a single Batch AI job to be run on a single node. If the output of the model(s) is non-deterministic (if it varies based on weight initialization for example), the script must accept the seed value as a parameter.
 
 2. Create a job execution script named `execute_jobs.*`. This script performs several functions:
 
@@ -427,7 +428,7 @@ To make a submission that utilizes Batch AI, complete points 0 to 4 as in the *S
 
 3. Report five run results produced using the integer random number generator seeds 1 through 5. If your script is written in Python, this can be done by running the following
     ```bash
-    time -p python <submission directory>/execute_jobs.py <seed value>
+    time -p python <submission directory>/execute_jobs.py --seed <seed value>
     ```
     where `<seed value>` is an integer between 1 and 5.
 
@@ -539,7 +540,7 @@ benchmark results. Then log into the provisioned VM.
        docker run -it -v ~/TSPerf:/TSPerf --name <container name> <image name>
    
    Note that you need to mount `/TSPerf` folder (the one you cloned) to the container so that you will 
-   have access to the source code in the container. 
+   have access to the source code in the container. For Docker images with GPU support, you will need to run the above command with an additional argument `--runtime=nvidia`.   
 
 7. Inside Docker container, run the following command:  
 
