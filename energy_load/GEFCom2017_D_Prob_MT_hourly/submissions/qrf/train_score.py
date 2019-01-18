@@ -9,6 +9,7 @@ import time
 # get seed value 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
+parser.add_argument('--output-folder', type=str, dest='output_folder', help='output folder mounting point')
 parser.add_argument('--seed', type=int, dest='seed', help='random seed')
 args = parser.parse_args()
 
@@ -16,7 +17,7 @@ args = parser.parse_args()
 data_dir = join(args.data_folder, 'features')
 train_dir = join(data_dir, 'train')
 test_dir = join(data_dir, 'test')
-output_file = join('outputs','submission_seed_{}.csv'.format(args.seed))
+output_file = join(args.output_folder,'submission_seed_{}.csv'.format(args.seed))
 
 # do 6 rounds of forecasting, at each round output 9 quantiles
 n_rounds = 6   
@@ -67,5 +68,4 @@ for i in range(1,n_rounds+1):
             y_test = pd.concat([y_test, y_test_round_quantile])
 
 # store forecasts
-os.makedirs('outputs', exist_ok=True)
 y_test.to_csv(output_file,index=False)
