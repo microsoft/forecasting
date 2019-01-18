@@ -12,3 +12,4 @@ do
     end=`date +%s`
     echo 'Running time '$((end-start))' seconds'
 done
+echo 'Training and scoring are completed'
