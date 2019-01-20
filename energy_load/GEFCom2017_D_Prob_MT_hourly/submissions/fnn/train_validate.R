@@ -14,10 +14,10 @@ train_file_prefix = 'train_round_'
 #cvdata_df = fread(train_file)
 
 # Define parameter grid
-n.hidden_choice = c(8, 16)
+n.hidden_choice = c(4, 8)
 n.hidden2_choice = c(4, 8)
-iter.max_choice = c(2, 4, 6, 8, 10)
-penalty_choice = c(0)
+iter.max_choice = c(1, 2, 4, 6, 8)
+penalty_choice = c(0, 0.001)
 
 param_grid = expand.grid(n.hidden_choice,
                          n.hidden2_choice,
