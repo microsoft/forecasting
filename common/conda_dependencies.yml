@@ -12,3 +12,5 @@ dependencies:
   - r-base=3.4.3
   - scikit-garden
   - joblib
+  - pip:
+    - azureml-sdk
