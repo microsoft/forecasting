@@ -58,7 +58,7 @@ VM.
    ```bash
    cd ~/TSPerf
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
-   git checkout zhouf/energy_forecast_fnn_model_v1
+   git checkout zhouf/energy_forecast_fnn_cv_v1
    ```
    Use one of the following options to securely connect to the Git repo:
    * [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts)  
