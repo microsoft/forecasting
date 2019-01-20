@@ -35,12 +35,15 @@ The following features are used:
 
 ### Model tuning
 
-The data of January - April of 2016 were used as validation dataset for some minor model tuning. Based on the model performance on this validation dataset, a larger feature set was narrowed down to the features described above. The model hyperparameter tuning is done on the first train round data. The best model is selected by cross validation using this training data in the 6 forecast rounds. The set of hyperparameters which yield the best cross validation pinball loss will be used to train models and forecast energy load across all 6 forecast rounds.
+The data of January - April of 2016 were used as validation dataset for some minor model tuning. Based on the model performance on this validation dataset, a larger feature set was narrowed down to the features described above. The model hyperparameter tuning is done on the 6 train round data. The best model is selected by cross validation using these training data in the 6 forecast rounds. The set of hyperparameters which yield the best cross validation pinball loss will be used to train models and forecast energy load across all 6 forecast rounds.
 
 ### Description of implementation scripts
 
 * `feature_engineering.py`: Python script for computing features and generating feature files.
-* `train_validate.R`: R script that trains Quantile Regression Neutral Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters.
+* `train_validate.R`: R script that trains Quantile Regression Neutral Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used for grid search on vm.
+* `train_validate_aml.R`: R script that trains Quantile Regression Neutral Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used as the entry script for hyperdrive. 
+* `aml_estimator.py`: Python script that passes the inputs and outputs between hyperdrive and the entry script `train_validate_aml.R`. 
+* `hyperparameter_tuning.ipynb`: Jupyter notebook that does hyperparameter tuning with azureml hyperdrive.
 * `train_predict.R`: R script that trains Quantile Regression Neutral Network models and predicts on each round of test data.
 * `train_validate_vm.sh`: Bash script that runs `feature_engineering.py` and `train_validate.R` multiple times to generate cross validation result files and measure model tuning time.
 * `train_score_vm.sh`: Bash script that runs `feature_engineering.py` and `train_predict.R` five times to generate five submission files and measure model running time.
@@ -110,9 +113,9 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    You can run the similar command to pull the Docker image fnn_cv_image:v1 as well.
 
-5. Tune Hyperparameter **within Docker container**.
+5. Tune Hyperparameters **within Docker container** or **with Azureml hyperdrive**.
 
-   5.1 Start a Docker container from the image  
+   5.1.1 Start a Docker container from the image  
 
    ```bash
    docker run -it -v ~/TSPerf:/TSPerf --name fnn_cv_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_cv_image:v1
@@ -120,13 +123,26 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
 
-   5.2 Train and validate
+   5.1.2 Train and validate
 
    ```
    source activate tsperf
    bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_validate_vm.sh > cv_out.txt &
    ```
-   After generating the cross validation results, you can exit the Docker container by command `exit`. Based on the average pinball loss obtained at each set of hyperparameters, you can choose the best set of hyperparameters and use it in the Rscript of `train_predict.R`.
+   After generating the cross validation results, you can exit the Docker container by command `exit`. 
+
+   5.2 Do hyperparameter tuning with Azureml hyperdrive
+   
+   To tune hyperparameters with Azureml hyperdrive, you don't need to create a local Docker container. Please do feature engineering on VM by the command
+
+   ```
+   cd ~/TSPerf
+   source activate tsperf
+   python energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/feature_engineering.py
+   ```
+   And then run through the jupyter notebook `hyperparameter_tuning.ipynb` on the VM with the conda env tsperf as the jupyter kernel.
+
+   Based on the average pinball loss obtained at each set of hyperparameters, you can choose the best set of hyperparameters and use it in the Rscript of `train_predict.R`.
 
 6. Train and predict **within Docker container**.
 
@@ -179,32 +195,32 @@ Please follow the instructions below to deploy the Linux DSVM.
 **Quality:**  
 Note there is no randomness in this fnn model, so the model quality is the same for all five runs.
 
-* Pinball loss run 1: 82.59
+* Pinball loss run 1: 80.27
 
-* Pinball loss run 2: 82.58
+* Pinball loss run 2: 80.24
 
-* Pinball loss run 3: 82.58
+* Pinball loss run 3: 80.25
 
-* Pinball loss run 4: 82.60
+* Pinball loss run 4: 80.24
 
-* Pinball loss run 5: 82.52
+* Pinball loss run 5: 80.22
 
-* Median Pinball loss: 82.58
+* Median Pinball loss: 80.24
 
 **Time:**
 
-* Run time 1:  1724 seconds
+* Run time 1: 5205 seconds
 
-* Run time 2:  1784 seconds
+* Run time 2:  seconds
 
-* Run time 3:  1765 seconds
+* Run time 3:  seconds
 
-* Run time 4:  1740 seconds
+* Run time 4:  seconds
 
-* Run time 5:  1722 seconds
+* Run time 5:  seconds
 
-* Median run time:  1740 seconds
+* Median run time:   seconds
 
 **Cost:**  
 The hourly cost of the Standard D8s DSVM is 0.3840 USD based on the price at the submission date.   
-Thus, the total cost is 1740/3600 * 0.3840 = $0.1856.
+Thus, the total cost is 5205/3600 * 0.3840 = $0.5552.
