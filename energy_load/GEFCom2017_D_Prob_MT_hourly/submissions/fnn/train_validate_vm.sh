@@ -1,6 +1,6 @@
 #!/bin/bash
 path=energy_load/GEFCom2017_D_Prob_MT_hourly
-for i in `seq 1 20`;
+for i in `seq 1 40`;
 do
     echo "Parameter Set $i"
     start=`date +%s`
