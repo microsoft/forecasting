@@ -1,6 +1,7 @@
 args = commandArgs(trailingOnly=TRUE)
 
 install.packages('qrnn', repo="http://cran.rstudio.com/")
+install.packages('optparse', repo="http://cran.rstudio.com/")
 library('data.table')
 library('qrnn')
 library("optparse")
