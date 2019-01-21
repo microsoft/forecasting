@@ -111,14 +111,12 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    docker pull tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
    ```
 
-   You can run the similar command to pull the Docker image fnn_cv_image:v1 as well.
-
-5. Tune Hyperparameters **within Docker container** or **with Azureml hyperdrive**.
+5. Tune Hyperparameters **within Docker container** or **with AzureML hyperdrive**.
 
    5.1.1 Start a Docker container from the image  
 
    ```bash
-   docker run -it -v ~/TSPerf:/TSPerf --name fnn_cv_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_cv_image:v1
+   docker run -it -v ~/TSPerf:/TSPerf --name fnn_cv_container tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1
    ```
 
    Note that option `-v ~/TSPerf:/TSPerf` mounts the `~/TSPerf` folder (the one you cloned) to the container so that you can access the code and data on your VM within the container.
@@ -131,16 +129,16 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    ```
    After generating the cross validation results, you can exit the Docker container by command `exit`. 
 
-   5.2 Do hyperparameter tuning with Azureml hyperdrive
+   5.2 Do hyperparameter tuning with AzureML hyperdrive
    
-   To tune hyperparameters with Azureml hyperdrive, you don't need to create a local Docker container. Please do feature engineering on VM by the command
+   To tune hyperparameters with AzureML hyperdrive, you don't need to create a local Docker container. You can do feature engineering on the VM by the command
 
    ```
    cd ~/TSPerf
    source activate tsperf
    python energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/feature_engineering.py
    ```
-   And then run through the jupyter notebook `hyperparameter_tuning.ipynb` on the VM with the conda env tsperf as the jupyter kernel.
+   and then run through the jupyter notebook `hyperparameter_tuning.ipynb` on the VM with the conda env `tsperf` as the jupyter kernel.
 
    Based on the average pinball loss obtained at each set of hyperparameters, you can choose the best set of hyperparameters and use it in the Rscript of `train_predict.R`.
 
@@ -184,7 +182,8 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
     - r-base==3.5.1  
     - qrnn==2.0.2
     - data.table==1.10.4.3
-    - rjson==0.2.20
+    - rjson==0.2.20 (optional for cv)
+    - doParallel==1.0.14 (optional for cv)
 
 ## Resource deployment instructions
 Please follow the instructions below to deploy the Linux DSVM.
