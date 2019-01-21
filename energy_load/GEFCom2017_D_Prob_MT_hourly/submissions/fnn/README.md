@@ -208,18 +208,18 @@ Note there is no randomness in this fnn model, so the model quality is the same 
 
 **Time:**
 
-* Run time 1: 5205 seconds
+* Run time 1: 5187 seconds
 
-* Run time 2:  seconds
+* Run time 2: 5132 seconds
 
-* Run time 3:  seconds
+* Run time 3: 5046 seconds
 
-* Run time 4:  seconds
+* Run time 4: 5048 seconds
 
-* Run time 5:  seconds
+* Run time 5: 5095 seconds
 
-* Median run time:   seconds
+* Median run time: 5095 seconds
 
 **Cost:**  
 The hourly cost of the Standard D8s DSVM is 0.3840 USD based on the price at the submission date.   
-Thus, the total cost is 5205/3600 * 0.3840 = $0.5552.
+Thus, the total cost is 5095/3600 * 0.3840 = $0.5435.
