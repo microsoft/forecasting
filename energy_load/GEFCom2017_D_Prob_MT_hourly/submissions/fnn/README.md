@@ -14,7 +14,7 @@
 
 **Submission branch:** [zhouf/energy_forecast_fnn_model_v1](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBzhouf%2Fenergy_forecast_fnn_model_v1) and [zhouf/energy_forecast_fnn_cv_v1](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2F&version=GBzhouf%2Fenergy_forecast_fnn_cv_v1)
 
-**Pull request:** [GEFCom2017_D_Prob_MT_hourly - fnn submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/166772?_a=overview)
+**Pull request:** [GEFCom2017_D_Prob_MT_hourly - fnn submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/181524?_a=overview)
 
 **Submission path:** energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn
 
