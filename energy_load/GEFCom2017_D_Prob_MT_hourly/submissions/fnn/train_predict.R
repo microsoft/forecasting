@@ -70,7 +70,8 @@ for (z in zones){
         model = qrnn2.fit(x=train_x, y=train_y, 
                           n.hidden=8, n.hidden2=4,
                           tau=tau, Th=tanh,
-                          iter.max=1)
+                          iter.max=1,
+                          penalty=0)
        
         result$Prediction = qrnn2.predict(model, x=test_x) * test_df_sub$LoadRatio
         result$q = tau
