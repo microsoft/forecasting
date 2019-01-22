@@ -211,58 +211,6 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
     return df[[output_colname]]
 
 
-def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
-                           week_window=1, agg_func='mean',
-                           output_colname='SameWeekHourLag'):
-    """
-    Create a lag feature by averaging values of and around the same week,
-    same day of week, and same hour of day, of previous years.
-    :param datetime_col: Datetime column
-    :param value_col: Feature value column to create lag feature from
-    :param n_years: Number of previous years data to use
-    :param week_window:
-        Number of weeks before and after the same week to
-        use, which should help reduce noise in the data
-    :param agg_func: aggregation function to apply on multiple previous values
-    :param output_colname: name of the output lag feature column
-    """
-
-    if not is_datetime_like(datetime_col):
-        datetime_col = pd.to_datetime(datetime_col, format=DATETIME_FORMAT)
-    min_time_stamp = min(datetime_col)
-    max_time_stamp = max(datetime_col)
-
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
-
-    week_lag_base = 52
-    week_lag_last_year = list(range(week_lag_base - week_window,
-                              week_lag_base + week_window + 1))
-    week_lag_all = []
-    for y in range(n_years):
-        week_lag_all += [x + y * 52 for x in week_lag_last_year]
-
-    week_lag_cols = []
-    for w in week_lag_all:
-        if (max_time_stamp - timedelta(weeks=w)) >= min_time_stamp:
-            col_name = 'week_lag_' + str(w)
-            week_lag_cols.append(col_name)
-
-            lag_datetime = df.index.get_level_values(0) - timedelta(weeks=w)
-            valid_lag_mask = lag_datetime >= min_time_stamp
-
-            df[col_name] = np.nan
-
-            df.loc[valid_lag_mask, col_name] = \
-                df.loc[lag_datetime[valid_lag_mask], 'value'].values
-
-    # Additional aggregation options will be added as needed
-    if agg_func == 'mean':
-        df[output_colname] = round(df[week_lag_cols].mean(axis=1))
-
-    return df[[output_colname]]
-
-
 def same_day_hour_moving_average(datetime_col, value_col, window_size,
                                  start_week, average_count, forecast_creation_time,
                                  output_col_prefix='moving_average_lag_'):
