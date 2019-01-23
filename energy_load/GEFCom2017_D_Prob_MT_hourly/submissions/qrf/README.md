@@ -14,7 +14,7 @@
 
 **Submission branch:** [dmitry/qrf](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions&version=GBdmitry%2Fqrf)
 
-**Pull request:** [GEFCom2017_D_Prob_MT_hourly - baseline submission](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150805?_a=overview)
+**Pull request:** [QRF model for energy benchmark](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/181012?_a=overview)
 
 **Submission path:** energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/qrf
 
