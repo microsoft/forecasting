@@ -41,6 +41,7 @@ def read_test_files(benchmark_dir):
 def evaluate(submission_file):
     test = read_test_files(BENCHMARK_DIR)
 
+    print(os.path.join(BENCHMARK_DIR, submission_file))
     submission = pd.read_csv(os.path.join(BENCHMARK_DIR, submission_file), parse_dates=['Datetime'])
 
     evaluation = pd.merge(submission, test, on=['Round', 'Datetime', 'Zone'], how='left')
