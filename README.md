@@ -18,6 +18,7 @@ A complete documentation of TSPerf, along with the instructions for submitting a
 | -------------- | --------------------- | --------- | ---- | --- | -- | -- | -- |
 | Baseline | 84.66 | 446 sec | $0.05 | Linux DSVM (Standard D8s v3, Premium SSD) | quantreg package of R | Linear Quantile Regression  | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions%2Fbaseline&version=GBmaster) |
 | GBM      | 78.73 | 1055 sec | $0.113 | Linux DSVM (Standard D8s v3, Premium SSD) | gbm package of R | Gradient Boosting Decision Tree | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions%2FGBM%2FREADME.md&version=GBvapaunic%2Fgbm) |
+| QRF      | 76.48 | 22709 sec | $19.03 | Linux DSVM (F72s v2, Premium SSD) | scikit-garden package of Python | Quantile Regression Forest | [link](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fenergy_load%2FGEFCom2017_D_Prob_MT_hourly%2Fsubmissions%2Fqrf&version=GBmaster) |
 
 ### Retail sales forecasting performance board
 
