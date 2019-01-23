@@ -183,15 +183,15 @@ Please follow the instructions below to deploy the Linux DSVM.
 
 * Run time 1: 22289 seconds
 
-* Run time 2: 22188 seconds
+* Run time 2: 22493 seconds
 
-* Run time 3: 22121 seconds
+* Run time 3: 22859 seconds
 
-* Run time 4: 22253 seconds
+* Run time 4: 22709 seconds
 
-* Run time 5: 22190 seconds
+* Run time 5: 23197 seconds
 
-* Median run time: 22190 seconds (6.2 hours)
+* Median run time: 22709 seconds (6.3 hours)
 
 **Cost:**  
 The hourly cost of the F72s v2 DSVM is 3.045 USD based on the price at the submission date.   
