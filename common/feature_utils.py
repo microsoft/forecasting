@@ -263,7 +263,7 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
 def normalized_series(datetime_col, value_col,
                       output_colname='normalized_series'):
     """
-    Creates series normalized to be log of previous series devided by global average of each series.
+    Creates series normalized to be log of input series devided by global average of each series.
     
     Args:
         datetime_col: Datetime column.
