@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Utility functions for building the Dilated Convolutional Neural Network (CNN) model. 
+# Utility functions for building the boosted decision tree model. 
 
 import pandas as pd
 
@@ -20,7 +20,7 @@ def week_of_month(dt):
     wom = int(ceil(adjusted_dom/7.0))
     return wom
 
-def df_from_cartesian_product(dict_in):
+def df_from_cartesian_product(dict_in): 
     """Generate a Pandas dataframe from Cartesian product of lists.
     
     Args: 

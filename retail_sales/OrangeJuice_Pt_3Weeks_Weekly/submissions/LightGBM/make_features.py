@@ -7,12 +7,11 @@ import sys
 import math
 import itertools
 import datetime
-import argparse
 import numpy as np
 import pandas as pd
 import lightgbm as lgb 
 
-# Append TSPerf path to sys.path
+# Append TSPerf path to sys.path 
 tsperf_dir = os.getcwd()
 if tsperf_dir not in sys.path:
     sys.path.append(tsperf_dir)
@@ -44,6 +43,8 @@ def moving_averages(df, start_step, window_size=None):
     
     Args:
         df (Dataframe): Input features as a dataframe
+        start_step (Integer): Starting time step of rolling mean
+        window_size (Integer): Windows size of rolling mean
     
     Returns:
         fea (Dataframe): Dataframe consisting of the moving averages
@@ -54,33 +55,33 @@ def moving_averages(df, start_step, window_size=None):
     fea.columns = fea.columns + '_mean'
     return fea
 
-def combine_features(df, lag_fea, lags, max_moving_step, used_columns):
-    """Combine different features for a certain store and brand.
+def combine_features(df, lag_fea, lags, window_size, used_columns):
+    """Combine different features for a certain store-brand.
     
     Args:
-        df (Dataframe): Time series data of a certain store and brand
+        df (Dataframe): Time series data of a certain store-brand
         lag_fea (List): A list of column names for creating lagged features
         lags (Numpy Array): Numpy array including all the lags
-        max_moving_step (Integer): Maximum step for computing the moving average
+        window_size (Integer): Windows size of rolling mean
         used_columns (List): A list of names of columns used in model training (including target variable)
     
     Returns:
-        fea_all (Dataframe): Dataframe including all features for the specific store and brand
+        fea_all (Dataframe): Dataframe including all features for the specific store-brand
     """
     lagged_fea = lagged_features(df[lag_fea], lags)
-    moving_avg = moving_averages(df[lag_fea], 2, max_moving_step)
+    moving_avg = moving_averages(df[lag_fea], 2, window_size)
     fea_all = pd.concat([df[used_columns], lagged_fea, moving_avg], axis=1)
     return fea_all
 
-
-def make_features(pred_round, train_dir, lags, max_moving_step, used_columns, store_list, brand_list):
+def make_features(pred_round, train_dir, lags, window_size, offset, used_columns, store_list, brand_list):
     """Create a dataframe of the input features.
     
     Args: 
         pred_round (Integer): Prediction round
         train_dir (String): Path of the training data directory 
         lags (Numpy Array): Numpy array including all the lags
-        max_moving_step (Integer): Maximum step for computing the moving average
+        window_size (Integer): Maximum step for computing the moving average
+        offset (Integer): Length of training data skipped in the retraining
         used_columns (List): A list of names of columns used in model training (including target variable)
         store_list (Numpy Array): List of all the store IDs 
         brand_list (Numpy Array): List of all the brand IDs 
@@ -91,13 +92,13 @@ def make_features(pred_round, train_dir, lags, max_moving_step, used_columns, st
     # Load training data
     train_df = pd.read_csv(os.path.join(train_dir, 'train_round_'+str(pred_round+1)+'.csv'))
     train_df['move'] = train_df['logmove'].apply(lambda x: round(math.exp(x)))
-    train_df = train_df[['store', 'brand', 'week', 'profit', 'move']]
+    train_df = train_df[['store', 'brand', 'week', 'move']]
 
     # Create a dataframe to hold all necessary data
-    week_list = range(bs.TRAIN_START_WEEK, bs.TEST_END_WEEK_LIST[pred_round]+1)
+    week_list = range(bs.TRAIN_START_WEEK + offset, bs.TEST_END_WEEK_LIST[pred_round]+1)
     d = {'store': store_list,
-        'brand': brand_list,
-        'week': week_list}        
+         'brand': brand_list,
+         'week': week_list}        
     data_grid = df_from_cartesian_product(d)
     data_filled = pd.merge(data_grid, train_df, how='left', 
                             on=['store', 'brand', 'week'])
@@ -109,7 +110,7 @@ def make_features(pred_round, train_dir, lags, max_moving_step, used_columns, st
     
     # Create relative price feature
     price_cols = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', \
-                'price9', 'price10', 'price11']
+                  'price9', 'price10', 'price11']
     data_filled['price'] = data_filled.apply(lambda x: x.loc['price' + str(int(x.loc['brand']))], axis=1)
     data_filled['avg_price'] = data_filled[price_cols].sum(axis=1).apply(lambda x: x / len(price_cols))
     data_filled['price_ratio'] = data_filled['price'] / data_filled['avg_price']
@@ -127,6 +128,6 @@ def make_features(pred_round, train_dir, lags, max_moving_step, used_columns, st
     data_filled.drop('week_start', axis=1, inplace=True)
 
     # Create other features (lagged features, moving averages, etc.)
-    features = data_filled.groupby(['store','brand']).apply(lambda x: combine_features(x, ['move'], lags, max_moving_step, used_columns))
+    features = data_filled.groupby(['store','brand']).apply(lambda x: combine_features(x, ['move'], lags, window_size, used_columns))
 
     return features
