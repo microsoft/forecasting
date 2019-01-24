@@ -88,7 +88,7 @@ def time_of_year(datetime_col):
         datetime_col: Datetime column.
     
     Returns:
-        A numpy array of containing converted datatime_col into time of year.
+        A numpy array containing converted datatime_col into time of year.
     """
 
     time_of_year = pd.DataFrame({'DayOfYear': datetime_col.dt.dayofyear,
@@ -423,7 +423,8 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
                            q=None,
                            output_colname='SameWeekHourLag'):
     """
-    Creates a lag feature by calculating quantiles, mean and std of values of and around the same week, same day of week, and same hour of day, of previous years.    
+    Creates a lag feature by calculating quantiles, mean and std of values of and
+    around the same week, same day of week, and same hour of day, of previous years.
 
     Args:
         datetime_col: Datetime column.
@@ -431,10 +432,9 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
         n_years: Number of previous years data to use. Default value 3.
         week_window: Number of weeks before and after the same week to use,
             which should help reduce noise in the data. Default value 1.
-        agg_func: aggregation function to apply on multiple previous values. 
-            Default value 'mean'.
-        q: Quantile value column, taking value of None, 
-            .01, .05, .2, .5, .8, .95, .99
+        agg_func: Aggregation function to apply on multiple previous values,
+            accepted values are 'mean', 'quantile', 'std'. Default value 'mean'.
+        q: If agg_func is 'quantile', taking value between 0 and 1.
         output_colname: name of the output lag feature column. 
             Default value 'SameWeekHourLag'.
     
@@ -489,7 +489,8 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
                       q=None,
                       output_colname='SameDayHourLag'):
     """
-    Creates a lag feature by calculating quantiles, mean, and std of values of and around the same day of year, and same hour of day, of previous years.
+    Creates a lag feature by calculating quantiles, mean, and std of values of
+    and around the same day of year, and same hour of day, of previous years.
     
     Args:
         datetime_col: Datetime column.
@@ -497,10 +498,9 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
         n_years: Number of previous years data to use. Default value 3.
         day_window: Number of days before and after the same day to use, 
             which should help reduce noise in the data. Default value 1.
-        agg_func: aggregation function to apply on multiple previous values.
-            Default value 'mean'.
-        q: Quantile value column, taking value of None, 
-            .01, .05, .2, .5, .8, .95, .99
+        agg_func: Aggregation function to apply on multiple previous values,
+            accepted values are 'mean', 'quantile', 'std'. Default value 'mean'.
+        q: If agg_func is 'quantile', taking value between 0 and 1.
         output_colname: name of the output lag feature column. 
             Default value 'SameDayHourLag'.
     
@@ -613,11 +613,11 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
 
 
 def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
-                                 start_week, quatile_count, q,
+                                 start_week, quantile_count, q,
                                  forecast_creation_time,
                                  output_col_prefix='moving_quatile_lag_'):
     """
-    Creates a series of quatiles of features by calculating quatiles of values of the same day of week and same hour of day of previous weeks.
+    Creates a series of quantiles features by calculating quantiles of values of the same day of week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
@@ -682,7 +682,7 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
                              forecast_creation_time,
                              output_col_prefix='moving_std_lag_'):
     """
-    Creates a standard deviation of features by calculating std of values of the same day of week and same hour of day of previous weeks.
+    Creates a standard deviation features by calculating std of values of the same day of week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
@@ -748,22 +748,21 @@ def same_day_hour_moving_agg(datetime_col, value_col, window_size,
                              q=None,
                              output_col_prefix='moving_agg_lag_'):
     """
-    Creates a series of aggregation of features by calculating mean, quantiles, 
-    and std of values of the same day of week and same hour of day of previous weeks.
+    Creates a series of aggregation features by calculating mean, quantiles,
+    or std of values of the same day of week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
-        value_col: Feature value column to create a series of aggregation of
-            features from.
+        value_col: Feature value column to create aggregation features from.
         window_size: Number of weeks used to compute the aggregation.
-        start_week: First week of the first aggregation of feature.
-        count: Number of aggregation of features to create.
+        start_week: First week of the first aggregation feature.
+        count: Number of aggregation features to create.
         forecast_creation_time: The time point when the feature is created. 
-            This value is used to prevent using data that are not available at forecast creation time to compute features.
+            This value is used to prevent using data that are not available
+            at forecast creation time to compute features.
         agg_func: Aggregation function to apply on multiple previous values, 
-            including mean, quantile, and standard deviation. 
-        q: Quantile value column, taking value of None, .01, .05, .2, .5, .8, 
-            .95, .99.
+            accepted values are 'mean', 'quantile', 'std'.
+        q: If agg_func is 'quantile', taking value between 0 and 1.
         output_col_prefix: Prefix of the output columns. The start week of each 
             moving average feature is added at the end. Default value 'moving_agg_lag_'.
 
