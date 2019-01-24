@@ -1,8 +1,6 @@
-
 # coding: utf-8
 
 # Perform cross validation of a boosted decision tree model on the training data of the 1st forecast round. 
-
 
 import os
 import sys
@@ -15,7 +13,6 @@ import pandas as pd
 import lightgbm as lgb 
 from azureml.core import Run
 from sklearn.model_selection import train_test_split
-
 
 # Utility functions
 def week_of_month(dt):
