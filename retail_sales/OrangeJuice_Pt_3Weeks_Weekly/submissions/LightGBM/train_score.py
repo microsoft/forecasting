@@ -10,6 +10,9 @@ import numpy as np
 import pandas as pd
 import lightgbm as lgb 
 
+import warnings
+warnings.filterwarnings('ignore')
+
 # Append TSPerf path to sys.path
 tsperf_dir = os.getcwd()
 if tsperf_dir not in sys.path:
@@ -37,7 +40,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, dest='seed', default=1, help='Random seed of GBM model')
     parser.add_argument('--num-leaves', type=int, dest='num_leaves', default=124, help='# of leaves of the tree')
-    parser.add_argument('--min-data-in-leaf', type=int, dest='min_data_in_leaf', default=3, help='minimum # of samples in each leaf')
+    parser.add_argument('--min-data-in-leaf', type=int, dest='min_data_in_leaf', default=340, help='minimum # of samples in each leaf')
     parser.add_argument('--learning-rate', type=float, dest='learning_rate', default=0.1, help='learning rate')
     parser.add_argument('--feature-fraction', type=float, dest='feature_fraction', default=0.65, help='ratio of features used in each iteration')
     parser.add_argument('--bagging-fraction', type=float, dest='bagging_fraction', default=0.87, help='ratio of samples used in each iteration')
@@ -64,7 +67,7 @@ if __name__ == '__main__':
         'bagging_freq': args.bagging_freq,
         'num_rounds': args.max_rounds,
         'early_stopping_rounds': 125,
-        'num_threads': 16,
+        'num_threads': 4,
         'seed': args.seed
     }
 
@@ -84,7 +87,7 @@ if __name__ == '__main__':
     for r in range(bs.NUM_ROUNDS): 
         print('---- Round ' + str(r+1) + ' ----')
         # Create features
-        features = make_features(r, TRAIN_DIR, lags, args.window_size, offset=0, used_columns, store_list, brand_list)
+        features = make_features(r, TRAIN_DIR, lags, args.window_size, 0, used_columns, store_list, brand_list)
         train_fea = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
 
         # Drop rows with NaN values
