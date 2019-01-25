@@ -20,7 +20,7 @@ import sys
 import pandas as pd
 sys.path.append('.')
 from benchmark_paths import BENCHMARK_DIR
-from common.loss_functions import pinball_loss
+from common.evaluation_utils import pinball_loss
 
 
 def read_test_files(benchmark_dir):
