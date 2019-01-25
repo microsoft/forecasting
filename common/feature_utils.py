@@ -9,7 +9,7 @@ import calendar
 import pandas as pd
 import numpy as np
 
-from .utils import is_datetime_like
+from utils import is_datetime_like
 
 # 0: Monday, 2: T/W/TR, 4: F, 5:SA, 6: S
 WEEK_DAY_TYPE_MAP = {1: 2, 3: 2}    # Map for converting Wednesday and
@@ -136,7 +136,7 @@ def encoded_month_of_year(month_of_year):
     """
     Create one hot encoding of month of year.
     """
-    month_of_year = pd.get_dummies(month_of_year)
+    month_of_year = pd.get_dummies(month_of_year, prefix="MonthOfYear")
 
     return month_of_year
 
@@ -145,7 +145,7 @@ def encoded_day_of_week(day_of_week):
     """
     Create one hot encoding of day_of_week.
     """
-    day_of_week = pd.get_dummies(day_of_week)
+    day_of_week = pd.get_dummies(day_of_week, prefix="DayOfWeek")
 
     return day_of_week
 
@@ -154,7 +154,7 @@ def encoded_day_of_month(day_of_month):
     """
     Create one hot encoding of day_of_month.
     """
-    day_of_month = pd.get_dummies(day_of_month)
+    day_of_month = pd.get_dummies(day_of_month, prefix="DayOfMonth")
 
     return day_of_month
 
@@ -172,7 +172,7 @@ def encoded_hour_of_day(hour_of_day):
     """
     Create one hot encoding of hour_of_day.
     """
-    hour_of_day = pd.get_dummies(hour_of_day)
+    hour_of_day = pd.get_dummies(hour_of_day, prefix="HourOfDay")
 
     return hour_of_day
 
@@ -181,7 +181,7 @@ def encoded_week_of_year(week_of_year):
     """
     Create one hot encoding of week_of_year.
     """
-    week_of_year = pd.get_dummies(week_of_year)
+    week_of_year = pd.get_dummies(week_of_year, prefix="WeekOfYear")
 
     return week_of_year
 
@@ -607,7 +607,7 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
                 tmp_df[tmp_col] = tmp_df['value'].shift(h)
 
             df[output_col] = round(tmp_df[tmp_col_all].mean(axis=1))
-    df.drop('value', inplace=True, axis=1)
+    df.drop(['fct_diff','value'], inplace=True, axis=1)
 
     return df
 
@@ -672,7 +672,7 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
 
         df[output_col] = round(tmp_df[tmp_col_all].quantile(q, axis=1))
         
-    df.drop('value', inplace=True, axis=1)
+    df.drop(['fct_diff','value'], inplace=True, axis=1)
 
     return df
 
@@ -736,7 +736,7 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
 
             df[output_col] = round(tmp_df[tmp_col_all].std(axis=1))
 
-    df.drop('value', inplace=True, axis=1)
+    df.drop(['value','fct_diff'], inplace=True, axis=1)
 
     return df
 
@@ -812,6 +812,7 @@ def same_day_hour_moving_agg(datetime_col, value_col, window_size,
         elif agg_func == 'std' and q == None:
             df[output_col] = round(tmp_df[tmp_col_all].std(axis=1))
             
-    df.drop('value', inplace=True, axis=1)
+    df.drop(['fct_diff','value'], inplace=True, axis=1)
+    
 
     return df
