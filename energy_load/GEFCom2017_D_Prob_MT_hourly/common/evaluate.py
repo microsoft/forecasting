@@ -47,7 +47,6 @@ def read_test_files(benchmark_dir):
             test = test_round.copy()
     return test
 
-
 def evaluate(submission_file):
     test = read_test_files(BENCHMARK_DIR)
 
@@ -70,7 +69,6 @@ def evaluate(submission_file):
         submission_losses = evaluation_round[['Zone', 'pinball']].groupby('Zone').mean()
         rel_improvement_round = (baseline_losses[str(r)]-submission_losses['pinball'])/baseline_losses[str(r)]*100
         rel_improvements['Round '+str(r)] = rel_improvement_round.values
-
 
     print("\nRelative improvement (in %) over GEFCom2017 benchmark model")
     print(rel_improvements)
