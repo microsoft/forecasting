@@ -18,7 +18,7 @@ if tsperf_dir not in sys.path:
     sys.path.append(tsperf_dir)
 
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
-from common.metrics import MAPE
+from common.evaluation_utils import MAPE
 
 from smac.configspace import ConfigurationSpace
 from smac.scenario.scenario import Scenario

@@ -20,7 +20,7 @@ tsperf_dir = os.getcwd()
 if tsperf_dir not in sys.path:
     sys.path.append(tsperf_dir)
 
-from common.metrics import MAPE
+from common.evaluation_utils import MAPE
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 # Get random seed
