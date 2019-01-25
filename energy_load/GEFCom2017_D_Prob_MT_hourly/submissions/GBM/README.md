@@ -171,3 +171,14 @@ Median run time: **1055 seconds**
 
 **Cost:**  
 The hourly cost of the Standard D8s DSVM is 0.3840 USD/h based on the price at the submission date. Thus, the total cost is `1055/3600 * 0.3840 = $0.113`.
+
+**Average relative improvement (in %) over GEFCom2017 benchmark model**  (measured over the first run)  
+Round 1: 9.55  
+Round 2: 18.15  
+Round 3: 17.84   
+Round 4: 8.54  
+Round 5: 7.53  
+Round 6: 6.89  
+
+**Ranking in the qualifying round of GEFCom2017 competition**  
+4
