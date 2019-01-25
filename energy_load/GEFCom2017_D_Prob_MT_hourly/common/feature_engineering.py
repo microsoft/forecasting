@@ -39,7 +39,7 @@ def create_basic_features(input_df, datetime_colname):
         datetime_colname (str): name of Datetime column
 
     Returns:
-        output_df (pandas.DataFrame): output data frame which contains newly created features
+        pandas.DataFrame: output data frame which contains newly created features
     """
 
     output_df = input_df.copy()
@@ -96,8 +96,8 @@ def create_advanced_features(train_df, test_df, datetime_colname,
         holiday_colname (str): name of Holiday column (if present), default value is None
 
     Returns:
-        output_df_train (pandas.DataFrame): output containing newly constructed features on training data
-        output_df_test (pandas.DataFrame): output containing newly constructed features on testing data
+        pandas.DataFrame: output containing newly constructed features on training data
+        pandas.DataFrame: output containing newly constructed features on testing data
 
     """
     output_df = pd.concat([train_df, test_df], sort=True)

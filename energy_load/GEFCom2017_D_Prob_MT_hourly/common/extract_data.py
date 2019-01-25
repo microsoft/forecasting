@@ -1,10 +1,10 @@
 """
 This script requires the user to use the script
-"TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly/common/download_data.py" to
+"TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/common/download_data.py" to
 download the SMD Hourly Data from 2011 to 2017 from the ISO New England
 website (https://www.iso-ne.com/isoexpress/web/reports/load-and-demand/-/tree/zone-info).
 The downloaded data is stored in
-"TSPerf/energy_load/TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly/data"
+"TSPerf/energy_load/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/data"
 
 This script parses the excel files and creates training and testing data files.
 After running this script, the following files are generated:
@@ -22,7 +22,7 @@ data/test/test_round_4.csv  : 2017-03-01 00:00:00 - 2017-03-31 23:00:00
 data/test/test_round_5.csv  : 2017-03-01 00:00:00 - 2017-03-31 23:00:00
 data/test/test_round_6.csv  : 2017-04-01 00:00:00 - 2017-04-30 23:00:00
 Concatenating train_base.csv and train_round_n.csv give the training data
-of round n. The script serve_folds.py does this automatically.
+of round n.
 
 The output files contain the following columns
 Datetime:
@@ -113,6 +113,7 @@ HOLIDAY_TO_INT_DICT = {"New Year's Day": 1,
 TEST_START_DATE = TEST_STARTS_ENDS[0][0]
 ERASE_TEST_COLUMNS = ['DEMAND', 'DewPnt', 'DryBulb']
 
+
 def check_data_exist(data_dir):
     """
     This function makes sure that all data are downloaded to the data
@@ -125,6 +126,7 @@ def check_data_exist(data_dir):
             raise Exception('The data file {0} is not found in the data '
                             'directory {1}, make sure you download the data '
                             'as instructed and try again.'.format(f, data_dir))
+
 
 def parse_excel(file_name):
     """
@@ -200,6 +202,7 @@ def parse_excel(file_name):
 
     return df_final
 
+
 def preprocess_holiday_data():
     """
     This function processes holidays from a csv file and returns a
@@ -223,9 +226,11 @@ def preprocess_holiday_data():
 
     return holidays_with_hours
 
+
 def merge_with_holiday_data(input_df, holiday_df):
     """
-    This function merges input data with holidays data frame, and returns a resulting pandas data frame.
+    This function merges input data with holidays data frame,
+    and returns a resulting pandas data frame.
     """
 
     output_df = pd.merge(input_df, holiday_df, how='left', left_index=True,
@@ -235,12 +240,18 @@ def merge_with_holiday_data(input_df, holiday_df):
 
     return output_df
 
+
 def main(preprocess_flag):
     """
     Main function to extract the downloaded data.
 
     Args:
-        preprocess_flag (bool): A boolean flag that determines whether data preprocessing should be applied to the extracted data. If True, zero values will be filled by linear interpolation, outliers caused by end of Daylight Saving Time will be divided by 2. This step is recommended, but you can also set this flag to False and preprocess the data use your own code.
+        preprocess_flag (bool): A boolean flag that determines
+        whether data preprocessing should be applied to the extracted
+        data. If True, zero values will be filled by linear interpolation,
+        outliers caused by end of Daylight Saving Time will be divided by 2.
+        This step is recommended, but you can also set this flag to False
+        and preprocess the data use your own code.
     """
     # Make sure all files are downloaded to the data directory
     check_data_exist(DATA_DIR)
@@ -285,6 +296,7 @@ def main(preprocess_flag):
 
     split_train_test(file_df_final, DATA_DIR)
 
+
 def usage():
     """Function that prints out correct usage of this script."""
 
@@ -296,6 +308,7 @@ def usage():
           'values of the same hour of the previous day, outliers caused by '
           'end of Daylight Saving Time will be divided by 2.\n'
           '              Default: True.')
+
 
 if __name__ == '__main__':
     preprocess_flag = True
