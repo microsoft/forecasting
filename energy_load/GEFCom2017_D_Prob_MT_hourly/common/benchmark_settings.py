@@ -1,7 +1,7 @@
 """
 This file contains training and testing settings to be used in this benchmark, mainly:
     TRAIN_BASE_END: Base training end date common across all rounds
-    TRAIN_ROUNDS_ENDS: a set of dates denoting end of trianing period for each of the 6 rounds of the benchmark
+    TRAIN_ROUNDS_ENDS: a set of dates denoting end of training period for each of the 6 rounds of the benchmark
     TEST_STARTS_ENDS: a set of dates denoting start and end of testing period for each of the 6 rounds of the benchmark
 """
 

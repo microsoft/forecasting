@@ -1,6 +1,9 @@
-# This script downloads the SMD Hourly Data from 2011 to 2017
-# from https://www.iso-ne.com/isoexpress/web/reports
-# /load-and-demand/-/tree/zone-info
+"""
+This script downloads the SMD Hourly Data from 2011 to 2017
+from https://www.iso-ne.com/isoexpress/web/reports
+/load-and-demand/-/tree/zone-info
+"""
+
 
 import os
 from urllib.request import urlretrieve

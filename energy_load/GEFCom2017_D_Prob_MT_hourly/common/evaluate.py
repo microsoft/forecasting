@@ -1,17 +1,13 @@
 """
 This script evaluates an implementation of the 
-GEFCom2017-D_Prob_MT_hourly benchmark. It reads in
+GEFCom2017_D_Prob_MT_hourly benchmark. It reads in
 the test set predictions contained in submission.csv
-file that should accompany every reference implementation
-and submission. It computes evaluation metrics by
-comparing the predictions to the actual true values
-contained within the test set.
-
-The script must be executed from the TSPerf root directory.
+and  computes evaluation metrics by comparing the
+predictions to the actual true values.
 
 Arguments:
-    submission_file: relative file path to submission.csv 
-        to the reference or submission implementation
+    submission_file: relative file path of submission.csv
+        to the benchmark directory, e.g. submissions/baseline/submission_1.csv
 """
 
 
@@ -41,10 +37,13 @@ def read_test_files(benchmark_dir):
 
 def evaluate(submission_file):
     """
-    Function that evaluates a submission file against test files. It prints out the pinball loss for each Zone in the benchmark, and the mean pinball loss across all Zones.
+    Function that evaluates a submission file against test files.
+    It prints out the pinball loss for each Zone in the benchmark,
+    and the mean pinball loss across all Zones.
 
     Args:
-        submission_file (str): relative path to the submission.csv file, that is the file containing predictions for the benchmark test data. 
+        submission_file (str): relative path to the submission.csv file
+        to the benchmark directory, e.g. submissions/baseline/submission_1.csv
     """
 
     test = read_test_files(BENCHMARK_DIR)

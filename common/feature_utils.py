@@ -197,7 +197,7 @@ def normalized_current_year(datetime_col, min_year, max_year):
         max_year: maximum value of year.
     
     Returns:
-        current_year: the position of the current year in the min_year:max_year range
+        float: the position of the current year in the min_year:max_year range
     """
     year = datetime_col.dt.year
 
@@ -220,7 +220,7 @@ def normalized_current_date(datetime_col, min_date, max_date):
         max_date: maximum value of date.
 
     Returns:
-        current_date: the position of the current date in the min_date:max_date range
+        float: the position of the current date in the min_date:max_date range
     """
     date = datetime_col.dt.date
     current_date = (date - min_date).apply(lambda x: x.days)
@@ -244,7 +244,7 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
         max_datehour: maximum value of datehour.
 
     Returns:
-        current_datehour: the position of the current datehour in the min_datehour:max_datehour range
+        float: the position of the current datehour in the min_datehour:max_datehour range
     """
     current_datehour = (datetime_col - min_datehour)\
         .apply(lambda x: x.days*24 + x.seconds/3600)
@@ -335,8 +335,8 @@ def fourier_approximation(t, n, period):
         period: Period of the datetime variable t.
     
     Returns:
-        x_sin: Sine component
-        x_cos: Cosine component
+        float: Sine component
+        float: Cosine component
     """
     x = n * 2 * np.pi * t/period
     x_sin = np.sin(x)
@@ -354,7 +354,7 @@ def annual_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of
+        dict: Output dictionary containing sine and cosine components of
             the Fourier series for all harmonies.
     """
     day_of_year = datetime_col.dt.dayofyear
@@ -378,7 +378,7 @@ def weekly_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of
+        dict: Output dictionary containing sine and cosine components of
             the Fourier series for all harmonies.
     """
     day_of_week = datetime_col.dt.dayofweek + 1
@@ -402,7 +402,7 @@ def daily_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of
+        dict: Output dictionary containing sine and cosine components of
             the Fourier series for all harmonies.
     """
     hour_of_day = datetime_col.dt.hour + 1
@@ -439,7 +439,7 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
             Default value 'SameWeekHourLag'.
     
     Returns:
-        df[[output_colname]]: pandas DataFrame containing the newly created lag
+         pandas.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -505,7 +505,7 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
             Default value 'SameDayHourLag'.
     
     Returns:
-        df[[output_colname]]: pandas DataFrame containing the newly created lag
+        pandas.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -554,7 +554,8 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
                                  forecast_creation_time,
                                  output_col_prefix='moving_average_lag_'):
     """
-    Creates a moving average features by averaging values of the same day of week and same hour of day of previous weeks.
+    Creates a moving average features by averaging values of the same day of
+    week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
@@ -563,12 +564,13 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
         start_week: First week of the first moving average feature.
         average_count: Number of moving average features to create.
         forecast_creation_time: The time point when the feature is created.
-            This value is used to prevent using data that are not available at forecast creation time to compute features.
+            This value is used to prevent using data that are not available
+            at forecast creation time to compute features.
         output_col_prefix: Prefix of the output columns. The start week of each 
             moving average feature is added at the end. Default value 'moving_average_lag_'.
 
     Returns:
-        df: pandas DataFrame containing the newly created lag features as
+        pandas.DataFrame: data frame containing the newly created lag features as
             columns.
     
     For example, start_week = 9, window_size=4, and average_count = 3 will
@@ -617,7 +619,8 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
                                  forecast_creation_time,
                                  output_col_prefix='moving_quatile_lag_'):
     """
-    Creates a series of quantiles features by calculating quantiles of values of the same day of week and same hour of day of previous weeks.
+    Creates a series of quantiles features by calculating quantiles of values of
+    the same day of week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
@@ -627,12 +630,13 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
         quantile_count: Number of quantiles of features to create.
         q: Quantile value column.
         forecast_creation_time: The time point when the feature is created.
-            This value is used to prevent using data that are not available at forecast creation time to compute features.
+            This value is used to prevent using data that are not available
+            at forecast creation time to compute features.
         output_col_prefix: Prefix of the output columns. The start week of each
             moving average feature is added at the end. Default value 'moving_quatile_lag_'.
 
     Returns:
-        df: pandas DataFrame containing the newly created lag features as
+        pandas.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and quantile_count = 3 will
@@ -682,7 +686,8 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
                              forecast_creation_time,
                              output_col_prefix='moving_std_lag_'):
     """
-    Creates a standard deviation features by calculating std of values of the same day of week and same hour of day of previous weeks.
+    Creates a standard deviation features by calculating std of values of the
+    same day of week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
@@ -691,12 +696,13 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
         start_week: First week of the first moving std feature.
         std_count: Number of moving std features to create.
         forecast_creation_time: The time point when the feature is created.
-            This value is used to prevent using data that are not available at forecast creation time to compute features.
+            This value is used to prevent using data that are not available at
+            forecast creation time to compute features.
         output_col_prefix: Prefix of the output columns. The start week of each
             moving average feature is added at the end. Default value 'moving_std_lag_'.
     
     Returns:
-        df: pandas DataFrame containing the newly created lag features as
+        pandas.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and std_count = 3 will
@@ -767,7 +773,7 @@ def same_day_hour_moving_agg(datetime_col, value_col, window_size,
             moving average feature is added at the end. Default value 'moving_agg_lag_'.
 
     Returns:
-        df: pandas DataFrame containing the newly created lag features as
+        pandas.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and count = 3 will

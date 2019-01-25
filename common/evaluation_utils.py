@@ -2,7 +2,7 @@ import pandas as pd
 
 def MAPE(predictions, actuals):
     """
-    Implements Mean Absolute Prediction Error (MAPE).
+    Implements Mean Absolute Percent Error (MAPE).
 
     Args:
         predictions (pandas.Series): a vector of predicted values.
@@ -16,7 +16,7 @@ def MAPE(predictions, actuals):
 
 def sMAPE(predictions, actuals):
     """
-    Implements Symmetric Mean Absolute Prediction Error (sMAPE).
+    Implements Symmetric Mean Absolute Percent Error (sMAPE).
 
     Args:
         predictions (pandas.Series): a vector of predicted values.
@@ -35,7 +35,8 @@ def pinball_loss(predictions, actuals, q):
     Args:
         predictions (pandas.Series): a vector of predicted values.
         actuals (pandas.Series): a vector of actual values.
-        q (pandas.Series): a vector of quantiles.
+        q (float): The quantile to compute the loss on, the value should
+            be between 0 and 1.
 
     Returns:
         A pandas Series of pinball loss values for each prediction.

@@ -22,7 +22,7 @@ def get_datetime_col(df, datetime_colname):
         datetime_colname: name of the column to be converted
     
     Returns:
-        datetime_col: converted column
+        pandas.Series: converted column
 
     Raises:
         Exception: if datetime_colname does not exist in the dateframe df.
@@ -38,8 +38,7 @@ def get_datetime_col(df, datetime_colname):
 
     if not is_datetime_like(datetime_col):
         try:
-            datetime_col = pd.to_datetime(df[datetime_colname],
-                                          format=DATETIME_FORMAT)
+            datetime_col = pd.to_datetime(df[datetime_colname])
         except:
             raise Exception('Column or index {0} can not be converted to '
                             'datetime type.'.format(datetime_colname))
@@ -61,7 +60,8 @@ def get_month_day_range(date):
 
 def split_train_validation(df, fct_horizon, datetime_colname):
     """
-    Splits the input dataframe into train and validate folds based on the forecast creation time (fct) and forecast horizon specified by fct_horizon.
+    Splits the input dataframe into train and validate folds based on the forecast
+    creation time (fct) and forecast horizon specified by fct_horizon.
     
     Args:
         df: The input data frame to split.
@@ -82,7 +82,8 @@ def split_train_validation(df, fct_horizon, datetime_colname):
 
 def add_datetime(input_datetime, unit, add_count):
     """
-    Function to add a specified units of time (years, months, weeks, days, hours, or minutes) to the input datetime.
+    Function to add a specified units of time (years, months, weeks, days,
+    hours, or minutes) to the input datetime.
 
     Args:
         input_datetime: datatime to be added to
@@ -91,7 +92,7 @@ def add_datetime(input_datetime, unit, add_count):
         add_count: number of units to add
     
     Returns:
-        new_datetime: the resulting datetime
+        New datetime after adding the time difference to input datetime.
     
     Raises:
         Exception: if invalid unit is provided. Valid units are:

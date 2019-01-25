@@ -23,6 +23,8 @@ def split_train_test(full_df, output_dir,
         full_df (pandas.DataFrame):  Full data frame to be split. For robustness and simplicity,
             it's required that full_df is indexed by datetime at level 0.
         output_dir (str): Directory in which to store the output files.
+        train_base_file (str): The base file that contains training data that are common
+            in all rounds.
         train_file_prefix (str): These files each contains a subset of data to be 
             added to train_base_file to form the training data of a particular round.
         test_file_prefix (str): These files each contains testing data for a particular round.
@@ -163,7 +165,7 @@ def extract_eei_data():
     download the EEI Hourly Data from 2008 to 2018 from the ISO New England
     website (https://www.iso-ne.com/isoexpress/web/reports/load-and-demand/-/tree/sys-load-eei-fmt).
     The downloaded data is stored in
-    "TSPerf/energy_load/TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly/data"
+    "TSPerf/energy_load/TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/data"
 
     This script parses the txt files and creates a csv file for each original txt file.
 
@@ -244,4 +246,5 @@ def extract_eei_data():
         csv_file = os.path.basename(os.path.splitext(f)[0]) + '.csv'
         csv_file = os.path.join(DATA_DIR, csv_file)
         loads_df.to_csv(csv_file, index=False)
-    
+
+

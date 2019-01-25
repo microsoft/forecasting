@@ -61,8 +61,8 @@ def fourier_approximation(t, n, period):
         period: Period of the datetime variable t.
     
     Returns:
-        x_sin: Sine component
-        x_cos: Cosine component
+        float: Sine component
+        float: Cosine component
     """
     x = n * 2 * np.pi * t/period
     x_sin = np.sin(x)
@@ -80,7 +80,7 @@ def annual_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of
+        dict: Output dictionary containing sine and cosine components of
             the Fourier series for all harmonies.
     """
     day_of_year = datetime_col.dt.dayofyear
@@ -104,7 +104,7 @@ def weekly_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of
+        dict: Output dictionary containing sine and cosine components of
             the Fourier series for all harmonies.
     """
     day_of_week = datetime_col.dt.dayofweek
@@ -128,7 +128,7 @@ def daily_fourier(datetime_col, n_harmonics):
         n_harmonics: Harmonies, n=0, 1, 2, 3,...
     
     Returns:
-        output_dict: Output dictionary containing sine and cosine components of 
+        dict: Output dictionary containing sine and cosine components of
             the Fourier series for all harmonies.
     """
     hour_of_day = datetime_col.dt.hour + 1
@@ -147,7 +147,8 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
                            week_window=1, agg_func='mean',
                            output_colname='SameWeekHourLag'):
     """
-    This function creates a lag feature by averaging values of and around the same week, same day of week, and same hour of day, of previous years.
+    This function creates a lag feature by averaging values of and around the same week,
+    same day of week, and same hour of day, of previous years.
     
     Args:
         datetime_col: Datetime column.
@@ -161,7 +162,7 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
             'SameWeekHourLag'.
 
     Returns:
-        df[[output_colname]]: pandas DataFrame containing the newly created lag
+        pandas.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -205,7 +206,8 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
                       day_window=1, agg_func='mean',
                       output_colname='SameDayHourLag'):
     """
-    This function creates a lag feature by averaging values of and around the same day of year, and same hour of day, of previous years.
+    This function creates a lag feature by averaging values of and around the
+    same day of year, and same hour of day, of previous years.
     
     Args:
         datetime_col: Datetime column.
@@ -219,7 +221,7 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
             'SameDayHourLag'.
     
     Returns:
-        df[[output_colname]]: pandas DataFrame containing the newly created lag
+        pandas.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -263,7 +265,8 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
                                  start_week, average_count, forecast_creation_time,
                                  output_col_prefix='moving_average_lag_'):
     """
-    This function creates a moving average features by averaging values of the same day of week and same hour of day of previous weeks.
+    This function creates a moving average features by averaging values of the
+    same day of week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
@@ -272,12 +275,13 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
         start_week: First week of the first moving average feature.
         average_count: Number of moving average features to create.
         forecast_creation_time: The time point when the feature is created.
-            This value is used to prevent using data that are not available at forecast creation time to compute features.
+            This value is used to prevent using data that are not available at
+            forecast creation time to compute features.
         output_col_prefix: Prefix of the output columns. The start week of each 
-            moving average feature is added at the end. Default value           'moving_average_lag_'.
+            moving average feature is added at the end. Default value 'moving_average_lag_'.
 
     Returns:
-        df: pandas DataFrame containing the newly created lag features as 
+        pandas.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and average_count = 3 will
@@ -332,7 +336,7 @@ def create_basic_features(input_df, datetime_colname):
         datetime_colname (str): name of Datetime column
 
     Returns:
-        output_df (pandas.DataFrame): output data frame which contains newly created features
+        pandas.DataFrame: output data frame which contains newly created features
 
     """
 
@@ -385,9 +389,9 @@ def create_advanced_features(train_df, test_df, datetime_colname,
             value is None
 
     Returns:
-        output_df_train (pandas.DataFrame): output containing newly constructed
+        pandas.DataFrame: output containing newly constructed
             features on training data
-        output_df_test (pandas.DataFrame): output containing newly constructed
+        pandas.DataFrame: output containing newly constructed
             features on testing data
         
     """
