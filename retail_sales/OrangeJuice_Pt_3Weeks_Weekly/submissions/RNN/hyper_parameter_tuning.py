@@ -1,3 +1,7 @@
+"""
+This script contains the code the hyperparameter tuning using SMAC package.
+"""
+
 # import packages
 import os
 import inspect
@@ -133,7 +137,7 @@ if __name__ == '__main__':
     cs.add_hyperparameter(epsilon)
 
     scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternatively runtime)
-                         "runcount-limit": 100,  # maximum function evaluations
+                         "runcount-limit": 50,  # maximum function evaluations
                          "cs": cs,  # configuration space
                          "deterministic": "true"
                          })

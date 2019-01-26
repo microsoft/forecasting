@@ -1,3 +1,8 @@
+"""
+This script trains the RNN model and creates the predictions for each
+submission round required by the benchmark.
+"""
+
 # import packages
 import os
 import inspect
