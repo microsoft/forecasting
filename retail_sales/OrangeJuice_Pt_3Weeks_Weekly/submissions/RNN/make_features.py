@@ -1,5 +1,5 @@
 """
-This .py file creates features for the RNN model.
+This script contains the function for creating features for the RNN model.
 """
 
 # import packages

@@ -1,3 +1,7 @@
+"""
+This script contains the function for creating predictions for the RNN model.
+"""
+
 # import packages
 import os
 import numpy as np

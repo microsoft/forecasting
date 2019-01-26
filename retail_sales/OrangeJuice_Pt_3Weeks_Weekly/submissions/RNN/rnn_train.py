@@ -1,3 +1,7 @@
+"""
+This script contains the function for training the RNN model.
+"""
+
 import tensorflow as tf
 import os
 from utils import *
@@ -11,8 +15,6 @@ IS_TRAIN = True
 def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
               submission_round, back_offset=0):
 
-    # TODO: shuffle the time series
-    # TODO: prefetch? optimization of perforamnce in time, n_threads in map etc.
     max_train_empty_percentage = 0.5
     max_train_empty = int(round(hparams.train_window * max_train_empty_percentage))
 
