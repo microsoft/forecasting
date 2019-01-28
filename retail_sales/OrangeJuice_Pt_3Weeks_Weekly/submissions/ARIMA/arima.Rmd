@@ -5,13 +5,13 @@ output: html_notebook
 
 
 ```{r}
-## Import packages
+# Import packages
 library(dplyr)
 library(tidyr)
 library(forecast)
 library(MLmetrics)
 
-## Define parameters
+# Define parameters
 NUM_ROUNDS <- 12
 TRAIN_START_WEEK <- 40
 TRAIN_END_WEEK_LIST <- seq(135, 157, 2)
@@ -19,29 +19,29 @@ TEST_START_WEEK_LIST <- seq(137, 159, 2)
 TEST_END_WEEK_LIST <- seq(138, 160, 2)
 
 # Get the path of the current script and paths of data directories
-SCRIPT_PATH = dirname(rstudioapi::getSourceEditorContext()$path)
-TRAIN_DIR = file.path(dirname(dirname(SCRIPT_PATH)), 'data', 'train')
-TEST_DIR = file.path(dirname(dirname(SCRIPT_PATH)), 'data', 'test')
+SUBMISSION_DIR = dirname(rstudioapi::getSourceEditorContext()$path)
+TRAIN_DIR = file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'train')
+TEST_DIR = file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'test')
 ```
 
 ```{r}
 #### Test auto.arima method on a subset of the data  ####
-## Import data
+# Import training data
 r <- 1
 train_df <- read.csv(file.path(TRAIN_DIR, paste0('train_round_', as.character(r), '.csv')))
 #head(train_df)
 
-## Fill missing values
+# Create a dataframe to hold all necessary data
 store_list <- unique(train_df$store)
 brand_list <- unique(train_df$brand)
 week_list <- TRAIN_START_WEEK:TRAIN_END_WEEK_LIST[r]
 data_grid <- expand.grid(store = store_list,
-                           brand = brand_list, 
-                           week = week_list)
+                         brand = brand_list, 
+                         week = week_list)
 train_filled <- merge(data_grid, train_df, 
-                     by = c('store', 'brand', 'week'), 
-                     all.x = TRUE)
-train_filled <- train_filled[,c('store','brand','week','logmove')]
+                      by = c('store', 'brand', 'week'), 
+                      all.x = TRUE)
+train_filled <- train_filled[, c('store','brand','week','logmove')]
 head(train_filled)
 print('Number of rows with missing values:')
 print(sum(!complete.cases(train_filled)))
@@ -57,7 +57,7 @@ head(train_filled)
 print('Number of rows with missing values after filling:')
 print(sum(!complete.cases(train_filled)))
 
-## Auto ARIMA method
+# Auto ARIMA method
 train_sub <- filter(train_filled, store=='2', brand=='1')
 train_ts <- ts(train_sub[c('logmove')], frequency = 52)
 horizon <- TEST_END_WEEK_LIST[r] - TRAIN_END_WEEK_LIST[r]
@@ -74,21 +74,36 @@ basic_method <- 'arima'
 pred_basic_all <- list()
 print(paste0('Using ', basic_method))
 
-## Basic methods 
-apply_basic_methods <- function(train_sub, method) {
+# Basic methods 
+apply_basic_methods <- function(train_sub, method, r) {
+  # Trains a basic model to forecast sales of each store-brand in a certain round.
+  # 
+  # Args:
+  #   train_sub (Dataframe): Training data of a certain store-brand
+  #   method (String): Name of the basic method which can be 'naive', 'snaive',
+  #                    'meanf', 'ets', or 'arima'
+  #   r (Integer): Index of the forecast round
+  # 
+  # Returns:
+  #   pred_basic_df (Dataframe): Predicted sales of the current store-brand
   cur_store <- train_sub$store[1]
   cur_brand <- train_sub$brand[1]
   train_ts <- ts(train_sub[c('logmove')], frequency = 52)
   if (method == 'naive'){
+    # Naive method
     pred_basic <- naive(train_ts, h=pred_horizon)
   } else if (method == 'snaive'){
+    # Seasonal naive 
     pred_basic <- snaive(train_ts, h=pred_horizon)
   } else if (method == 'meanf'){
+    # Mean forecast 
     pred_basic <- meanf(train_ts, h=pred_horizon)
   } else if (method == 'ets') {
+    # ETS 
     fit_ets <- ets(train_ts)
     pred_basic <- forecast(fit_ets, h=pred_horizon)
   } else if (method == 'arima'){
+    # Auto ARIMA 
     fit_arima <- auto.arima(train_ts)
     pred_basic <- forecast(fit_arima, h=pred_horizon)
   }
@@ -106,9 +121,11 @@ for (r in 1:NUM_ROUNDS) {
   pred_steps <- TEST_END_WEEK_LIST[r] - TEST_START_WEEK_LIST[r] + 1
   pred_weeks <- TEST_START_WEEK_LIST[r]:TEST_END_WEEK_LIST[r]
   pred_weeks_ahead <- pred_weeks - TRAIN_END_WEEK_LIST[r]
-  ## Import training data
+  
+  # Import training data
   train_df <- read.csv(file.path(TRAIN_DIR, paste0('train_round_', as.character(r), '.csv')))
-  ## Fill missing values
+  
+  # Create a dataframe to hold all necessary data
   store_list <- unique(train_df$store)
   brand_list <- unique(train_df$brand)
   week_list <- TRAIN_START_WEEK:TRAIN_END_WEEK_LIST[r]
@@ -118,10 +135,11 @@ for (r in 1:NUM_ROUNDS) {
   train_filled <- merge(data_grid, train_df, 
                         by = c('store', 'brand', 'week'), 
                         all.x = TRUE)
-  train_filled <- train_filled[,c('store','brand','week','logmove')]
+  train_filled <- train_filled[, c('store','brand','week','logmove')]
   head(train_filled)
   print('Number of rows with missing values:')
   print(sum(!complete.cases(train_filled)))
+  
   # Fill missing logmove 
   train_filled <- 
     train_filled %>% 
@@ -137,14 +155,14 @@ for (r in 1:NUM_ROUNDS) {
   pred_basic_all[[paste0('Round', r)]] <- 
     train_filled %>%
     group_by(store, brand) %>%
-    do(apply_basic_methods(., basic_method))
+    do(apply_basic_methods(., basic_method, r))
 }
 
+# Combine and save forecast results
 pred_basic_all <- do.call(rbind, pred_basic_all)
-# Save forecast results
-write.csv(pred_basic_all, file.path(SCRIPT_PATH, 'submission.csv'), row.names = FALSE)
+write.csv(pred_basic_all, file.path(SUBMISSION_DIR, 'submission.csv'), row.names = FALSE)
 
-## Evaluate forecast performance
+# Evaluate forecast performance
 # Get the true value dataframe
 true_sales_all <- list()
 for (r in 1:NUM_ROUNDS){
@@ -160,9 +178,10 @@ true_sales_all <- do.call(rbind, true_sales_all)
 
 # Merge prediction and true sales
 merged_df <- merge(pred_basic_all, true_sales_all, 
-                  by = c('round', 'store', 'brand', 'week'), 
-                  all.y = TRUE)
+                   by = c('round', 'store', 'brand', 'week'), 
+                   all.y = TRUE)
 
+# Compute MAPE values
 print('MAPE')
 print(MAPE(merged_df$prediction, merged_df$truth)*100)
 print('MedianAPE')
