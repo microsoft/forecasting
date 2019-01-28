@@ -23,36 +23,31 @@
 
 ### Modelling approach
 
-In this submission, we implement boosted decision tree method using Python package `lightgbm`, which is a fast, distributed, high performance 
+In this submission, we implement boosted decision tree model using Python package `lightgbm`, which is a fast, distributed, high performance 
 gradient boosting framework based on decision tree algorithms. 
 
 ### Feature engineering
 
 The following features have been used in the implementation of the forecast method:
-- datetime features including week number, week of the month, and day of the month
+- datetime features including week, week of the month, and month
 - weekly sales of each orange juice in recent weeks
-- average sales of each orange juice during recent weeks
-- other features including *store*, *brand*, *profit*, *deal*, *feat* columns
+- average sales of each orange juice in recent weeks
+- other features including *store*, *brand*, *deal*, *feat* columns and price features
 
 
 ### Hyperparameter tuning
 
-This model mainly involves the following hyperparameters:  
-- Hyperparameters of gradient boosting machine (GBM): *num_leaves* (maximum number of leaves in one tree), *min_data_in_leaf* (minimum number of data in one leaf), *learning_rate* (learning rate), *feature_fraction* (ratio of the randomly selected features), *bagging_fraction* (ratio of the randomly sampled data), *bagging_freq* (frequency for bagging), *num_threads* (number of threads), *num_boost_round* (number of training iterations)
-- Lag values for computing the weekly sales in recent weeks
-- Window size and starting point for computing the average sales 
-
-We have conducted a grid search to tune these parameters. The range of each hyperparameter is selected based on its importance reported in other places and our intuition about the data. The ranges of a few important hyperparameters are as follows
-- *num_leaves*: [50, 80, 100, 200]
-- *min_data_in_leaf*: [100, 200]
-- *learning_rate*: [0.001, 0.002, 0.01, 0.02, 0.1]
-- *num_boost_round*: [100, 400, 1000, 2000]
+We tune the hyperparameters of the model with HyperDrive which is accessible through Azure ML SDK. A remote compute cluster with 16 CPU cores is created to distribute the computation. The hyperparameters tuned with HyperDrive and their ranges can be found in hyperparameter_tuning.ipynb.
 
 
 ### Description of implementation scripts
 
-* `train_score.py`: Python script that trains the model and evaluates its performance
+* `utils.py`: Python script including utility functions for building the model
+* `train_score.py`: Python script that trains the model and generates forecast results for each round
 * `train_score.ipynb` (optional): Jupyter notebook that trains the model and visualizes the results
+* `train_validate.py` (optional): Python script that does training and validation with the 1st round training data 
+* `hyperparameter_tuning.ipynb` (optional): Jupyter notebook that tries different model configurations and selects the best model by running 
+`train_validate.py` script in a remote compute cluster with different sets of hyperparameters
 
 
 ### Steps to reproduce results
@@ -65,7 +60,8 @@ machine and log into the provisioned VM.
    ```bash
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
-   cd ~/TSPerf
+   cd TSPerf/
+   # The following step is for reviewers only
    git checkout chenhui/boosted_decision_tree
    ```
 
@@ -128,9 +124,10 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have 
    access to the source code in the container. 
 
-8. Inside the Docker container, train the model and make predictions by running the following command from `/TSPerf` folder
+8. Train the model and make predictions from `/TSPerf` folder by running
 
    ```bash
+   cd TSPerf/
    source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM Python3
    ``` 
  
@@ -164,6 +161,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 **Key packages/dependencies:**  
   * Python
     - pandas==0.23.1
+    - scikit-learn==0.19.1
     - lightgbm==2.1.2
 
 ## Resource deployment instructions
@@ -179,30 +177,30 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 **Quality:** 
 
-*MAPE run 1: 51.76%*
+*MAPE run 1: 35.91%*
 
-*MAPE run 2: 51.74%*
+*MAPE run 2: 36.28%*
 
-*MAPE run 3: 51.83%*
+*MAPE run 3: 35.99%*
 
-*MAPE run 4: 51.74%*
+*MAPE run 4: 36.49%*
 
-*MAPE run 5: 51.70%*
+*MAPE run 5: 36.57%*
 
-*median MAPE: 51.74%*
+*median MAPE: 36.28%*
 
 **Time:** 
 
-*run time 1: 430.92 seconds*
+*run time 1: 613.33 seconds*
 
-*run time 2: 424.93 seconds*
+*run time 2: 619.37 seconds*
 
-*run time 3: 428.89 seconds*
+*run time 3: 655.50 seconds*
 
-*run time 4: 431.30 seconds*
+*run time 4: 625.10 seconds*
 
-*run time 5: 431.44 seconds*
+*run time 5: 647.46 seconds*
 
-*median run time: 430.92 seconds*
+*median run time: 625.10 seconds*
 
-**Cost:** The total cost is 430.92/3600 $\times$ 0.096 = $0.0115.
+**Cost:** The total cost is 625.10/3600 $\times$ 0.096 = $0.0167.
