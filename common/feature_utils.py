@@ -554,7 +554,7 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
                                  forecast_creation_time,
                                  output_col_prefix='moving_average_lag_'):
     """
-    Creates a moving average features by averaging values of the same day of
+    Creates moving average features by averaging values of the same day of
     week and same hour of day of previous weeks.
 
     Args:
@@ -624,11 +624,11 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
 
     Args:
         datetime_col: Datetime column
-        value_col: Feature value column to create moving average features from.
-        window_size: Number of weeks used to compute the average.
-        start_week: First week of the first moving average feature.
-        quantile_count: Number of quantiles of features to create.
-        q: Quantile value column.
+        value_col: Feature value column to create quantile features from.
+        window_size: Number of weeks used to compute the quantile.
+        start_week: First week of the first moving quantile feature.
+        quantile_count: Number of quantile features to create.
+        q: quantile to compute from history values, should be between 0 and 1.
         forecast_creation_time: The time point when the feature is created.
             This value is used to prevent using data that are not available
             at forecast creation time to compute features.
@@ -640,7 +640,7 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
             columns.
 
     For example, start_week = 9, window_size=4, and quantile_count = 3 will
-    create three quantiles of features.
+    create three quantiles features.
     1) moving_quantile_lag_9: calculate quantile of the same day and hour values of the 9th,
     10th, 11th, and 12th weeks before the current week.
     2) moving_quantile_lag_10: calculate quantile of average the same day and hour values of the
@@ -686,12 +686,12 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
                              forecast_creation_time,
                              output_col_prefix='moving_std_lag_'):
     """
-    Creates a standard deviation features by calculating std of values of the
+    Creates standard deviation features by calculating std of values of the
     same day of week and same hour of day of previous weeks.
 
     Args:
         datetime_col: Datetime column
-        value_col: Feature value column to create moving std of features from.
+        value_col: Feature value column to create moving std features from.
         window_size: Number of weeks used to compute the std.
         start_week: First week of the first moving std feature.
         std_count: Number of moving std features to create.
