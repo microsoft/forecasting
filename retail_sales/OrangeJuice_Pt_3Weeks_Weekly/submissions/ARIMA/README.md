@@ -14,7 +14,7 @@
 
 **Submission branch:** [chenhui/arima](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Farima)
 
-**Pull request:** [Added ARIMA model for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150785?_a=overview)
+**Pull request:** [Added ARIMA model for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/183407?_a=overview)
 
 **Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ARIMA](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FARIMA&version=GBchenhui%2Farima)
 

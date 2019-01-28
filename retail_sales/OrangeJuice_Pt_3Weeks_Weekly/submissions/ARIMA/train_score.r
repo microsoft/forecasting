@@ -11,13 +11,13 @@
 # where <seed value> is a random seed value from 1 to 5 (here since the forecast method
 # is deterministic, this value will be simply used as a suffix of the output file name).
 
-## Import packages 
+# Import packages 
 library(optparse)
 library(dplyr)
 library(tidyr)
 library(forecast)
 
-## Define parameters
+# Define parameters
 NUM_ROUNDS <- 12
 TRAIN_START_WEEK <- 40
 TRAIN_END_WEEK_LIST <- seq(135, 157, 2)
