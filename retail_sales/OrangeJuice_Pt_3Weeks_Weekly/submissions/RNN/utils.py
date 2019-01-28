@@ -20,7 +20,7 @@ def cut(ts_value_train_slice, feature_train_slice,
         ts_value_train_slice: shape of (#train_ts_length,)
         feature_train_slice: shape of (#train_ts_length, #features)
         feature_test_slice: shape of (#test_ts_length, #features)
-        cut_mode: 'train', 'eval', 'predict'
+        cut_mode: 'train', 'eval' or 'predict'.
         back_offset: how many data points at end of time series
             cannot be used for training.
             set back_offset = predict_window for training
