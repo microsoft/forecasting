@@ -1,3 +1,8 @@
+"""
+This script trains the RNN model and creates the predictions for each
+submission round required by the benchmark.
+"""
+
 # import packages
 import os
 import inspect
@@ -30,6 +35,10 @@ data_relative_dir = '../../data'
 
 def create_round_prediction(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
                             predict_cut_mode='predict', random_seed=1):
+    """
+    This function trains the model and creates the predictions for a certain
+    submission round.
+    """
     # conduct feature engineering and save related numpy array to disk
     if make_features_flag:
         make_features(submission_round=submission_round)
@@ -70,6 +79,10 @@ def create_round_prediction(data_dir, submission_round, hparams, make_features_f
 
 def create_round_submission(data_dir, submission_round, hparams, make_features_flag=True, train_model_flag=True, train_back_offset=0,
                             predict_cut_mode='predict', random_seed=1):
+    """
+    This function trains the model and creates the submission in pandas
+    DataFrame for a certain submission round.
+    """
 
     pred_o, _ = create_round_prediction(data_dir, submission_round, hparams, make_features_flag=make_features_flag,
                                         train_model_flag=train_model_flag, train_back_offset=train_back_offset,

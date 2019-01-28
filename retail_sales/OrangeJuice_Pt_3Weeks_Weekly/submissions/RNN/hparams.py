@@ -1,3 +1,10 @@
+"""
+This script provides the hyperparameters values. `hparams_manual` is the
+hyperparameter selected manually. `hparams_smac` is the hyperparameter
+selected by SMAC through running `hyper_parameter_tuning.py`, which is also
+the final parameter used by the submission.
+"""
+
 hparams_manual = dict(
     train_window=60,
     batch_size=64,
@@ -17,7 +24,8 @@ hparams_manual = dict(
     beta2=0.999,
     epsilon=1e-08
 )
-
+# this is the hyperparameter selected when running 50 trials in SMAC
+# hyperparameter tuning.
 hparams_smac = dict(
     train_window=26,
     batch_size=64,
@@ -38,7 +46,9 @@ hparams_smac = dict(
     epsilon=1e-08
 )
 
-# this turns out to leads to overfitting on the validation data set
+# this is the hyperparameter selected when running 100 trials in SMAC
+# hyperparameter tuning.
+# this turns out to lead to overfitting on the validation data set
 # MAPE on validation dataset: ~34%
 # MAPE on test dataset: ~44%
 hparams_smac_100 = dict(

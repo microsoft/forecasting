@@ -1,3 +1,13 @@
+"""
+This script contains the code the hyperparameter tuning using SMAC package.
+
+The SMAC package (https://github.com/automl/SMAC3) is a tool for algorithm
+configuration to optimize the parameters of arbitrary algorithms across a set of
+instances. The main core consists of Bayesian Optimization in combination
+with a aggressive racing mechanism to efficiently decide which of two
+configuration performs better.
+"""
+
 # import packages
 import os
 import inspect
@@ -32,6 +42,11 @@ data_relative_dir = '../../data'
 
 
 def eval_function(hparams_dict):
+    """
+    This function takes a haperparameter configuration, trains the
+    corresponding model on the training data set, creates the predictions,
+    and returns the evaluated MAPE on the evaluation data set.
+    """
     # set the data directory
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     data_dir = os.path.join(file_dir, data_relative_dir)
@@ -133,7 +148,7 @@ if __name__ == '__main__':
     cs.add_hyperparameter(epsilon)
 
     scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternatively runtime)
-                         "runcount-limit": 100,  # maximum function evaluations
+                         "runcount-limit": 50,  # maximum function evaluations
                          "cs": cs,  # configuration space
                          "deterministic": "true"
                          })
