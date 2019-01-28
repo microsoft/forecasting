@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from tensorflow.python.util import nest
 import tensorflow.contrib.layers as layers
@@ -9,36 +8,30 @@ RNN = cudnn_rnn.CudnnGRU
 GRAD_CLIP_THRESHOLD = 10
 
 
-# deprecated
-# def fill_datetime_gap(df, min_time=None, max_time=None):
-#     if not min_time:
-#         min_time = df['week'].min()
-#     if not max_time:
-#         max_time = df['week'].max()
-#     week_list = list(range(min_time, max_time + 1))
-#     week_list_df = pd.DataFrame({'week': week_list})
-#     df = week_list_df.merge(df, how='left', on='week')
-#     new_col = [cl for cl in df.columns if cl not in ['store', 'brand']]
-#     return df[new_col]
-
-
 # input pipe utils
 def cut(ts_value_train_slice, feature_train_slice,
         feature_test_slice, train_window, predict_window, ts_length,
         cut_mode='train', back_offset=0):
     """
-    cut each element of the dataset into x and y for supervised learning.
+    Cut each element of the tensorflow dataset into x and y for supervised
+    learning.
 
-    :param ts_value_train_slice: shape of (#train_ts_length,)
-    :param feature_train_slice: shape of (#train_ts_length, #features)
-    :param feature_test_slice: shape of (#test_ts_length, #features)
-    :param cut_mode: 'train', 'eval', 'predict'
-    :param back_offset: how many data points at end of time series
+    Args:
+        ts_value_train_slice: shape of (#train_ts_length,)
+        feature_train_slice: shape of (#train_ts_length, #features)
+        feature_test_slice: shape of (#test_ts_length, #features)
+        cut_mode: 'train', 'eval' or 'predict'.
+        back_offset: how many data points at end of time series
             cannot be used for training.
             set back_offset = predict_window for training
             during hyper parameter tuning.
 
-    :return:
+    Returns:
+        an element of a tensorflow dataset which contains:
+        true_x: (#train_window,)
+        true_y: (#predict_window,)
+        feature_x: (#train_window, #features)
+        feature_y: (#predict_window, #features)
     """
     if cut_mode in ['train', 'eval']:
         if cut_mode == 'train':
@@ -73,7 +66,8 @@ def cut(ts_value_train_slice, feature_train_slice,
 
 def reject_filter(max_train_empty, true_x, *args):
     """
-    Rejects timeseries having too many zero datapoints (more than self.max_train_empty)
+    Rejects time series having too many zero data points (more than
+    max_train_empty)
     """
 
     zeros_x = tf.reduce_sum(tf.to_int32(tf.equal(true_x, 0.0)))
@@ -83,7 +77,7 @@ def reject_filter(max_train_empty, true_x, *args):
 
 def normalize_target(true_x, true_y, feature_x, feature_y):
     """
-    normalize the target variable.
+    Normalize the target variable.
     """
     masked_true_x = tf.boolean_mask(true_x, tf.logical_not(tf.is_nan(true_x)))
 
@@ -93,10 +87,22 @@ def normalize_target(true_x, true_y, feature_x, feature_y):
     return true_x, true_y, feature_x, feature_y, norm_x, norm_mean, norm_std
 
 
-# model utils
 def make_encoder(time_inputs, is_train, hparams):
     """
-    Builds encoder, using CUDA RNN
+    Builds the encoder part of the RNN model.
+
+    Args:
+        time_inputs: The input to the encoder with shape (batch, time, features)
+        is_train: whether it is during training or prediction. The dropout is
+            only applied during training.
+        hparams: the tensorflow HParams object which contains the
+            hyperparameter of the RNN model.
+    Returns:
+        rnn_out: the output of the RNN encoder with shape of (time, batch,
+        rnn_depth)
+        rnn_state: the final output state of the RNN encoder with shape of (
+        num_layers, batch, rnn_depth)
+
     """
 
     def build_rnn():
@@ -118,9 +124,17 @@ def make_encoder(time_inputs, is_train, hparams):
 
 def convert_cudnn_state_v2(h_state, hparams, dropout=1.0):
     """
-    Converts RNN state tensor from cuDNN representation to TF RNNCell compatible representation.
-    :param h_state: tensor [num_layers, batch_size, depth]
-    :return: TF cell representation matching RNNCell.state_size structure for compatible cell
+    Converts RNN state tensor from cuDNN representation to TF RNNCell
+    compatible representation.
+
+    Args:
+        h_state: tensor [num_layers, batch_size, depth]
+        hparams: the tensorflow HParams object which contains the
+            hyperparameter of the RNN model.
+        dropout: The dropout rate between encoder and decoder.
+    Returns:
+        The input to the decoder, which is the TF cell representation matching
+        RNNCell.state_size structure for compatible cell.
     """
 
     def squeeze(seq):
@@ -153,11 +167,23 @@ def default_init():
                                                uniform=True)
 
 
-def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, predict_window):
+def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train,
+            predict_window):
     """
-    :param encoder_state: shape [batch_size, encoder_rnn_depth]
-    :param prediction_inputs: features for prediction days, tensor[batch_size, time, input_depth]
-    :param previous_y: Last day pageviews, shape [batch_size]
+    Build the decoder part for the RNN model.
+
+    Args:
+        encoder_state: shape [batch_size, encoder_rnn_depth]
+        prediction_inputs: features for prediction days,
+            tensor[batch_size, time, input_depth]
+        previous_y: Last day pageviews, shape [batch_size]
+        hparams: the tensorflow HParams object which contains the
+            hyperparameter of the RNN model.
+        is_train: whether it is during training or prediction. The dropout is
+            only applied during training.
+        predict_window: the horizon of the prediction.
+    Returns:
+        The time series predictions with length of predict_window.
     """
 
     def build_cell(idx):
@@ -196,13 +222,21 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, pre
 
     def loop_fn(time, prev_output, prev_state, array_targets: tf.TensorArray, array_outputs: tf.TensorArray):
         """
-        Main decoder loop
-        :param time: Day number
-        :param prev_output: Output(prediction) from previous step
-        :param prev_state: RNN state tensor from previous step
-        :param array_targets: Predictions, each step will append new value to this array
-        :param array_outputs: Raw RNN outputs (for regularization losses)
-        :return:
+        Main decoder loop.
+
+        Args:
+            time: time series step number.
+            prev_output: Output(prediction) from previous step.
+            prev_state: RNN state tensor from previous step.
+            array_targets: Predictions, each step will append new value to
+                this array.
+            array_outputs: Raw RNN outputs (for regularization losses)
+        Returns:
+            (time + 1, projected_output, state, array_targets, array_outputs)
+            projected_output: the prediction for this step.
+            state: the updated state for this step.
+            array_targets: the updated targets array.
+            array_outputs: the updated hidden states array.
         """
         # RNN inputs for current step
         features = inputs_by_time[time]
@@ -240,9 +274,13 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, pre
 def decode_predictions(decoder_readout, norm_mean, norm_std):
     """
     Reverts normalization on the prediction.
-    :param decoder_readout: Decoder output, shape [n_days, batch]
-    :param inp: Input tensors
-    :return:
+
+    Args:
+        decoder_readout: Decoder output, shape [predict_window, batch]
+        norm_mean: normalized mean for this time series sample.
+        norm_std: normalized standard deviation for this time series sample.
+    Returns:
+        The de-normalized prediction in original data scale.
     """
     # [n_days, batch] -> [batch, n_days]
     batch_readout = tf.transpose(decoder_readout)
@@ -251,7 +289,14 @@ def decode_predictions(decoder_readout, norm_mean, norm_std):
     return batch_readout * batch_std + batch_mean
 
 
-def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, is_train, hparams):
+def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std,
+                    predict_window, is_train, hparams):
+    """
+    For a single supervised learning time series sample, feed the input
+    features and historical time series value into the RNN model, and create
+    the predictions for this time series sample.
+    """
+
     # build the encoder-decoder RNN model
     # make encoder
     x_all_features = tf.concat([tf.expand_dims(norm_x, -1), feature_x], axis=-1)
@@ -272,6 +317,10 @@ def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_w
 
 
 def calc_mae_loss(true_y, predictions):
+    """
+    Calculate the MAE loss.
+    """
+
     # calculate loss
     mask = tf.logical_not(tf.math.equal(true_y, tf.zeros_like(true_y)))
     # Fill NaNs by zeros (can use any value)
@@ -282,6 +331,10 @@ def calc_mae_loss(true_y, predictions):
 
 
 def calc_differentiable_mape_loss(true_y, predictions):
+    """
+    Calculate the differentiable MAPE loss.
+    """
+
     # calculate loss
     mask = tf.logical_not(tf.math.equal(true_y, tf.zeros_like(true_y)))
     # Fill NaNs by zeros (can use any value)
@@ -297,6 +350,10 @@ def calc_differentiable_mape_loss(true_y, predictions):
 
 
 def calc_rounded_mape(true_y, predictions):
+    """
+    Calculate the rounded MAPE.
+    """
+
     # mape
     true_o1 = tf.round(tf.expm1(true_y))
     pred_o1 = tf.maximum(tf.round(tf.expm1(predictions)), 0.0)
@@ -308,8 +365,15 @@ def calc_rounded_mape(true_y, predictions):
     return mape
 
 
-def make_train_op(loss, learning_rate,  beta1, beta2, epsilon, ema_decay=None, prefix=None):
-    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2,
+def make_train_op(loss, learning_rate,  beta1, beta2, epsilon,
+                  ema_decay=None, prefix=None):
+    """
+    Creates the training operation which updates the gradient using the
+    AdamOptimizer.
+    """
+
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,
+                                       beta1=beta1, beta2=beta2,
                                        epsilon=epsilon)
     glob_step = tf.train.get_global_step()
 
@@ -338,7 +402,3 @@ def make_train_op(loss, learning_rate,  beta1, beta2, epsilon, ema_decay=None, p
         training_op = sgd_op
         ema = None
     return training_op, glob_norm, ema
-
-
-
-
