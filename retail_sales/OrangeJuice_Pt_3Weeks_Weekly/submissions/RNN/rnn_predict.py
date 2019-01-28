@@ -15,6 +15,29 @@ IS_TRAIN = False
 
 def rnn_predict(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
                 submission_round, batch_size, cut_mode='predict'):
+    """
+    This function creates predictions by loading the trained RNN model.
+
+    Args:
+        ts_value_train: Numpy array which contains the time series value in the
+            training dataset in shape of (#time series, #train_ts_length)
+        feature_train: Numpy array which contains the feature values in the
+            training dataset in shape of (#time series, #train_ts_length,
+            #features)
+        feature_test: Numpy array which contains the feature values for the
+            test dataset in shape of (#time series, #test_ts_length)
+        hparams: the tensorflow HParams object which contains the
+            hyperparameter of the RNN model.
+        predict_window: Integer, predict horizon.
+        intermediate_data_dir: String, the directory which stores the
+            intermediate results.
+        submission_round: Integer, the submission round.
+        batch_size: Integer, the batch size for making RNN predictions.
+        cut_mode: 'train', 'eval' or 'predict'.
+    Returns:
+        pred_o: Numpy array which contains the predictions in shape of
+        (#time series, #predict_window)
+    """
     # build the dataset
     root_ds = tf.data.Dataset.from_tensor_slices(
         (ts_value_train, feature_train, feature_test)).repeat(1)

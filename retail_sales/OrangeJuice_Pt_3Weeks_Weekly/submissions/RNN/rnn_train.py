@@ -15,6 +15,29 @@ IS_TRAIN = True
 def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
               submission_round, back_offset=0):
 
+    """
+    This function trains the RNN model and saves it to the disk.
+
+    Args:
+        ts_value_train: Numpy array which contains the time series value in the
+            training dataset in shape of (#time series, #train_ts_length)
+        feature_train: Numpy array which contains the feature values in the
+            training dataset in shape of (#time series, #train_ts_length,
+            #features)
+        feature_test: Numpy array which contains the feature values for the
+            test dataset in shape of (#time series, #test_ts_length)
+        hparams: the tensorflow HParams object which contains the
+            hyperparameter of the RNN model.
+        predict_window: Integer, predict horizon.
+        intermediate_data_dir: String, the directory which stores the
+            intermediate results.
+        submission_round: Integer, the submission round.
+        back_offset: how many data points at end of time series
+            cannot be used for training.
+    Returns:
+        training MAPE.
+    """
+
     max_train_empty_percentage = 0.5
     max_train_empty = int(round(hparams.train_window * max_train_empty_percentage))
 
