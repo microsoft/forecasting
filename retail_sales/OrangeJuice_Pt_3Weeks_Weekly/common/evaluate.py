@@ -19,7 +19,7 @@ import sys
 import pandas as pd
 import numpy as np
 sys.path.append('.')
-from common.metrics import MAPE
+from common.evaluation_utils import MAPE
 from benchmark_settings import NUM_ROUNDS
 
 def read_test_files(benchmark_dir):

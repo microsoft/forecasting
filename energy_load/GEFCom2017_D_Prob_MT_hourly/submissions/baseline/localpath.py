@@ -1,6 +1,7 @@
 """
-This script inserts the TSPerf directory into sys.path, so that scripts can import
-all the modules in TSPerf. Each submission folder needs its own localpath.py file.
+This script inserts the TSPerf directory into sys.path, so that scripts can
+import all the modules in TSPerf. Each submission folder needs its own
+localpath.py file.
 """
 
 import os, sys

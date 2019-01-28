@@ -1,17 +1,13 @@
 """
 This script evaluates an implementation of the 
-GEFCom2017-D_Prob_MT_hourly benchmark. It reads in
+GEFCom2017_D_Prob_MT_hourly benchmark. It reads in
 the test set predictions contained in submission.csv
-file that should accompany every reference implementation
-and submission. It computes evaluation metrics by
-comparing the predictions to the actual true values
-contained within the test set.
-
-The script must be executed from the TSPerf root directory.
+and  computes evaluation metrics by comparing the
+predictions to the actual true values.
 
 Arguments:
-    submission_file:   relative file path to submission.csv 
-        to the reference or submission implementation
+    submission_file: relative file path of submission.csv
+        to the benchmark directory, e.g. submissions/baseline/submission_1.csv
 """
 
 
@@ -20,11 +16,12 @@ import sys
 import pandas as pd
 sys.path.append('.')
 from benchmark_paths import BENCHMARK_DIR
-from common.loss_functions import pinball_loss
+from common.evaluation_utils import pinball_loss
 
 
 def read_test_files(benchmark_dir):
-    
+    """Helper function to read test files for all rounds in the benchmark."""
+
     test_data_dir = os.path.join(benchmark_dir, "data", "test_ground_truth")
     for rnd in range(1, 7):
         test_file = 'test_round_'+str(rnd)+'.csv'
@@ -32,13 +29,23 @@ def read_test_files(benchmark_dir):
         test_round['Round'] = rnd
         test_round = test_round[['Round', 'Datetime', 'Zone', 'DEMAND']]
         if rnd > 1:
-            test = test.append(test_round)
+            test = test_round.append(test_round)
         else:
             test = test_round.copy()
     return test
 
 
 def evaluate(submission_file):
+    """
+    Function that evaluates a submission file against test files.
+    It prints out the pinball loss for each Zone in the benchmark,
+    and the mean pinball loss across all Zones.
+
+    Args:
+        submission_file (str): relative path to the submission.csv file
+        to the benchmark directory, e.g. submissions/baseline/submission_1.csv
+    """
+
     test = read_test_files(BENCHMARK_DIR)
 
     print(os.path.join(BENCHMARK_DIR, submission_file))
@@ -54,6 +61,5 @@ def evaluate(submission_file):
     
 
 if __name__ == "__main__":
-    
     submission_file = sys.argv[1]
     evaluate(submission_file)
