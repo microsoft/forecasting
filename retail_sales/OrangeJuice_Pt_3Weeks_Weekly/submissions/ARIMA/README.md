@@ -10,20 +10,21 @@
 
 **Submitter(s) email:** chenhhu@microsoft.com
 
-**Submission name:** AutoARIMA
+**Submission name:** ARIMA
 
-**Submission branch:** [chenhui/auto_arima](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Fauto_arima)
+**Submission branch:** [chenhui/arima](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Farima)
 
-**Pull request:** [Added Auto ARIMA method for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150785?_a=overview)
+**Pull request:** [Added ARIMA model for retail sales forecasting](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf/pullrequest/150785?_a=overview)
 
-**Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/AutoARIMA](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FAutoARIMA&version=GBchenhui%2Fauto_arima)
+**Submission path:** [/retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ARIMA](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FARIMA&version=GBchenhui%2Farima)
 
 
 ## Implementation description
 
 ### Modelling approach
 
-In this submission, we implement Auto ARIMA method using R package `forecast`. 
+In this submission, we implement the ARIMA model for retail sales forecasting benchmark OrangeJuice_Pt_3Weeks_Weekly using R package 
+`forecast`. 
 
 ### Feature engineering
 
@@ -36,9 +37,10 @@ since there are approximately 52 weeks in a year.
 
 ### Description of implementation scripts
 
-* `train_score.r`: R script that trains the model and evaluate its performance
-* `auto_arima.Rmd` (optional): R markdown that trains the model and visualizes the results
-* `auto_arima.nb.html` (optional): Html file associated with the R markdown file
+* `train_score.r`: R script that trains the models and generates forecasts
+* `model_selection.r` (optional): R script that selects the best ARIMA model for each time series
+* `arima.Rmd` (optional): R markdown that trains the models and visualizes the results
+* `arima.nb.html` (optional): Html file associated with the R markdown file
 
 ### Steps to reproduce results
 
@@ -50,13 +52,14 @@ VM.
    ```bash
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
-   cd ~/TSPerf
-   git checkout chenhui/auto_arima
+   cd TSPerf/
+   # The following step is for reviewers only
+   git checkout chenhui/arima
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
    connect to Git repos via HTTPS authentication. If these don't work, you can try to [connect through SSH](https://docs.microsoft.com/en-us/vsts/repos/git/use-ssh-keys-to-authenticate?view=vsts). The above commands will download the 
-   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout chenhui/auto_arima` once the submission branch is merged into the master branch.
+   source code of the submission branch into a local folder named TSPerf. Note that you will not need to run `git checkout chenhui/arima` once the submission branch is merged into the master branch.
 
 
 2. Create a conda environment for running the scripts of data downloading, data preparation, and result evaluation. To do this, you need 
@@ -113,10 +116,11 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have 
    access to the source code in the container. 
 
-8. Inside `/TSPerf` folder, train the model and make predictions by running
+8. Train the model and make predictions from `/TSPerf` folder by running
 
    ```bash
-   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/AutoARIMA R
+   cd TSPerf/
+   source ./common/train_score_vm ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ARIMA R
    ``` 
  
    This will generate 5 `submission_seed_<seed number>.csv` files in the submission directory, where \<seed number\> 
@@ -127,7 +131,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 9. Activate conda environment again by `source activate tsperf`. Then, evaluate the benchmark quality by running
    
    ```bash
-   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/AutoARIMA ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
+   source ./common/evaluate ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/ARIMA ./retail_sales/OrangeJuice_Pt_3Weeks_Weekly
    ```
 
    This command will output 5 benchmark quality values (MAPEs). Their median should be compared against the 
@@ -157,40 +161,40 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 * Azure Linux VM deployment
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
   - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a Data 
-  Science Virtual Machine for Linux (Ubuntu). Select *D16s_v3* as the virtual machine size.
+  Science Virtual Machine for Linux (Ubuntu). Select *D2s_v3* as the virtual machine size.
 
 
 ## Implementation evaluation
 
 **Quality:** 
 
-*MAPE run 1: 77.66%*
+*MAPE run 1: 71.22%*
 
-*MAPE run 2: 77.66%*
+*MAPE run 2: 71.22%*
 
-*MAPE run 3: 77.66%*
+*MAPE run 3: 71.22%*
 
-*MAPE run 4: 77.66%*
+*MAPE run 4: 71.22%*
 
-*MAPE run 5: 77.66%*
+*MAPE run 5: 71.22%*
 
-*median MAPE: 77.66%*
+*median MAPE: 71.22%*
 
 **Time:** 
 
-*run time 1: 2217.18 seconds*
+*run time 1: 271.19 seconds*
 
-*run time 2: 2214.93 seconds*
+*run time 2: 276.43 seconds*
 
-*run time 3: 2215.48 seconds*
+*run time 3: 277.46 seconds*
 
-*run time 4: 2208.92 seconds*
+*run time 4: 280.51 seconds*
 
-*run time 5: 2202.15 seconds*
+*run time 5: 280.92 seconds*
 
-*median run time: 2214.93 seconds*
+*median run time: 277.46 seconds*
 
-**Cost:** The total cost is 2214.93/3600 $\times$ 0.096 = $0.0591.
+**Cost:** The total cost is 277.46/3600 $\times$ 0.096 = $0.0074.
 
 Note that there is no randomness in the forecasts obtained by the above method. Thus, quality values do not change over 
 different runs.
