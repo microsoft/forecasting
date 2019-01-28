@@ -75,7 +75,8 @@ def split_train_validation(df, fct_horizon, datetime_colname):
     for fct, horizon in fct_horizon:
         i_round += 1
         train = df.loc[df[datetime_colname] < fct, ].copy()
-        validation = df.loc[(df[datetime_colname] >= horizon[0]) & (df[datetime_colname] <= horizon[1]), ].copy()
+        validation = df.loc[(df[datetime_colname] >= horizon[0]) &
+                            (df[datetime_colname] <= horizon[1]), ].copy()
 
         yield i_round, train, validation
 
@@ -111,5 +112,7 @@ def add_datetime(input_datetime, unit, add_count):
     elif unit == 'minute':
         new_datetime = input_datetime + relativedelta(minutes=add_count)
     else:
-        raise Exception('Invalid backtest step unit, {}, provided. Valid step units are year, month, week, day, hour, and minute'.format(unit))
+        raise Exception('Invalid backtest step unit, {}, provided. Valid '
+                        'step units are year, month, week, day, hour, and minute'
+                        .format(unit))
     return new_datetime
