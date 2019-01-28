@@ -7,31 +7,31 @@
 # It outputs a csv file containing the orders of the best ARIMA models selected by auto.arima 
 # function in R package forecast. 
 
-## Import packages
+# Import packages
 library(dplyr)
 library(tidyr)
 library(forecast)
 
-## Define parameters
+# Define parameters
 NUM_ROUNDS <- 12
 TRAIN_START_WEEK <- 40
 TRAIN_END_WEEK_LIST <- seq(135, 157, 2)
 
 # Paths of the training data and submission folder
 DATA_DIR <- './retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
-TRAIN_DIR = file.path(DATA_DIR, 'train')
+TRAIN_DIR <- file.path(DATA_DIR, 'train')
 SUBMISSION_DIR <- file.path(dirname(DATA_DIR), 'submissions', 'ARIMA')
 
 #### Select ARIMA models for all the time series  ####
-arima_model_all <- list()
 print('Selecting ARIMA models')
+arima_model_all <- list()
 
 select_arima_model <- function(train_sub, r) {
-  # Selects the best ARIMA model for the time series of each store-brand 
-  # in a certain round.
+  # Selects the best ARIMA model for the time series of each store-brand in a 
+  # certain round.
   # 
   # Args:
-  #   train_sub (Dataframe): Training data in a given round 
+  #   train_sub (Dataframe): Training data of a certain store-brand
   #   r (Integer): Index of the forecast round
   # 
   # Returns:
@@ -56,10 +56,9 @@ select_arima_model <- function(train_sub, r) {
 
 for (r in 1:NUM_ROUNDS) { 
   print(paste0('---- Round ', r, ' ----'))
-  ## Import training data
+  # Import training data
   train_df <- read.csv(file.path(TRAIN_DIR, paste0('train_round_', as.character(r), '.csv')))
 
-  ## Fill missing values
   # Create a dataframe to hold all necessary data
   store_list <- unique(train_df$store)
   brand_list <- unique(train_df$brand)
@@ -70,7 +69,7 @@ for (r in 1:NUM_ROUNDS) {
   train_filled <- merge(data_grid, train_df, 
                         by = c('store', 'brand', 'week'), 
                         all.x = TRUE)
-  train_filled <- train_filled[,c('store','brand','week','logmove')]
+  train_filled <- train_filled[, c('store','brand','week','logmove')]
 
   # Fill missing logmove 
   train_filled <- 

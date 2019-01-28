@@ -1,18 +1,21 @@
 #!/usr/bin/Rscript 
 #
-# Auto ARIMA Method for Retail Forecasting Benchmark - OrangeJuice_Pt_3Weeks_Weekly
+# ARIMA Method for Retail Forecasting Benchmark - OrangeJuice_Pt_3Weeks_Weekly
 #
-# This script can be executed with the following command
-#       Rscript train_score.R -seed <seed value>
-# where <seed value> is the random seed value from 1 to 5 (here since the forecast method
+# Note that we first select the best ARIMA model for each time series using Auto ARIMA in 
+# model_selection.r script. Then, we simply train the best ARIMA model in this script to 
+# exclude the model selection time and achieve a fair comparison with other methods. 
+#
+# This script can be executed with the following command from TSPerf directory
+#                Rscript <submission dir>/train_score.R -seed <seed value>
+# where <seed value> is a random seed value from 1 to 5 (here since the forecast method
 # is deterministic, this value will be simply used as a suffix of the output file name).
 
-## Import packages used at the checkpoint time
+## Import packages 
 library(optparse)
 library(dplyr)
 library(tidyr)
 library(forecast)
-library(MLmetrics)
 
 ## Define parameters
 NUM_ROUNDS <- 12
@@ -20,49 +23,61 @@ TRAIN_START_WEEK <- 40
 TRAIN_END_WEEK_LIST <- seq(135, 157, 2)
 TEST_START_WEEK_LIST <- seq(137, 159, 2)
 TEST_END_WEEK_LIST <- seq(138, 160, 2)
-DATA_DIR <- './retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
 
 # Parse input argument
 option_list <- list(
   make_option(c('-s', '--seed'), type='integer', default=NULL, 
               help='random seed value from 1 to 5', metavar='integer')
 )
-
 opt_parser <- OptionParser(option_list=option_list)
 opt <- parse_args(opt_parser)
 
-# Get the path of the current script and paths of data directories
-SCRIPT_PATH <- file.path(dirname(DATA_DIR), 'submissions', 'AutoARIMA')
-TRAIN_DIR = file.path(DATA_DIR, 'train')
-TEST_DIR = file.path(DATA_DIR, 'test')
+# Paths of the training data and submission folder
+DATA_DIR <- './retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
+TRAIN_DIR <- file.path(DATA_DIR, 'train')
+SUBMISSION_DIR <- file.path(dirname(DATA_DIR), 'submissions', 'ARIMA')
 
 # Generate submission file name
 if (is.null(opt$seed)){
-  output_file_name <- file.path(SCRIPT_PATH, 'submission.csv') 
+  output_file_name <- file.path(SUBMISSION_DIR, 'submission.csv') 
   print('Random seed is not specified. Output file name will be submission.csv.')
 } else{
-  output_file_name <- file.path(SCRIPT_PATH, paste0('submission_seed_', as.character(opt$seed), '.csv'))
+  output_file_name <- file.path(SUBMISSION_DIR, paste0('submission_seed_', as.character(opt$seed), '.csv'))
   print(paste0('Random seed is specified. Output file name will be submission_seed_', 
         as.character(opt$seed) , '.csv.'))
 }
 
-#### Implement auto.arima method on all the data  ####
+#### Implement ARIMA model for every store-brand ####
+print('Using ARIMA Method')
 pred_arima_all <- list()
-print('Using Auto ARIMA Method')
 
-## auto.arima method 
-apply_arima_method <- function(train_sub) {
+# Load hyperparameters
+hparams <- read.csv(file.path(SUBMISSION_DIR, 'hparams.csv'))
+
+apply_arima_method <- function(train_sub, r) {
+  # Trains ARIMA model to forecast sales of each store-brand in a certain round.
+  # 
+  # Args:
+  #   train_sub (Dataframe): Training data of a certain store-brand
+  #   r (Integer): Index of the forecast round
+  # 
+  # Returns:
+  #   pred_arima_df (Dataframe): Predicted sales of the current store-brand
   cur_store <- train_sub$store[1]
   cur_brand <- train_sub$brand[1]
   train_ts <- ts(train_sub[c('logmove')], frequency = 52)
-  fit_arima <- auto.arima(train_ts)
+  # Retrieve the best ARIMA model selected before
+  arima_order <- hparams[which(hparams$store==cur_store & 
+                               hparams$brand==cur_brand & 
+                               hparams$round==r), ]
+  fit_arima <- Arima(y=train_ts, order=unlist(arima_order[c('p','d','q')], use.names=FALSE))  
   pred_arima <- forecast(fit_arima, h=pred_horizon)
   pred_arima_df <- data.frame(round = rep(r, pred_steps),
-                                 store = rep(cur_store, pred_steps),
-                                 brand = rep(cur_brand, pred_steps),
-                                 week = pred_weeks,
-                                 weeks_ahead = pred_weeks_ahead,
-                                 prediction = round(exp(pred_arima$mean[2:pred_horizon])))
+                              store = rep(cur_store, pred_steps),
+                              brand = rep(cur_brand, pred_steps),
+                              week = pred_weeks,
+                              weeks_ahead = pred_weeks_ahead,
+                              prediction = round(exp(pred_arima$mean[2:pred_horizon])))
 }
 
 for (r in 1:NUM_ROUNDS) { 
@@ -71,9 +86,11 @@ for (r in 1:NUM_ROUNDS) {
   pred_steps <- TEST_END_WEEK_LIST[r] - TEST_START_WEEK_LIST[r] + 1
   pred_weeks <- TEST_START_WEEK_LIST[r]:TEST_END_WEEK_LIST[r]
   pred_weeks_ahead <- pred_weeks - TRAIN_END_WEEK_LIST[r]
-  ## Import training data
+
+  # Import training data
   train_df <- read.csv(file.path(TRAIN_DIR, paste0('train_round_', as.character(r), '.csv')))
-  ## Fill missing values
+
+  # Create a dataframe to hold all necessary data
   store_list <- unique(train_df$store)
   brand_list <- unique(train_df$brand)
   week_list <- TRAIN_START_WEEK:TRAIN_END_WEEK_LIST[r]
@@ -83,7 +100,8 @@ for (r in 1:NUM_ROUNDS) {
   train_filled <- merge(data_grid, train_df, 
                         by = c('store', 'brand', 'week'), 
                         all.x = TRUE)
-  train_filled <- train_filled[,c('store','brand','week','logmove')]
+  train_filled <- train_filled[, c('store','brand','week','logmove')]
+  
   # Fill missing logmove 
   train_filled <- 
     train_filled %>% 
@@ -91,12 +109,14 @@ for (r in 1:NUM_ROUNDS) {
     arrange(week) %>%
     fill(logmove) %>%
     fill(logmove, .direction = 'up')
-  # Apply auto.arima method
+
+  # Apply ARIMA method
   pred_arima_all[[paste0('Round', r)]] <- 
     train_filled %>%
     group_by(store, brand) %>%
-    do(apply_arima_method(.))
+    do(apply_arima_method(., r))
 }
+
 # Combine and save forecast results
 pred_arima_all <- do.call(rbind, pred_arima_all)
 write.csv(pred_arima_all, output_file_name, row.names = FALSE)
