@@ -10,7 +10,7 @@
 
 **Submitter(s) email:** zhouf@microsoft.com
 
-**Submission name:** Quantile Regression Neutral Network
+**Submission name:** Quantile Regression Neural Network
 
 **Submission branch:** [zhouf/energy_forecast_fnn_model_v1](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBzhouf%2Fenergy_forecast_fnn_model_v1) and [zhouf/energy_forecast_fnn_cv_v1](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2F&version=GBzhouf%2Fenergy_forecast_fnn_cv_v1)
 
@@ -23,7 +23,7 @@
 
 ### Modelling approach
 
-In this submission, we implement a quantile regression neutral network model using the `qrnn` package in R.
+In this submission, we implement a quantile regression neural network model using the `qrnn` package in R.
 
 ### Feature engineering
 
@@ -40,11 +40,11 @@ The data of January - April of 2016 were used as validation dataset for some min
 ### Description of implementation scripts
 
 * `feature_engineering.py`: Python script for computing features and generating feature files.
-* `train_validate.R`: R script that trains Quantile Regression Neutral Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used for grid search on vm.
-* `train_validate_aml.R`: R script that trains Quantile Regression Neutral Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used as the entry script for hyperdrive. 
+* `train_validate.R`: R script that trains Quantile Regression Neural Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used for grid search on vm.
+* `train_validate_aml.R`: R script that trains Quantile Regression Neural Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used as the entry script for hyperdrive. 
 * `aml_estimator.py`: Python script that passes the inputs and outputs between hyperdrive and the entry script `train_validate_aml.R`. 
 * `hyperparameter_tuning.ipynb`: Jupyter notebook that does hyperparameter tuning with azureml hyperdrive.
-* `train_predict.R`: R script that trains Quantile Regression Neutral Network models and predicts on each round of test data.
+* `train_predict.R`: R script that trains Quantile Regression Neural Network models and predicts on each round of test data.
 * `train_validate_vm.sh`: Bash script that runs `feature_engineering.py` and `train_validate.R` multiple times to generate cross validation result files and measure model tuning time.
 * `train_score_vm.sh`: Bash script that runs `feature_engineering.py` and `train_predict.R` five times to generate five submission files and measure model running time.
 
@@ -56,8 +56,9 @@ VM.
 1. Clone the TSPerf repo to the home directory of your machine and check out the fnn model branch
 
    ```bash
-   cd ~/TSPerf
+   cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
+   cd TSPerf
    git checkout zhouf/energy_forecast_fnn_cv_v1
    ```
    Use one of the following options to securely connect to the Git repo:
@@ -91,11 +92,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    > NOTE: To execute docker commands without
    sudo as a non-root user, you need to create a
    Unix group and add users to it by following the instructions
-   [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user). Otherwise, simply change to a root user by the following command:
-
-   ```bash
-   sudo -i
-   ```
+   [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user). Otherwise, simply prefix all docker commands with sudo.
 
    4.1 Log into Azure Container Registry (ACR)
 
@@ -125,7 +122,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    ```
    source activate tsperf
-   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_validate_vm.sh > cv_out.txt &
+   nohup bash ./energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_validate_vm.sh >& cv_out.txt &
    ```
    After generating the cross validation results, you can exit the Docker container by command `exit`. 
 
@@ -156,8 +153,15 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 
    ```
    source activate tsperf
-   bash /TSPerf/energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_score_vm.sh > out.txt &
+   nohup bash ./energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/train_score_vm.sh >& out.txt &
    ```
+   The last command will take about 7 hours to complete. You can monitor its progress by checking out.txt file. Also during the run you can disconnect from VM. After reconnecting to VM, use the command  
+
+   ```
+   docker exec -it fnn_container /bin/bash
+   tail out.txt
+   ```
+   to connect to the running container and check the status of the run.  
    After generating the forecast results, you can exit the Docker container by command `exit`.
 
 7. Model evaluation **on the VM**.
