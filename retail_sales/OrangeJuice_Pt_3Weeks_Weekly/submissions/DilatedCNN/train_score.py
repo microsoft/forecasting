@@ -2,15 +2,11 @@
 
 # Train and score a Dilated Convolutional Neural Network (CNN) model using Keras package with TensorFlow backend. 
 
-
 import os
 import sys
-import math
 import keras
 import random
 import argparse
-import datetime
-import itertools
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -18,7 +14,6 @@ import tensorflow as tf
 from keras import optimizers
 from keras.layers import * 
 from keras.models import Model, load_model
-from keras.utils import multi_gpu_model
 from keras.callbacks import ModelCheckpoint
 
 # Append TSPerf path to sys.path (assume we run the script from TSPerf directory)
@@ -30,7 +25,6 @@ if tsperf_dir not in sys.path:
 from utils import *
 from make_features import make_features
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
-
 
 # Model definition
 def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_outputs=1):
@@ -78,10 +72,8 @@ def create_dcnn_model(seq_len, kernel_size=2, n_filters=3, n_input_series=1, n_o
     
     # Define model interface, loss function, and optimizer
     model = Model(inputs=[seq_in, cat_fea_in], outputs=output)
-    adam = optimizers.Adam(lr=args.learning_rate)
-    model.compile(loss='mape', optimizer=adam, metrics=['mape'])
-    return model
 
+    return model
 
 if __name__ == '__main__':
     # Parse input arguments
@@ -188,8 +180,8 @@ if __name__ == '__main__':
         exp_output = data_filled[data_filled.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
         exp_output = exp_output[['store', 'brand', 'week']]
         pred_df = exp_output.sort_values(['store', 'brand', 'week']).\
-                            loc[:,['store', 'brand', 'week']].\
-                            reset_index(drop=True)
+                             loc[:,['store', 'brand', 'week']].\
+                             reset_index(drop=True)
         pred_df['weeks_ahead'] = pred_df['week'] - bs.TRAIN_END_WEEK_LIST[r]
         pred_df['round'] = r+1
         pred_df['prediction'] = np.reshape(pred, (pred.size, 1))
