@@ -25,7 +25,7 @@ from common.loss_functions import pinball_loss
 # baseline losses are taken from Table 2 of
 # F. Ziel. Quantile regression for the qualifying match of GEFCom2017 probabilistic load forecasting. International Journal of Forecasting, 2018
 zones = ['CT','MA_TOTAL','ME','NEMA','NH','RI','SEMA','TOTAL','VT','WCMA']
-baseline_losses = pd.DataFrame({'1':[114.88, 170.20, 36.95, 77.85, 41.91, 23.32, 44.11, 402.68, 22.41, 50.58],\
+baseline_losses = pd.DataFrame({'1':[114.88, 170.20, 36.95, 77.85, 41.91, 23.32, 44.11, 402.68, 22.44, 50.58],\
                                 '2':[115.72, 190.36, 29.11, 81.02, 35.34, 24.18, 50.69, 401.51, 15.49, 60.32],\
                                 '3':[115.72, 190.36, 29.11, 81.02, 35.34, 24.18, 50.69, 401.51, 15.49, 60.32],\
                                 '4':[98.91, 175.86, 23.96, 73.32, 29.43, 21.54, 49.62, 351.89, 21.07, 55.43],\
