@@ -196,3 +196,14 @@ Please follow the instructions below to deploy the Linux DSVM.
 **Cost:**  
 The hourly cost of the F72s v2 DSVM is 3.045 USD based on the price at the submission date.   
 Thus, the total cost is 22709/3600 * 3.045 = 19.21 USD.
+
+**Average relative improvement (in %) over GEFCom2017 benchmark model**  (measured over the first run)  
+Round 1: 16.84  
+Round 2: 14.98  
+Round 3: 12.08  
+Round 4: 14.97  
+Round 5: 16.16  
+Round 6: -2.52  
+
+**Ranking in the qualifying round of GEFCom2017 competition**  
+3
