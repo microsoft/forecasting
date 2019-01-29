@@ -2,7 +2,6 @@
 
 # Create input features for the Dilated Convolutional Neural Network (CNN) model.         
 
-
 import os
 import sys
 import math

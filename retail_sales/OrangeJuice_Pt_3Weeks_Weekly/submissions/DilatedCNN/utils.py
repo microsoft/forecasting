@@ -2,7 +2,6 @@
 
 # Utility functions for building the Dilated Convolutional Neural Network (CNN) model. 
 
-
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
