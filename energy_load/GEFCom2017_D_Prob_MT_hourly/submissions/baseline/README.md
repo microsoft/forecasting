@@ -179,3 +179,14 @@ Note there is no randomness in this baseline model, so the model quality is the 
 **Cost:**  
 The hourly cost of the Standard D8s DSVM is 0.3840 USD based on the price at the submission date.   
 Thus, the total cost is 446/3600 * 0.3840 = $0.0476.
+
+**Average relative improvement (in %) over GEFCom2017 benchmark model**  (measured over the first run)  
+Round 1: -7.28  
+Round 2: 19.46  
+Round 3: 19.25  
+Round 4: -6.09  
+Round 5: -6.93  
+Round 6: 10.56  
+
+**Ranking in the qualifying round of GEFCom2017 competition**  
+10
