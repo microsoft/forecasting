@@ -269,7 +269,7 @@ def normalized_columns(datetime_col, value_col,
     
     Args:
         datetime_col: Datetime column.
-        value_col: Series value column to be normalized.
+        value_col: Value column to be normalized.
         mode: Normalization mode,
             accepted values are 'log' and 'minmax'. Default value 'log'.
     
