@@ -7,26 +7,24 @@ def weighted_percentile_vectorized(a, quantiles, weights=None, sorter=None):
     """
     Returns the weighted percentile of a at q given weights.
 
-    Parameters
-    ----------
-    a: array-like, shape=(n_samples,)
-        samples at which the quantile.
+    Args:
+        a: array-like, shape=(n_samples,)
+            samples at which the quantile is computed.
 
-    quantiles: array of ints
-        list of quantiles.
+        quantiles: array of ints
+            list of quantiles.
 
-    weights: array-like, shape=(n_samples,)
-        weights[i] is the weight given to point a[i] while computing the
-        quantile. If weights[i] is zero, a[i] is simply ignored during the
-        percentile computation.
+        weights: array-like, shape=(n_samples,)
+            weights[i] is the weight given to point a[i] while computing the
+            quantile. If weights[i] is zero, a[i] is simply ignored during the
+            percentile computation.
 
-    sorter: array-like, shape=(n_samples,)
-        If provided, assume that a[sorter] is sorted.
+        sorter: array-like, shape=(n_samples,)
+            If provided, assume that a[sorter] is sorted.
 
-    Returns
-    -------
-    percentiles: array of floats
-        Weighted percentile of a at each of quantiles.
+    Returns:
+        percentiles: array of floats
+            Weighted percentile of a at each of quantiles.
 
     References
     ----------
