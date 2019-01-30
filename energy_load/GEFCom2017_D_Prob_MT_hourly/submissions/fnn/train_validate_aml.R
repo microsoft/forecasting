@@ -40,17 +40,11 @@ iter.max = opt$iter_max
 penalty = opt$penalty
 ts = opt$time_stamp
 
-# path = '../cv_data/'
-# cvpath = '../cv_data/'
-# n.hidden = 5
-# n.hidden2= 5
-# iter.max = 3
-# penalty = 0
-# ts = 'debug'
 
-
+# Data directory
 train_dir = path
 train_file_prefix = 'train_round_'
+
 
 # Define cross validation split settings
 cv_file = file.path(cvpath, 'cv_settings.json')
@@ -68,22 +62,19 @@ pinball_loss <- function(q, y, f) {
   return(L)
 }
 
+
 # Cross Validation
 result_all = list()
 counter = 1
 for (i in 1:length(cv_settings)){
-# for (i in 1:1){
-  
   round = paste("cv_round_", i, sep='')
   cv_settings_round = cv_settings[[round]]
   print(round)
   
   for (iR in 1:6){
-  # for (iR in 1:1){
     print(iR)
     
-    train_file = file.path(train_dir, paste(train_file_prefix, as.character(iR), '.csv', sep=''))
-    
+    train_file = file.path(train_dir, paste(train_file_prefix, as.character(iR), '.csv', sep=''))  
     cvdata_df = fread(train_file)
     
     cv_settings_cur = cv_settings_round[[as.character(iR)]]
@@ -162,12 +153,6 @@ for (i in 1:length(cv_settings)){
 }
 
 result_final = rbindlist(result_all)
-
-# average_PL = round(colMeans(result_final[, 'loss'], na.rm = TRUE), 2)
-# print(paste('Average Pinball Loss:', average_PL))
-# 
-# output_file_name = paste(output_file_name, 'APL', average_PL, sep="_")
-# output_file_name = paste(output_file_name, '.csv', sep="")
 
 output_file_name = paste("cv_output_", ts, ".csv", sep = "")
 
