@@ -12,4 +12,5 @@ dependencies:
   - jupyter=1.0.0
   - r-essentials=3.5.1
   - matplotlib
-  
+  - pip:
+    - azureml-sdk
