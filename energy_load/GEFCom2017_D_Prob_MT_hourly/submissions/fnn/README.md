@@ -35,18 +35,25 @@ The following features are used:
 
 ### Model tuning
 
-The data of January - April of 2016 were used as validation dataset for some minor model tuning. Based on the model performance on this validation dataset, a larger feature set was narrowed down to the features described above. The model hyperparameter tuning is done on the 6 train round data. The best model is selected by cross validation using these training data in the 6 forecast rounds. The set of hyperparameters which yield the best cross validation pinball loss will be used to train models and forecast energy load across all 6 forecast rounds.
+The data of January - April of 2016 were used as validation dataset for some minor model tuning. Based on the model performance on this validation dataset, a larger feature set was narrowed down to the features described above. The model hyperparameter tuning is done on the 6 train round data using 4 cross validation folds with 6 forecasting rounds in each fold. The set of hyperparameters which yield the best cross validation pinball loss will be used to train models and forecast energy load across all 6 forecast rounds.
 
 ### Description of implementation scripts
 
+Train and Predict:
 * `feature_engineering.py`: Python script for computing features and generating feature files.
+* `train_predict.R`: R script that trains Quantile Regression Neural Network models and predicts on each round of test data.
+* `train_score_vm.sh`: Bash script that runs `feature_engineering.py` and `train_predict.R` five times to generate five submission files and measure model running time.
+
+Tune hyperparameters using R: 
+* `cv_settings.json`: JSON script that sets cross validation folds.
 * `train_validate.R`: R script that trains Quantile Regression Neural Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used for grid search on vm.
+* `train_validate_vm.sh`: Bash script that runs `feature_engineering.py` and `train_validate.R` multiple times to generate cross validation result files and measure model tuning time.
+
+Tune hyperparameters using AzureML HyperDrive:
+* `cv_settings.json`: JSON script that sets cross validation folds.
 * `train_validate_aml.R`: R script that trains Quantile Regression Neural Network models and evaluate the loss on validation data of each cross validation round and forecast round with a set of hyperparameters and calculate the average loss. This script is used as the entry script for hyperdrive. 
 * `aml_estimator.py`: Python script that passes the inputs and outputs between hyperdrive and the entry script `train_validate_aml.R`. 
 * `hyperparameter_tuning.ipynb`: Jupyter notebook that does hyperparameter tuning with azureml hyperdrive.
-* `train_predict.R`: R script that trains Quantile Regression Neural Network models and predicts on each round of test data.
-* `train_validate_vm.sh`: Bash script that runs `feature_engineering.py` and `train_validate.R` multiple times to generate cross validation result files and measure model tuning time.
-* `train_score_vm.sh`: Bash script that runs `feature_engineering.py` and `train_predict.R` five times to generate five submission files and measure model running time.
 
 ### Steps to reproduce results
 
@@ -196,7 +203,7 @@ Please follow the instructions below to deploy the Linux DSVM.
 
 ## Implementation evaluation
 **Quality:**  
-Note there is no randomness in this fnn model, so the model quality is the same for all five runs.
+Note there is randomness in this quantile regression neural network model, so the model quality is slightly different for each run.
 
 * Pinball loss run 1: 80.27
 
