@@ -30,10 +30,18 @@ DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 def create_basic_features(input_df, datetime_colname):
-    """
+    """Creates basic features
+
     This helper function uses the functions in common.feature_utils to
     create a set of basic features which are independently created for each
     row, i.e. no lag features or rolling window features.
+
+    Args:
+        input_df (pandas.DataFrame): data frame for which to compute basic features.
+        datetime_colname (str): name of Datetime column
+
+    Returns:
+        pandas.DataFrame: output data frame which contains newly created features
     """
 
     output_df = input_df.copy()
@@ -69,7 +77,8 @@ def create_basic_features(input_df, datetime_colname):
 
 def create_advanced_features(train_df, test_df, datetime_colname,
                              holiday_colname=None):
-    """
+    """Creates advanced features 
+
     This helper function uses the functions in common.feature_utils to
     create a set of advanced features. These features could depend on other
     rows in two ways:
@@ -83,6 +92,16 @@ def create_advanced_features(train_df, test_df, datetime_colname,
     example, it can contain the timestamps, zone, holiday, forecasted
     temperature, but it MUST NOT contain things like actual temperature,
     actual load, etc.
+
+    Args:
+        train_df (pandas.DataFrame): data frame containing training data
+        test_df (pandas.DataFrame): data frame containing testing data
+        datetime_colname (str): name of Datetime column
+        holiday_colname (str): name of Holiday column (if present), default value is None
+
+    Returns:
+        pandas.DataFrame: output containing newly constructed features on training data
+        pandas.DataFrame: output containing newly constructed features on testing data
     """
     output_df = pd.concat([train_df, test_df], sort=True)
     if not is_datetime_like(output_df[datetime_colname]):
@@ -191,6 +210,13 @@ def main(train_dir, test_dir, output_dir, datetime_colname, holiday_colname):
     """
     This helper function uses the create_basic_features and create_advanced
     features functions to create features for each train and test round.
+
+    Args:
+        train_dir (str): directory containing training data
+        test_dir (str): directory containing testing data
+        output_dir (str): directory to which to save the output files
+        datetime_colname (str): name of Datetime column
+        holiday_colname (str): name of Holiday column
     """
 
     output_train_dir = os.path.join(output_dir, 'train')
