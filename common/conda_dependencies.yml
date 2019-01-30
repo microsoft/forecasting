@@ -9,9 +9,6 @@ dependencies:
   - pandas=0.23.4
   - xlrd=1.1.0
   - urllib3=1.21.1
-  - r-base=3.4.3
-  - scikit-garden
-  - joblib
   - jupyter=1.0.0
   - r-essentials=3.5.1
   - matplotlib
