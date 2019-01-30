@@ -12,5 +12,8 @@ dependencies:
   - r-base=3.4.3
   - scikit-garden
   - joblib
+  - jupyter=1.0.0
+  - r-essentials=3.5.1
+  - matplotlib
   - pip:
     - azureml-sdk
