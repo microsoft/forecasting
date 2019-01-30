@@ -68,8 +68,7 @@ apply_arima_method <- function(train_sub, r) {
   train_ts <- ts(train_sub[c('logmove')], frequency = 52)
   # Retrieve the best ARIMA model selected before
   arima_order <- hparams[which(hparams$store==cur_store & 
-                               hparams$brand==cur_brand & 
-                               hparams$round==r), ]
+                               hparams$brand==cur_brand), ]
   fit_arima <- Arima(y=train_ts, order=unlist(arima_order[c('p','d','q')], use.names=FALSE))  
   pred_arima <- forecast(fit_arima, h=pred_horizon)
   pred_arima_df <- data.frame(round = rep(r, pred_steps),
