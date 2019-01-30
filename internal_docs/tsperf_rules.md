@@ -13,8 +13,9 @@
     3.1 [Probabilistic electricity load forecasting](#probabilistic-electricity-load-forecasting)  
     3.2 [Retail sales forecasting](#retail-sales-forecasting)  
 4. [Development of benchmark implementation](#development-of-benchmark-implementation)  
-    4.1 [Available Docker images](#available-docker-images)  
-    4.2 [Guideline for measuring performance](#guideline-for-measuring-performance) 
+    4.1 [Feature engineering](#feature-engineering)  
+    4.2 [Guideline for creating Docker images](#guideline-for-creating-docker-images)  
+    4.3 [Guideline for measuring performance](#guideline-for-measuring-performance) 
 5. [Submission of benchmark implementation](#submission-of-benchmark-implementation)  
     5.1 [Guideline for submitting reproduction instructions](#guideline-for-submitting-reproduction-instructions)  
     5.2 [Guideline for submitting the code](#guideline-for-submitting-the-code)   
@@ -29,7 +30,7 @@
 
 ### Vision
 
-Our vision it to establish a leading framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework will allow data scientists or customers to discover the best approach that fits their use case from cost, time and quality perspective.
+Our vision is to establish a leading framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework will allow data scientists or customers to discover the best approach that fits their use case from cost, time and quality perspective.
 TSPerf framework is designed to facilitate data science community participation and contribution through the development of implementations against a given set of forecasting problems and datasets. Once submitted, implementations will be measured in terms of standard metrics of model accuracy, training cost and model training time. Each implementation will include all the necessary instruction and tools that will ensure reproducibility on Azure customer's subscription.
 Note: The TSPerf vision shared common principles with the [MLPerf](https://mlperf.org/) vision and designed to be proposed as a new track after an internal validation of the concept. 
 
@@ -182,11 +183,85 @@ averaged over all time series.
 
 In this section we provide a number of guidelines for developing reproducible results.
 
-### Availables Docker images
+### Feature engineering
 
-We recommend to use Docker images for the reproduciblility of the submissions. In TSPerf, we provide a basic Docker image to speed up the process of new benchmark implementation and reproduction. The image is called tsperf.azurecr.io/common/image:v1 and is stored in tsperf Azure Container Registry (ACR). This image contains basic configurations and a few commonly used packages. One can directly use the basic image by pulling it from the ACR or modify it for their own benchmark implementations. 
+To accelerate the development of benchmark implementations, we provide a number of  common feature engineering functions. Benchmark-independent feature engineering functions are stored in `common/feature_utils.py` file. Benchmark-specific feature engineering functions are stored in `<benchmark vertical>/<benchmark dataset>/common/feature_engineering.py` files. Currently these are `energy_load/GEFCom2017_D_Prob_MT_hourly/common/feature_engineering.py` and `retail_sales/OrangeJuice_Pt_3Weeks_Weekly/common/feature_engineering.py` files. When developing a new benchmark implementation, submitter should reuse provided feature engineering functions as much as possible.
 
-Under `/TSPerf/common` folder, there are a Dockerfile and requirements.txt file used for creating the basic image. The Dockerfile contains the main configuration steps and requirements.txt includes the necessary Python packages. By modifying these files, one can easily create their own Docker images and host them in ACR or other venues such as Docker Hub.
+### Guideline for creating Docker images
+
+We recommend that the submitter provides a Docker image for the reproducibility of the submission. Docker is a platform for developers to develop, deploy,
+and run applications with containers. Please refer to [this tutorial](https://docs.docker.com/get-started/) to learn basics of Docker. Here we introduce the 
+steps of creating and publishing the Docker image.
+
+A new Docker image can be created by modifying the Dockerfile of the baseline implementation of a given benchmark. For instance, there is a Dockerfile in 
+`retail_sales/OrangeJuice_Pt_3Weeks_Weekly/baseline/Naive` folder used in the baseline model of retail sales forecasting. In the beginning of this Dockerfile 
+we load [ubuntu:16.04](https://hub.docker.com/_/ubuntu/) image as the base image. Then, we install a list of basic Linux packages which are required 
+for installing other packages or needed in the model development. Afterwards, we install an R environment with r-base version 3.5.1. Finally, we install R 
+dependencies with the following commands
+```bash
+RUN echo 'options(repos = list(CRAN = "http://mran.revolutionanalytics.com/snapshot/2018-08-27/"))' >> /etc/R/Rprofile.site
+ADD ./install_R_dependencies.r /tmp
+RUN Rscript install_R_dependencies.r
+```
+where `install_R_dependencies.r` is an R script that specifies and installs a list of R packages (See the R dependency file in `retail_sales/OrangeJuice_Pt_3Weeks_Weekly/baseline/Naive` folder as an example). You can modify the listed packages based on your 
+need. To ensure the same R package version is installed, we use a MRAN snapshot URL to download packages archived on a specific date which can also be 
+customized. In case you need to install Python packages, we suggest you first update your `pip` via adding the following command to the Dockerfile
+```bash
+RUN pip3 install --upgrade pip
+```
+if you use Python 3. Then, you can mount a Python dependency file into the Docker container and install Python dependencies using the following commands
+```bash
+WORKDIR /tmp
+ADD ./python_dependencies.txt /tmp
+RUN pip3 install -r python_dependencies.txt
+```
+where `python_dependencies.txt` is a file specifying the Python packages and versions (See the Python dependency file in 
+`retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM` folder as an example). Again you can update the listed packages there if necessary. Note that you will need to use `RUN pip` command if you are working with Python 2.
+
+After customizing the Dockerfile and dependency files, you can build a local Docker image in a Linux VM by following the steps below:
+
+1. Make sure Docker is installed. You can check if Docker is installed in your VM by running
+    ```bash
+    docker -v
+    ```
+    You will see the Docker version if Docker is installed. If not, you can install it by following the instructions [here](https://docs.docker.com/install/linux/docker-ce/ubuntu/). Note that if you want to execute Docker commands as a non-root user, you need to create a Unix group and add users to it by following the instructions [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user). Otherwise, you need to run the commands with sudo. 
+
+2. Build Docker image by running
+    ```bash
+    docker build -t <image name> .
+    ```
+    from the submission folder where the Dockerfile and dependency files reside. Here `<image name>` is the name of the local Docker image. An example name  is `lightgbm_image:v1`, where `v1` indicates the version of the Docker image. It may take tens of minutes to build the Docker image for the first time. But the process could be much faster if you rebuild the image after applying small changes to the Dockerfile or dependency files, since previous Docker building steps will be cached and most of them will not be repeated.  
+    
+3. After the Docker image is built, you may need to test your model training and scoring script inside a Docker container created from this image. To do this, you will need to
+    * 3.1 Choose a name for a new Docker container and create it by running the following command from `/TSPerf` folder (assuming that you've cloned TSPerf repository):
+        ```bash
+        docker run -it -v $(pwd):/TSPerf --name <container name> <image name>
+        ```
+        Note that option `-v $(pwd):/TSPerf` allows you to mount `/TSPerf` folder (the one you cloned) to the container so that you will have access to the source code and data in the container. Here `<container name>` is the name of the Docker container, e.g. `lightgbm_container`. You will automatically enter the Docker container after executing the above command.  
+        For Docker images with GPU support, you will need to run the above command with an additional argument `--runtime=nvidia`.  
+
+    * 3.2 Inside the Docker container, train the model and make predictions by running the following command from `/TSPerf` folder
+        ```bash
+        source ./common/train_score_vm <submission path> <script type> 
+        ```
+        where `train_score_vm` is a bash script that invokes the model training and scoring script; `<submission path>` and `<script type>` are the path of the submission folder (e.g., `./retail_sales/OrangeJuice_Pt_3Weeks_Weekly/submissions/LightGBM`) and type of the script (R, Python, or Python3), respectively. 
+
+4. If the above test goes smoothly, we can push the Docker image to the Azure Container Registry (ACR) with the following steps:
+    * 4.1 Log into Azure Container Registry (ACR)
+    ```bash
+    docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
+    ``` 
+    where `<ACR Acccess Key>` can be found [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/accessKey).
+    * 4.2 Create a tag that refers to the Docker image
+    ```bash
+    docker tag <image name> <tag name>
+    ```
+    where `<tag name>` is the name of the Docker image in the ACR. We recommend to name the tag using the convention `tsperf.azurecr.io/<benchmark directory>/<image name>`, e.g. `tsperf.azurecr.io/retail_sales/orangejuice_pt_3weeks_weekly/lightgbm_image:v1`.
+    * 4.3 Push the Docker image to ACR
+    ```bash
+    docker push <tag name>
+    ```
+    with `<tag name>` being the one that you picked in the last step. Make sure that your tag name starts with `tsperf.azurecr.io/`, otherwise the docker push command will not work. You can find the Docker image [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/repository), after it is successfully pushed to ACR.
 
 ### Non-determinism restrictions
 This section is aligned with [MLPerf](https://mlperf.org/). Some more detailed instructions are added.  
@@ -288,7 +363,7 @@ forecasted periods in the required format. This script should be named as `train
 6. Report five run results produced using the integer random number generator seeds 1 through 5. This can be done by running the model 
 training and scoring script as follows
    ```bash
-   time -p python <submission directory>/train_score.py <seed value>
+   time -p python <submission directory>/train_score.py --seed <seed value>
    ```
    where `<seed value>` is an integer between 1 and 5. This command also computes the running time of each run. 
 
@@ -313,10 +388,9 @@ dependencies for running your benchmark submission. The Dockerfile can point to 
    ```
    Note that you will need to log into the ACR before publishing the image.
 
-
 10. Include a submission form in the submission folder as README.md file. The submission form documents the submitter's information, method utlized in the 
 benchmark implementation, information about the scripts, obtained results, and steps of reproducing the results. An example submission form can be found 
-here (TODO: Add link). Specifically, it should include
+[here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FLightGBM&version=GBmaster). Specifically, it should include
     * name of the branch with submission code
     * benchmark path, e.g. `/TSPerf/energy_load/problem1`
     * path to submission directory, e.g. `/TSPerf/energy_load/problem1/submissions/submission1`
@@ -330,7 +404,35 @@ here (TODO: Add link). Specifically, it should include
 11. Create pull request for review by following the process in the next section.
 
 #### Batch AI
-TBD
+
+[Batch AI](https://azure.microsoft.com/services/batch-ai/) is an Azure product which enables the training of machine learning models in parallel on a cluster of VMs. In the context of TSPerf, it can be used in two ways:
+
+- Train models and generate forecasts for multiple time series in parallel. For example, in retail sales forecasting benchmarks, it could be used to train/score models for multiple products concurrently.
+- For benchmark implementations where an ensemble of forecasts is generated, Batch AI can be used to parallelize the training of these models. Batch AI can also be used for tuning hyperparameters.
+
+Note that it is **not** permissible to use Batch AI to parallelize the generation forecasts across test folds. In order to be realistic, test predictions must be made sequentially for each test fold.
+
+To make a submission that utilizes Batch AI, complete points 0 to 4 as in the *Standalone VM* section, and then complete the following steps:
+
+1. Create your model training and scoring script(s) to be run on the Batch AI cluster. These script(s) can be in any language and must include all code necessary to train your models and make predictions on the test periods. You may have multiple scripts (one for each model in an ensemble for example) to be executed on separate nodes of the cluster. Alternatively, you may create a single script which can run differently on separate nodes based on the value of a script parameter. Each execution of these scripts will be a single Batch AI job to be run on a single node. If the output of the model(s) is non-deterministic (if it varies based on weight initialization for example), the script must accept the seed value as a parameter.
+
+2. Create a job execution script named `execute_jobs.*`. This script performs several functions:
+
+    - Create the job.json files to define each Batch AI job. 
+    - Create the Batch AI experiment
+    - Trigger each job
+    - Download the job scripts' output files from blob storage
+    - Combine results into a `submission_seed_<seed value>.csv` which includes the test fold predictions in the required format.
+
+    This script can be written in any language but Python is recommended due to the availability of [utilities](https://github.com/Azure/BatchAI/tree/master/utilities) for Batch AI in this language.
+
+3. Report five run results produced using the integer random number generator seeds 1 through 5. If your script is written in Python, this can be done by running the following
+    ```bash
+    time -p python <submission directory>/execute_jobs.py --seed <seed value>
+    ```
+    where `<seed value>` is an integer between 1 and 5.
+
+Complete the submission by following steps 7-11 in the *Standalone VM* section. For step 9, you will need a docker image for running the `execute_jobs.*` script and a docker image for running the training/scoring scripts on each cluster node. For simplicity, you may choose to use the same docker image for both sets of scripts.
 
 ### Pull request process
 
@@ -438,7 +540,7 @@ benchmark results. Then log into the provisioned VM.
        docker run -it -v ~/TSPerf:/TSPerf --name <container name> <image name>
    
    Note that you need to mount `/TSPerf` folder (the one you cloned) to the container so that you will 
-   have access to the source code in the container. 
+   have access to the source code in the container. For Docker images with GPU support, you will need to run the above command with an additional argument `--runtime=nvidia`.   
 
 7. Inside Docker container, run the following command:  
 
