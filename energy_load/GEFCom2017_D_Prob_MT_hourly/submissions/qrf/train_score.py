@@ -1,3 +1,5 @@
+# This script performs training and scoring with Quantile Random Forest model
+
 import os
 from os.path import join
 import argparse
