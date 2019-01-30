@@ -7,7 +7,7 @@
 # exclude the model selection time and achieve a fair comparison with other methods. 
 #
 # This script can be executed with the following command from TSPerf directory
-#                Rscript <submission dir>/train_score.R -seed <seed value>
+#                Rscript <submission dir>/train_score.r -seed <seed value>
 # where <seed value> is a random seed value from 1 to 5 (here since the forecast method
 # is deterministic, this value will be simply used as a suffix of the output file name).
 
