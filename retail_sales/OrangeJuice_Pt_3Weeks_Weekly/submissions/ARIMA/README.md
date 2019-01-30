@@ -168,33 +168,33 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 **Quality:** 
 
-*MAPE run 1: 71.22%*
+*MAPE run 1: 70.80%*
 
-*MAPE run 2: 71.22%*
+*MAPE run 2: 70.80%*
 
-*MAPE run 3: 71.22%*
+*MAPE run 3: 70.80%*
 
-*MAPE run 4: 71.22%*
+*MAPE run 4: 70.80%*
 
-*MAPE run 5: 71.22%*
+*MAPE run 5: 70.80%*
 
-*median MAPE: 71.22%*
+*median MAPE: 70.80%*
 
 **Time:** 
 
-*run time 1: 271.19 seconds*
+*run time 1: 259.60 seconds*
 
-*run time 2: 276.43 seconds*
+*run time 2: 266.96 seconds*
 
-*run time 3: 277.46 seconds*
+*run time 3: 265.94 seconds*
 
-*run time 4: 280.51 seconds*
+*run time 4: 264.22 seconds*
 
-*run time 5: 280.92 seconds*
+*run time 5: 267.89 seconds*
 
-*median run time: 277.46 seconds*
+*median run time: 265.94 seconds*
 
-**Cost:** The total cost is 277.46/3600 $\times$ 0.096 = $0.0074.
+**Cost:** The total cost is 265.94/3600 $\times$ 0.096 = $0.0071.
 
 Note that there is no randomness in the forecasts obtained by the above method. Thus, quality values do not change over 
 different runs.
