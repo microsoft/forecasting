@@ -1,3 +1,8 @@
+"""
+This script passes the input arguments of AzureML job to the R script train_validate_aml.R, 
+and then passes the output of train_validate_aml.R back to AzureML.
+"""
+
 import subprocess
 import os
 import sys
@@ -6,6 +11,7 @@ import pandas as pd
 from datetime import datetime
 from azureml.core import Run
 import time
+
 start_time = time.time()
 run = Run.get_submitted_run()
 
