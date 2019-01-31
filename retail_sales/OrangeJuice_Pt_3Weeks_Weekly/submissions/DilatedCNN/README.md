@@ -61,8 +61,6 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd ~/TSPerf
-   # The following step is for reviewers only
-   git checkout chenhui/wavenet 
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
@@ -149,7 +147,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Platform:** Azure Cloud 
 
-**Resource location:** East US 2
+**Resource location:** East US  
 
 **Hardware:** Standard NC6 (1 GPU, 6 vCPUs, 56 GB memory) Ubuntu Linux VM
 
@@ -203,4 +201,4 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 *median run time: 412.89 seconds*
 
-**Cost:** The total cost is 412.89/3600 $\times$ 0.90 = $0.1032.
+**Cost:** The hourly cost of NC6 Ubuntu Linuix VM in East US Azure region is 0.90 USD, based on the price at the submission date. Thus, the total cost is 412.89/3600 $\times$ 0.90 = $0.1032.
