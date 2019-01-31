@@ -19,7 +19,8 @@ from benchmark_paths import BENCHMARK_DIR
 from common.evaluation_utils import pinball_loss
 
 # baseline losses are taken from Table 2 of
-# F. Ziel. Quantile regression for the qualifying match of GEFCom2017 probabilistic load forecasting. International Journal of Forecasting, 2018
+# F. Ziel. Quantile regression for the qualifying match of GEFCom2017
+# probabilistic load forecasting. International Journal of Forecasting, 2018
 zones = ['CT','MA_TOTAL','ME','NEMA','NH','RI','SEMA','TOTAL','VT','WCMA']
 baseline_losses = pd.DataFrame({'1':[114.88, 170.20, 36.95, 77.85, 41.91, 23.32, 44.11, 402.68, 22.44, 50.58],\
                                 '2':[115.72, 190.36, 29.11, 81.02, 35.34, 24.18, 50.69, 401.51, 15.49, 60.32],\
@@ -39,7 +40,7 @@ def read_test_files(benchmark_dir):
         test_round['Round'] = rnd
         test_round = test_round[['Round', 'Datetime', 'Zone', 'DEMAND']]
         if rnd > 1:
-            test = test_round.append(test_round)
+            test = test.append(test_round)
         else:
             test = test_round.copy()
     return test
