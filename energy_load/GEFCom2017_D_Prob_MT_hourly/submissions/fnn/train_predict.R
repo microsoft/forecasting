@@ -1,8 +1,15 @@
+#!/usr/bin/Rscript 
+#
+# This script trains the Quantile Regression Neural Network model and predicts on each data
+# partition per zone and hour at each quantile point.
+
 args = commandArgs(trailingOnly=TRUE)
 seed_value = args[1]
+
 library('data.table')
 library('qrnn')
 
+# Specify data directory
 data_dir = 'energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/data/features'
 train_dir = file.path(data_dir, 'train')
 test_dir = file.path(data_dir, 'test')
@@ -12,13 +19,13 @@ test_file_prefix = 'test_round_'
 
 output_file = file.path(paste('energy_load/GEFCom2017_D_Prob_MT_hourly/submissions/fnn/submission_seed_', seed_value, '.csv', sep=""))
 
+# Data and forecast parameters
 normalize_columns = list('LoadLag', 'DryBulbLag')
-
 quantiles = seq(0.1, 0.9, by = 0.1)
 
+# Train and predict
 result_all = list()
 counter = 1
-
 for (iR in 1:6){
   print(paste('Round', iR))
   train_file = file.path(train_dir, paste(train_file_prefix, iR, '.csv', sep=''))
@@ -34,7 +41,6 @@ for (iR in 1:6){
     test_df[, c] = (test_df[, ..c] - min_c)/(max_c - min_c)
   }
   
-
   zones = unique(train_df[, Zone])
   hours = unique(train_df[, Hour])
   
@@ -43,9 +49,8 @@ for (iR in 1:6){
   
   
   test_df[, LoadRatio:=mean(AverageLoadRatio), by=list(Hour, MonthOfYear)]
-  
-  
-for (z in zones){
+    
+  for (z in zones){
     print(paste('Zone', z))
     
     for (h in hours){
