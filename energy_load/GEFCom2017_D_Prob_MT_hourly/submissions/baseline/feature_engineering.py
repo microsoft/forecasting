@@ -53,7 +53,8 @@ def month_of_year(date_time_col):
 
 def fourier_approximation(t, n, period):
     """
-    Generic helper function to create Fourier Series at different harmonies (n) and periods.
+    Generic helper function to create Fourier Series at different harmonies (n)
+    and periods.
 
     Args:
         t: Datetime column.
@@ -147,7 +148,8 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
                            week_window=1, agg_func='mean',
                            output_colname='SameWeekHourLag'):
     """
-    This function creates a lag feature by averaging values of and around the same week, same day of week, and same hour of day, of previous years.
+    This function creates a lag feature by averaging values of and around the
+    same week, same day of week, and same hour of day, of previous years.
     
     Args:
         datetime_col: Datetime column.
@@ -277,11 +279,12 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
             This value is used to prevent using data that are not available at
             forecast creation time to compute features.
         output_col_prefix: Prefix of the output columns. The start week of each
-            moving average feature is added at the end. Default value 'moving_average_lag_'.
+            moving average feature is added at the end. Default value
+            'moving_average_lag_'.
 
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
-            columns.
+        pandas.DataFrame: data frame containing the newly created lag features
+            as columns.
 
     For example, start_week = 9, window_size=4, and average_count = 3 will
     create three moving average features.
@@ -331,11 +334,13 @@ def create_basic_features(input_df, datetime_colname):
     row, i.e. no lag features or rolling window features.
     
     Args:
-        input_df (pandas.DataFrame): data frame for which to compute basic features.
+        input_df (pandas.DataFrame): data frame for which to compute basic
+            features.
         datetime_colname (str): name of Datetime column
 
     Returns:
-        pandas.DataFrame: output data frame which contains newly created features
+        pandas.DataFrame: output data frame which contains newly created
+            features
 
     """
 
