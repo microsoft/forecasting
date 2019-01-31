@@ -36,21 +36,33 @@ ALLOWED_TIME_COLUMN_TYPES = [pd.Timestamp, pd.DatetimeIndex,
 
 
 def is_datetime_like(x):
+    """Function that checks if a data frame column x is of a datetime type."""
     return any(isinstance(x, col_type)
                for col_type in ALLOWED_TIME_COLUMN_TYPES)
 
 
 def hour_of_day(datetime_col):
+    """Returns the hour from a datetime variable."""
     return datetime_col.dt.hour
 
 
 def month_of_year(date_time_col):
+    """Returns the month from a datetime variable."""
     return date_time_col.dt.month
+
 
 def fourier_approximation(t, n, period):
     """
-    Generic helper function for create Fourier Series at different
-    harmonies(n) and periods.
+    Generic helper function to create Fourier Series at different harmonies (n) and periods.
+
+    Args:
+        t: Datetime column.
+        n: Harmonies, n=0, 1, 2, 3,...
+        period: Period of the datetime variable t.
+    
+    Returns:
+        float: Sine component
+        float: Cosine component
     """
     x = n * 2 * np.pi * t/period
     x_sin = np.sin(x)
@@ -61,7 +73,15 @@ def fourier_approximation(t, n, period):
 
 def annual_fourier(datetime_col, n_harmonics):
     """
-    Create annual fourier series to model annually seasonal patterns.
+    Creates Annual Fourier Series at different harmonies (n).
+
+    Args:
+        datetime_col: Datetime column.
+        n_harmonics: Harmonies, n=0, 1, 2, 3,...
+    
+    Returns:
+        dict: Output dictionary containing sine and cosine components of
+            the Fourier series for all harmonies.
     """
     day_of_year = datetime_col.dt.dayofyear
 
@@ -77,7 +97,15 @@ def annual_fourier(datetime_col, n_harmonics):
 
 def weekly_fourier(datetime_col, n_harmonics):
     """
-    Create weekly fourier series to model weekly seasonal patterns.
+    Creates Weekly Fourier Series at different harmonies (n).
+
+    Args:
+        datetime_col: Datetime column.
+        n_harmonics: Harmonies, n=0, 1, 2, 3,...
+    
+    Returns:
+        dict: Output dictionary containing sine and cosine components of
+            the Fourier series for all harmonies.
     """
     day_of_week = datetime_col.dt.dayofweek
 
@@ -93,7 +121,15 @@ def weekly_fourier(datetime_col, n_harmonics):
 
 def daily_fourier(datetime_col, n_harmonics):
     """
-    Create daily fourier series to model daily seasonal patterns.
+    Creates Daily Fourier Series at different harmonies (n).
+
+    Args:
+        datetime_col: Datetime column.
+        n_harmonics: Harmonies, n=0, 1, 2, 3,...
+    
+    Returns:
+        dict: Output dictionary containing sine and cosine components of
+            the Fourier series for all harmonies.
     """
     hour_of_day = datetime_col.dt.hour + 1
 
@@ -111,16 +147,22 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
                            week_window=1, agg_func='mean',
                            output_colname='SameWeekHourLag'):
     """
-    Create a lag feature by averaging values of and around the same week,
-    same day of week, and same hour of day, of previous years.
-    :param datetime_col: Datetime column
-    :param value_col: Feature value column to create lag feature from
-    :param n_years: Number of previous years data to use
-    :param week_window:
-        Number of weeks before and after the same week to
-        use, which should help reduce noise in the data
-    :param agg_func: aggregation function to apply on multiple previous values
-    :param output_colname: name of the output lag feature column
+    This function creates a lag feature by averaging values of and around the same week, same day of week, and same hour of day, of previous years.
+    
+    Args:
+        datetime_col: Datetime column.
+        value_col: Feature value column to create lag feature from.
+        n_years: Number of previous years data to use. Default value 3.
+        week_window: Number of weeks before and after the same week to use,
+            which should help reduce noise in the data. Default value 1.
+        agg_func: aggregation function to apply on multiple previous values. 
+            Default value 'mean'.
+        output_colname: name of the output lag feature column. 
+            Default value 'SameWeekHourLag'.
+
+    Returns:
+         pandas.DataFrame: data frame containing the newly created lag
+            feature as a column.
     """
 
     if not is_datetime_like(datetime_col):
@@ -163,16 +205,23 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
                       day_window=1, agg_func='mean',
                       output_colname='SameDayHourLag'):
     """
-    Create a lag feature by averaging values of and around the same day of
-    year, and same hour of day, of previous years.
-    :param datetime_col: Datetime column
-    :param value_col: Feature value column to create lag feature from
-    :param n_years: Number of previous years data to use
-    :param day_window:
-        Number of days before and after the same day to
-        use, which should help reduce noise in the data
-    :param agg_func: aggregation function to apply on multiple previous values
-    :param output_colname: name of the output lag feature column
+    This function creates a lag feature by averaging values of and around
+    the same day of year, and same hour of day, of previous years.
+    
+    Args:
+        datetime_col: Datetime column.
+        value_col: Feature value column to create lag feature from.
+        n_years: Number of previous years data to use. Default value 3.
+        day_window: Number of days before and after the same day to use, 
+            which should help reduce noise in the data. Default value 1.
+        agg_func: aggregation function to apply on multiple previous values.
+            Default value 'mean'.
+        output_colname: name of the output lag feature column. 
+            Default value 'SameDayHourLag'.
+    
+    Returns:
+        pandas.DataFrame: data frame containing the newly created lag
+            feature as a column.
     """
 
     if not is_datetime_like(datetime_col):
@@ -215,23 +264,24 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
                                  start_week, average_count, forecast_creation_time,
                                  output_col_prefix='moving_average_lag_'):
     """
-    Create a moving average features by averaging values of the same day of
-    week and same hour of day of previous weeks.
+    This function creates a moving average features by averaging values of the
+    same day of week and same hour of day of previous weeks.
 
-    :param datetime_col: Datetime column
-    :param value_col:
-        Feature value column to create moving average features
-        from.
-    :param window_size: Number of weeks used to compute the average.
-    :param start_week: First week of the first moving average feature.
-    :param average_count: Number of moving average features to create.
-    :param forecast_creation_time:
-        The time point when the feature is created. This value is used to prevent
-        using data that are not available at forecast creation time to compute
-        features.
-    :param output_col_prefix:
-        Prefix of the output columns. The start week of each moving average
-        feature is added at the end.
+    Args:
+        datetime_col: Datetime column
+        value_col: Feature value column to create moving average features from.
+        window_size: Number of weeks used to compute the average.
+        start_week: First week of the first moving average feature.
+        average_count: Number of moving average features to create.
+        forecast_creation_time: The time point when the feature is created.
+            This value is used to prevent using data that are not available at
+            forecast creation time to compute features.
+        output_col_prefix: Prefix of the output columns. The start week of each
+            moving average feature is added at the end. Default value 'moving_average_lag_'.
+
+    Returns:
+        pandas.DataFrame: data frame containing the newly created lag features as
+            columns.
 
     For example, start_week = 9, window_size=4, and average_count = 3 will
     create three moving average features.
@@ -279,6 +329,14 @@ def create_basic_features(input_df, datetime_colname):
     This helper function uses the functions in common.feature_utils to
     create a set of basic features which are independently created for each
     row, i.e. no lag features or rolling window features.
+    
+    Args:
+        input_df (pandas.DataFrame): data frame for which to compute basic features.
+        datetime_colname (str): name of Datetime column
+
+    Returns:
+        pandas.DataFrame: output data frame which contains newly created features
+
     """
 
     output_df = input_df.copy()
@@ -315,11 +373,26 @@ def create_advanced_features(train_df, test_df, datetime_colname,
     column.
     Therefore, the train_df and test_df are concatenated to create these
     features.
+    
     NOTE: test_df can not contain any values that are unknown at
     forecasting creation time to avoid data leakage from the future. For
     example, it can contain the timestamps, zone, holiday, forecasted
     temperature, but it MUST NOT contain things like actual temperature,
     actual load, etc.
+
+    Args:
+        train_df (pandas.DataFrame): data frame containing training data
+        test_df (pandas.DataFrame): data frame containing testing data
+        datetime_colname (str): name of Datetime column
+        holiday_colname (str): name of Holiday column (if present), default 
+            value is None
+
+    Returns:
+        pandas.DataFrame: output containing newly constructed
+            features on training data
+        pandas.DataFrame: output containing newly constructed
+            features on testing data
+        
     """
     output_df = pd.concat([train_df, test_df], sort=True)
     if not is_datetime_like(output_df[datetime_colname]):
@@ -452,6 +525,13 @@ def main(train_dir, test_dir, output_dir, datetime_colname, holiday_colname):
     """
     This helper function uses the create_basic_features and create_advanced
     features functions to create features for each train and test round.
+    
+    Args:
+        train_dir (str): directory containing training data
+        test_dir (str): directory containing testing data
+        output_dir (str): directory to which to save the output files
+        datetime_colname (str): name of Datetime column
+        holiday_colname (str): name of Holiday column
     """
 
     output_train_dir = os.path.join(output_dir, 'train')
