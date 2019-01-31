@@ -92,7 +92,7 @@ From the `TSPerf` directory on the VM create a conda environment named `tsperf` 
    docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
    ```
 
-   The `<ACR Acccess Key>` can be found [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/accessKey).   
+   The `<ACR Acccess Key>` can be found [here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fcommon%2Fkey.txt&version=GBmaster).   
 
    4.2 Pull the Docker image from ACR to your VM
 
