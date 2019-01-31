@@ -1,3 +1,10 @@
+#!/usr/bin/Rscript 
+#
+# This script trains Quantile Regression Neural Network models and evaluate the loss 
+# on validation data of each cross validation round and forecast round with a set of 
+# hyperparameters and calculate the average loss. 
+# This script is used as the entry script for azureml hyperdrive.
+
 args = commandArgs(trailingOnly=TRUE)
 
 install.packages('qrnn', repo="http://cran.rstudio.com/")
