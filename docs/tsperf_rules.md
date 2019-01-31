@@ -14,10 +14,11 @@
     3.2 [Retail sales forecasting](#retail-sales-forecasting)  
 4. [Development of benchmark implementation](#development-of-benchmark-implementation)  
     4.1 [Feature engineering](#feature-engineering)  
-    4.2 [Guideline for creating Docker images](#guideline-for-creating-docker-images)  
-    4.3 [Guideline for measuring performance](#guideline-for-measuring-performance) 
+    4.2 [Guideline for setting up conda environment](#Guideline-for-setting-up-conda-environment)
+    4.3 [Guideline for creating Docker images](#guideline-for-creating-docker-images)  
+    4.4 [Measuring performance](#measuring-performance) 
 5. [Submission of benchmark implementation](#submission-of-benchmark-implementation)  
-    5.1 [Guideline for submitting reproduction instructions](#guideline-for-submitting-reproduction-instructions)  
+    5.1 [Guideline for reproduction](#guideline-for-reproduction)  
     5.2 [Guideline for submitting the code](#guideline-for-submitting-the-code)   
     5.3 [Pull request process](#pull-request-process)
 6. [Review of submissions](#review-of-submissions)  
@@ -99,46 +100,48 @@ In addition to it, there will be a specific benchmark submission guidelines docu
 
 ### Structure of repository
 
-We use Git repo to maintain the source code and relevant files. The repository has three levels of folders: use case, benchmark, and benchmark implementation.
-The top-level directory `/TSPerf` consists of folders for all the existing use cases, a folder storing common utility scripts, a folder storing internal 
-docs, and a Markdown file with an overview of TSPerf framework. 
+We use Git repo to maintain the source code and relevant files. The repository has three hierarchy levels: use case, benchmark, and benchmark 
+implementation. The top-level directory `/TSPerf` consists of folders of all the existing use cases, a folder storing common utility scripts, a 
+folder storing internal docs, and a Markdown file with an overview of TSPerf framework. 
 
-* Use case folders: Each such folder is named after a specific use case and contains scripts of the implementations/submissions for every benchmark of this 
-use case. Currently we have a folder `/TSPerf/energy_load` for the energy load forecasting use case and another folder `/TSPerf/retail_sales` for the 
-retail sales forecasting use case. 
+* Use case folders: Each such folder is named after a specific use case and contains scripts of the implementations/submissions for every 
+benchmark of this use case. Currently, we have a folder `/TSPerf/energy_load` for the energy load forecasting use case and another folder 
+`/TSPerf/retail_sales` for the retail sales forecasting use case. 
 
-  Under each use case folder, we have subfolders for different benchmarks and a Markdown file listing all benchmarks of this use case. For example, 
-  `/TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly` contains all the submissions for a probabilistic forecasting problem defined upon GEFCom2017-D dataset 
-  and `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly` includes all the submissions for a point forecasting problem defined upon GEFCom2014 dataset. In 
-  addition, `/TSPerf/energy_load/README.md` summarizes all the benchmarks of the energy load forecasting use case. 
+  Under each use case folder, we have subfolders for different benchmarks and a Markdown file listing all the benchmarks of this use case. For 
+  example, `/TSPerf/energy_load/GEFCom2017-D_Prob_MT_hourly` contains all the submissions for a probabilistic forecasting problem defined upon 
+  GEFCom2017-D dataset. In addition, `/TSPerf/energy_load/README.md` summarizes all the benchmarks of the energy load forecasting use case. 
 
-  Under each benchmark folder, there are a subfolder containing source code of reference implementation, a subfolder containing source code of all 
-  submissions, a subfolder storing common utility scripts, and a Markdown file specifying the benchmark. The description of each item under the benchmark 
-  folder is as follows
+  Under each benchmark folder, there are a subfolder containing reference materials, a subfolder containing source code of all submissions, a 
+  subfolder storing common utility scripts, a subfolder reserved for data storage, and a Markdown file specifying the benchmark. The 
+  description of each item under the benchmark folder is as follows
 
-    * `/reference` folder: This folder contains all the necessary scripts and the submission form for reproducing the reference implementation. For 
-    instance, `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/reference` includes the required submission files of the reference implementation for 
-    GEFCom2014_Pt_1Month_Hourly.
+    * `/reference` folder: This folder contains Jupyter notebook(s) exploring the benchmark dataset and a submission file template.
 
-    * `/submissions` folder: This folder contains multiple subfolders where each subfolder includes all the necessary scripts and 
-    the submission form for reproducing a certain submission. For instance, `/submission1` folder under 
-    `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/submissions` includes the required submission files of submission1.
+    * `/submissions` folder: This folder contains multiple subfolders where each subfolder includes all the necessary scripts and the 
+    submission form for reproducing a certain submission. For instance, `/baseline` folder under 
+    `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/submissions` includes the required submission files of the baseline model which is simple 
+    method used to be compared with other submissions.
     
-    * `/common` folder: This folder includes utility scripts for a benchmark. As an example, `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/common` 
-    contains the scripts that could be commonly used for GEFCom2014_Pt_1Month_Hourly, such as Python scripts that download the data, prepare training and 
-    scoring data, and evaluate performance of the benchmark implementation. 
+    * `/common` folder: This folder includes utility scripts for a benchmark. As an example, 
+    `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/common` 
+    contains the scripts that could be commonly used for GEFCom2014_Pt_1Month_Hourly, such as Python scripts that download the data, prepare 
+    training and scoring data, and evaluate performance of the benchmark implementation. 
 
-    * `/README.md`: This Markdown file provides detailed instructions about a certain benchmark. For instance, 
-    `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/README.md` describes benchmark and provides benchmark-specific guidance for evaluating model 
-    performance and creating benchmark submission. 
+    * `/data` folder: This is an empty folder reserved for storing the data files that are necessary for the model development and evaluation 
+    of the benchmark.
 
-* `/TSPerf/common` folder: This folder has the scripts that could be used across different use cases, such as Python scripts which compute the evaluation 
-metrics of the forecasting results.
+    * `/README.md`: This Markdown file provides detailed introductions about a certain benchmark. For instance, 
+    `/TSPerf/energy_load/GEFCom2014_Pt_1Month_Hourly/README.md` describes the dataset and goal of the benchmark. 
 
-* `/TSPerf/internal_docs` folder: This folder contains the internal documents that we create during the development of TSPerf. 
+* `/TSPerf/common` folder: This folder has the scripts that could be used across different use cases, such as Python scripts which compute the 
+evaluation metrics of the forecasting results.
 
-* `/TSPerf/README.md` file: This Markdown file describes the TSPerf framework in general. It introduces the goal and vision, specifies the use cases and 
-benchmarks, and points to performance boards and more detailed documentation.
+* `/TSPerf/internal_docs` folder: This folder contains a high-level document summarizing the goals, rules, and general guidelines for 
+participating and leveraging TSPerf. There is also a template of the submission form used for documenting a particular submission. 
+
+* `/TSPerf/README.md` file: This Markdown file describes the TSPerf framework in general. It introduces the goal and vision, specifies the use 
+cases and benchmarks, and includes a performance board for each use case. 
 
 ## Benchmarks  
 
@@ -170,13 +173,18 @@ The quality metric of this benchmark is the Pinball loss function.
 
 ### Retail sales forecasting
 
-Sales forecasting is a key objective for the management of retail stores. With the projection of future sales, store managers will be able to optimize 
-the inventory based on their business goals. This will generate more profitable order fulfillment and reduce the inventory cost. 
+Sales forecasting is a key objective for the management of retail stores. With 
+the projection of future sales, store managers will be able to optimize the inventory 
+based on their business goals. This will generate more profitable order fulfillment 
+and reduce the inventory cost. 
 
-The objective of this benchmark is to forecast orange juice sales of different brands for multiple stores with the Orange Juice dataset from R package 
-`bayesm`. The forecast type is point forecasting. Forecast is done at 12 time points, with horizon of 3 weeks and granularity of 1 week. The forecasts should  
-include the predicted sales during the target periods for each brand and each store. The output file of the forecast results should follow the format of the 
-provided template file. There are in total 913 time series to forecast. The quality metric of this benchmark is the mean average percentage error 
+The objective of this benchmark is to forecast orange juice sales of different brands 
+for multiple stores with the Orange Juice dataset from R package `bayesm`. The forecast 
+type is point forecasting. Forecast is done at 12 time points, with horizon of 3 weeks 
+and granularity of 1 week. The forecasts should include the predicted sales during the 
+target periods for each brand and each store. The output file of the forecast results 
+should follow the format of the provided template file. There are in total 913 time series 
+to forecast. The quality metric of this benchmark is the mean average percentage error 
 averaged over all time series. 
 
 ## Development of benchmark implementation
@@ -185,7 +193,37 @@ In this section we provide a number of guidelines for developing reproducible re
 
 ### Feature engineering
 
-To accelerate the development of benchmark implementations, we provide a number of  common feature engineering functions. Benchmark-independent feature engineering functions are stored in `common/feature_utils.py` file. Benchmark-specific feature engineering functions are stored in `<benchmark vertical>/<benchmark dataset>/common/feature_engineering.py` files. Currently these are `energy_load/GEFCom2017_D_Prob_MT_hourly/common/feature_engineering.py` and `retail_sales/OrangeJuice_Pt_3Weeks_Weekly/common/feature_engineering.py` files. When developing a new benchmark implementation, submitter should reuse provided feature engineering functions as much as possible.
+To accelerate the development of benchmark implementations, we provide a number of  common feature engineering functions. Benchmark-independent feature 
+engineering functions are stored in `common/feature_utils.py` file. Benchmark-specific feature engineering functions are stored in 
+`<benchmark vertical>/<benchmark dataset>/common/feature_engineering.py` files. Currently these are `energy_load/GEFCom2017_D_Prob_MT_hourly/common/feature_engineering.py` 
+and `retail_sales/OrangeJuice_Pt_3Weeks_Weekly/common/feature_engineering.py` files. When developing a new benchmark implementation, submitter should 
+reuse provided feature engineering functions as much as possible.
+
+### Guideline for setting up conda environment
+
+TSPerf conda environment is used for executing the scripts that download the benchmark datasets and evaluate forecast results. It is also used 
+for running the data exploration notebooks. Please follow the instructions below to set up this environment.
+
+#### Prerequisites
+
+To run scripts provided by the TSPerf framework, you must install:
+
+- [Anaconda Python 3.6 version](https://www.anaconda.com/download/)
+or
+- [Miniconda Python 3.6](https://conda.io/miniconda.html)
+
+#### Environment setup
+
+Run the following commands to set up the tsperf conda environment:
+```
+cd TSPerf
+conda env create -f common/conda_dependencies.yml
+source activate tsperf
+```
+If you would like to use this environment in a jupyter notebook, run the following:
+```
+python -m ipykernel install --user --name tsperf --display-name "tsperf"
+```
 
 ### Guideline for creating Docker images
 
@@ -294,7 +332,7 @@ The total cost can be computed using [Azure pricing calculator](https://azure.mi
 
 ## Submission of benchmark implementation
 
-### Guideline for submitting reproduction instructions
+### Guideline for reproduction
 
 #### System and software framework availability
 This section is aligned with [MLPerf](https://mlperf.org/).  
@@ -315,6 +353,15 @@ If your implementation is light-weight and does not have any system dependency, 
 4. Software framework and package version report  
 The submitter needs to submit a report summarizing all the software framework and package versions used for producing the reported result. This is to prevent the newer version of a software framework or package significantly changing the implementation result.
 
+### Non-determinism restrictions
+This section is aligned with MLPerf. Some more detailed instructions are added.  
+The following forms of non-determinism are acceptable in MLPerf.
+- Floating point operation order. For example, certain functions in cuDNN do not guarantee reproducibility across runs.
+- Random initialization of the weights and/or biases.
+- Random traversal of the inputs.  
+
+In order to avoid any other sources of non-determinisms, we recommend setting random seeds whenever a package/framework provides a function for setting random seed, e.g. numpy.random.seed(), random.seed(), tf.set_random_seed(). 
+
 #### Reporting benchmark results
 This section is aligned with [MLPerf](https://mlperf.org/).  
 The submitter needs to run the benchmark implementation five times using the integer random number generator seeds 1 through 5 and report all five benchmark results (quality of the model, 
@@ -327,8 +374,8 @@ Detailed instructions for hyperparameter tuning are optional. However, it's **hi
 
 ### Guideline for submitting the code
 
-New benchmark submissions to TSPerf should be made through pull requests in the Git repo by adding a completed submission form and supporting code in a new 
-submission folder. 
+New benchmark submissions to TSPerf should be made through pull requests in the Git repo by adding a completed submission form and 
+supporting code in a new submission folder. 
 
 The submission process depends on the architecture and is described in the following two subsections.
 
@@ -342,41 +389,61 @@ The submission process depends on the architecture and is described in the follo
    git checkout -b <branch name>
    ```
 
-2. Create a new submission folder under `<benchmark directory>/submissions` where `<benchmark directory>` is a root benchmark directory, e.g., 
-`/LSTM_3layers` under `energy_load/<benchmark name>/submissions`. Please name your submission folder by following a similar naming convention.
+2. Create a new submission folder under `<benchmark directory>/submissions` where `<benchmark directory>` is a root benchmark directory, 
+e.g., `/LSTM_3layers` under `energy_load/<benchmark name>/submissions`. Please name your submission folder by following a similar naming convention.
 
-3. Download the data using the following commands
+3. Create [TSPerf conda environment](#Guideline-for-setting-up-conda-environment) for running the scripts of data downloading, data 
+preparation, and result evaluation. To do this, you need to check if conda has been installed by runnning command `conda -V`. If it is 
+installed, you will see the conda version in the terminal. Otherwise, please follow the instructions [here](https://conda.io/docs/user-guide/install/linux.html) to install conda. Then, you can go to `TSPerf` directory in the VM and create a conda environment named `tsperf` by
+
    ```bash
-   python <benchmark directory>/common/get_data.py
-   ``` 
+   cd TSPerf/
+   conda env create --file ./common/conda_dependencies.yml
+   ```
+  
+   This will create a conda environment named TSPerf with the Python and R packages listed in `conda_dependencies.yml` being installed.
 
-4. Implement a benchmark with the downloaded data to solve an associated problem defined by TSPerf. During the implementation, please use only the data 
+4. Activate the conda environment and download the benchmark dataset. Use command `source activate tsperf` to activate the conda environment. Then, download the dataset by running one of the following commands from `/TSPerf` directory 
+
+   ```bash
+   python <benchmark directory>/common/download_data.py 
+   ```
+   or
+   ```bash
+   Rscript <benchmark directory>/common/download_data.r
+   ```
+
+   depending on the type of data downloading script. The downloaded data will be store in the folder `<benchmark directory>/data`. For 
+   certain benchmarks, you may need to run additional data preparation scripts after downloading the data. Please refer to the 
+   submission forms under the specific benchmark for this.    
+
+5. Implement a benchmark with the downloaded data to solve an associated problem defined by TSPerf. During the implementation, please use only the data 
 specified in the problem description to train your model and evaluate model performance based on the specified testing data. Always check the common utility 
 folder under `<benchmark directory>` to see if there is a module which creates the training and testing data for each forecast period, e.g. 
-`energy_load/problem1/common/serve_folds.py`. Use this module as much as possible. Forecasts **must not** be generated from models that have been trained on 
+`retail_sales/OrangeJuice_Pt_3Weeks_Weekly/common/serve_folds.py`. Use this module as much as possible. Forecasts **must not** be generated from models that have been trained on 
 data of the forecast period or later. Submission code will be inspected to enforce this.
 
-5. To submit your solution you must create a script (in any language) that includes all code necessary to train your model and produce predictions for all 
+6. To submit your solution you must create a script (in any language) that includes all code necessary to train your model and produce predictions for all 
 forecasted periods in the required format. This script should be named as `train_score.*` with * indicating the file type. It should accept an input argument which is an integer random number generator seed. For example, it should run as `python <submission directory>/train_score.py <seed value>` if it is in Python. This command will generate a CSV file named `submission_seed_<seed value>.csv` which includes the predictions. Please include 
 `train_score.*` script and `submission_seed_<seed value>.csv` files in your submission directory. 
 
-6. Report five run results produced using the integer random number generator seeds 1 through 5. This can be done by running the model 
-training and scoring script as follows
+7. Report five run results produced using the integer random number generator seeds 1 through 5. This can be done by running the model 
+training and scoring script inside a Docker container as follows
    ```bash
    time -p python <submission directory>/train_score.py --seed <seed value>
    ```
-   where `<seed value>` is an integer between 1 and 5. This command also computes the running time of each run. 
+   where `<seed value>` is an integer between 1 and 5. This command also computes the running time of each run. Please check the instructions in [this section](#guideline-for-creating-docker-images) for how to  create the docker image and container. 
 
-7. Evaluate the performance of each run with evaluate.py and compute the median. Once you have generated your submission files, you can evaluate the quality of the predictions with
+8. Evaluate the performance of all five runs and compute the median performance. Once you have generated your submission files, you can evaluate the quality of the predictions by executing the following command in TSPerf conda environment
    ```bash
-   python <benchmark directory>/common/evaluate.py <submission directory>/submission_seed_<seed value>.csv 
+   source ./common/evaluate <submission directory> <benchmark directory>
    ```
-   This command will output a benchmark quality value (e.g. MAPE). Evaluate the quality of each run by changing `<seed value>` above and compute the median of the quality values out of five runs.
+   This command will output benchmark quality values (e.g. MAPEs) of the five runs, using which you can compute the median quality value. 
 
-8. Include other scripts that are necessary for reproducing the submitted benchmark results. For example, you should include a Dockerfile containing all 
+9. Include other scripts that are necessary for reproducing the submitted benchmark results. For example, you should include a Dockerfile containing all 
 dependencies for running your benchmark submission. The Dockerfile can point to a `.txt` file which contains a list of necessary packages. 
 
-9. Create a Docker image and push it to the ACR   
+10. Create a Docker image and push it to the ACR   
    To create your Docker image, for example you can go to `/submissions/submission1/` folder and run the following command   
    ```bash
    docker build -t submission1_image .
@@ -388,9 +455,9 @@ dependencies for running your benchmark submission. The Dockerfile can point to 
    ```
    Note that you will need to log into the ACR before publishing the image.
 
-10. Include a submission form in the submission folder as README.md file. The submission form documents the submitter's information, method utlized in the 
+11. Include a submission form in the submission folder as README.md file. The submission form documents the submitter's information, method utlized in the 
 benchmark implementation, information about the scripts, obtained results, and steps of reproducing the results. An example submission form can be found 
-[here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fretail_sales%2FOrangeJuice_Pt_3Weeks_Weekly%2Fsubmissions%2FLightGBM&version=GBmaster). Specifically, it should include
+[here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?_a=contents&path=%2Fdocs%2Fsubmission_form_template.md&version=GBmaster). Specifically, it should include
     * name of the branch with submission code
     * benchmark path, e.g. `/TSPerf/energy_load/problem1`
     * path to submission directory, e.g. `/TSPerf/energy_load/problem1/submissions/submission1`
@@ -401,7 +468,7 @@ benchmark implementation, information about the scripts, obtained results, and s
     * running time in each run
     * cost in each run 
 
-11. Create pull request for review by following the process in the next section.
+12. Create pull request for review by following the process in the next section.
 
 #### Batch AI
 
