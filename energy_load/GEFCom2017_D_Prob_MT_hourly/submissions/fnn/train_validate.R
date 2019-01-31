@@ -9,8 +9,7 @@ args = commandArgs(trailingOnly=TRUE)
 parameter_set = args[1]
 
 install.packages('rjson', repo="http://cran.r-project.org/")
-install.packages('doParallel', repo="http://crloads the featured training and test data in, normalizes the features, 
-# partitions the data by zone and hour, andan.r-project.org/")
+install.packages('doParallel', repo="http://cran.r-project.org/")
 library('data.table')
 library('qrnn')
 library('rjson')
