@@ -10,7 +10,7 @@
 
 **Submitter(s) email:** chenhhu@microsoft.com
 
-**Submission name:** Naive
+**Submission name:** baseline
 
 **Submission branch:** [chenhui/naive](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?version=GBchenhui%2Fnaive)
 
