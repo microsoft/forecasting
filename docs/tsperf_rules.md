@@ -468,7 +468,12 @@ benchmark implementation, information about the scripts, obtained results, and s
     * running time in each run
     * cost in each run 
 
-12. Create pull request for review by following the process in the next section.
+12. Update the performance board by including the performance values of the new submission. First, you should add the performance values to one of the csv files named `TSPerfBoard-*.csv` corresponding to the benchmark under `./common` folder. Then, you need to run `ReadmeGenerator.py` to update the README file under TSPerf directory with
+   ```bash
+   python ./common/ReadmeGenerator.py
+   ```
+
+13. Create pull request for review by following the process in the next section.
 
 #### Batch AI
 
