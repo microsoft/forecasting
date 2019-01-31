@@ -51,7 +51,6 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd ~/TSPerf
-   git checkout chenhui/seasonal_naive
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
@@ -137,7 +136,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Platform:** Azure Cloud 
 
-**Resource location:** West US 2
+**Resource location:** East US  
 
 **Hardware:** Standard D2s v3 (2 vcpus, 8 GB memory, 16 GB temporary storage) Ubuntu Linux VM
 
@@ -156,7 +155,7 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 * Azure Linux VM deployment
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
   - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a Data 
-  Science Virtual Machine for Linux (Ubuntu). Select *D16s_v3* as the virtual machine size.
+  Science Virtual Machine for Linux (Ubuntu). Select *D2s_v3* as the virtual machine size.
 
 
 ## Implementation evaluation
@@ -189,7 +188,7 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 *median run time: 160.45 seconds*
 
-**Cost:** The total cost is 160.45/3600 $\times$ 0.096 = $0.0043.
+**Cost:** The hourly cost of the D2s v3 Ubuntu Linux VM in East US Azure region is 0.096 USD, based on the price at the submission date. Thus, the total cost is 160.45/3600 $\times$ 0.096 = $0.0043.
 
 Note that there is no randomness in the forecasts obtained by the above method. Thus, quality values do not change over 
 different runs.

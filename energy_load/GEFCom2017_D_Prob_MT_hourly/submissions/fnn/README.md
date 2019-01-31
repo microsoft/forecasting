@@ -66,7 +66,6 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd TSPerf
-   git checkout zhouf/energy_forecast_fnn_cv_v1
    ```
    Use one of the following options to securely connect to the Git repo:
    * [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts)  
@@ -182,7 +181,8 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 ## Implementation resources
 
 **Platform:** Azure Cloud  
-**Hardware:** Standard D8s v3 (8 vcpus, 32 GB memory) Linux Data Science Virtual Machine (DSVM)  
+**Resource location:** East US region   
+**Hardware:** Standard D8s v3 (8 vcpus, 32 GB memory) Ubuntu Linux VM  
 **Data storage:** Premium SSD  
 **Docker image:** tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/fnn_image:v1  
 
@@ -199,7 +199,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 ## Resource deployment instructions
 Please follow the instructions below to deploy the Linux DSVM.
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
-  - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a *Data Science Virtual Machine for Linux (Ubuntu)*.
+  - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a *Data Science Virtual Machine for Linux (Ubuntu)*. Select *D8s_v3* as the virtual machine size.  
 
 ## Implementation evaluation
 **Quality:**  
@@ -232,5 +232,5 @@ Note there is randomness in this quantile regression neural network model, so th
 * Median run time: 5095 seconds
 
 **Cost:**  
-The hourly cost of the Standard D8s DSVM is 0.3840 USD based on the price at the submission date.   
+The hourly cost of the Standard D8s Ubuntu Linux VM in East US Azure region is 0.3840 USD, based on the price at the submission date.   
 Thus, the total cost is 5095/3600 * 0.3840 = $0.5435.

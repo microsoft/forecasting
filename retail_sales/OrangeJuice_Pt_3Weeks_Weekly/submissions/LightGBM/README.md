@@ -61,8 +61,6 @@ machine and log into the provisioned VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd TSPerf/
-   # The following step is for reviewers only
-   git checkout chenhui/boosted_decision_tree
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
@@ -150,7 +148,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Platform:** Azure Cloud 
 
-**Resource location:** West US 2
+**Resource location:** East US  
 
 **Hardware:** Standard D2s v3 (2 vcpus, 8 GB memory, 16 GB temporary storage) Ubuntu Linux VM
 
@@ -203,4 +201,4 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 *median run time: 625.10 seconds*
 
-**Cost:** The total cost is 625.10/3600 $\times$ 0.096 = $0.0167.
+**Cost:** The hourly cost of the D2s v3 Ubuntu Linux VM in East US Azure region is 0.096 USD, based on the price at the submission date. Thus, the total cost is 625.10/3600 $\times$ 0.096 = $0.0167.
