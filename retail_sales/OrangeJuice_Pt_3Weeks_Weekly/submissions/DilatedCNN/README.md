@@ -61,8 +61,6 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd ~/TSPerf
-   # The following step is for reviewers only
-   git checkout chenhui/wavenet 
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
@@ -103,7 +101,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
    ```
    
-   The `<ACR Acccess Key>` can be found [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/accessKey). If want to execute docker commands without 
+   The `<ACR Acccess Key>` can be found [here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fcommon%2Fkey.txt&version=GBmaster). If want to execute docker commands without 
    sudo as a non-root user, you need to create a 
    Unix group and add users to it by following the instructions 
    [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
@@ -149,7 +147,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Platform:** Azure Cloud 
 
-**Resource location:** East US 2
+**Resource location:** East US  
 
 **Hardware:** Standard NC6 (1 GPU, 6 vCPUs, 56 GB memory) Ubuntu Linux VM
 
@@ -203,4 +201,4 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 *median run time: 412.89 seconds*
 
-**Cost:** The total cost is 412.89/3600 $\times$ 0.90 = $0.1032.
+**Cost:** The hourly cost of NC6 Ubuntu Linuix VM in East US Azure region is 0.90 USD, based on the price at the submission date. Thus, the total cost is 412.89/3600 $\times$ 0.90 = $0.1032.
