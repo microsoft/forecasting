@@ -4,8 +4,16 @@
 import numpy as np
 
 def weighted_percentile_vectorized(a, quantiles, weights=None, sorter=None):
-    """
-    Returns the weighted percentile of a at q given weights.
+    """Returns the weighted percentile of a at q given weights.
+
+    Note that weighted_percentile(a, q) is not equivalent to
+    np.percentile(a, q). This is because in np.percentile
+    sorted(a)[i] is assumed to be at quantile 0.0, while here we assume
+    sorted(a)[i] is given a weight of 1.0 / len(a), hence it is at the
+    1.0 / len(a)th quantile.
+
+    References:
+        https://en.wikipedia.org/wiki/Percentile#The_Weighted_Percentile_method
 
     Args:
         a: array-like, shape=(n_samples,)
@@ -26,17 +34,6 @@ def weighted_percentile_vectorized(a, quantiles, weights=None, sorter=None):
         percentiles: array of floats
             Weighted percentile of a at each of quantiles.
 
-    References
-    ----------
-    1. https://en.wikipedia.org/wiki/Percentile#The_Weighted_Percentile_method
-
-    Notes
-    -----
-    Note that weighted_percentile(a, q) is not equivalent to
-    np.percentile(a, q). This is because in np.percentile
-    sorted(a)[i] is assumed to be at quantile 0.0, while here we assume
-    sorted(a)[i] is given a weight of 1.0 / len(a), hence it is at the
-    1.0 / len(a)th quantile.
     """
     if weights is None:
         weights = np.ones_like(a)
