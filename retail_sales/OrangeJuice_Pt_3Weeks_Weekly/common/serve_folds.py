@@ -28,6 +28,14 @@ import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
 def serve_folds(write_csv=False): 
+    """Generate training, testing, and auxiliary datasets.
+
+    Args:
+        write_csv (Boolean): Whether to write the data files or not
+
+    Returns:
+        None
+    """
     # Get the directory of this script and directory of the OrangeJuice dataset
     SCRIPT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     DATA_DIR = os.path.join(os.path.dirname(SCRIPT_DIR), 'data')

@@ -19,9 +19,9 @@ TEST_START_WEEK_LIST <- seq(137, 159, 2)
 TEST_END_WEEK_LIST <- seq(138, 160, 2)
 
 # Get the path of the current script and paths of data directories
-SUBMISSION_DIR = dirname(rstudioapi::getSourceEditorContext()$path)
-TRAIN_DIR = file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'train')
-TEST_DIR = file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'test')
+SUBMISSION_DIR <- dirname(rstudioapi::getSourceEditorContext()$path)
+TRAIN_DIR <- file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'train')
+TEST_DIR <- file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'test')
 ```
 
 ```{r}
