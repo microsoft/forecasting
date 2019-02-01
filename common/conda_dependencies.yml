@@ -11,6 +11,6 @@ dependencies:
   - urllib3=1.21.1
   - jupyter=1.0.0
   - r-essentials=3.5.1
-  - matplotlib
+  - matplotlib=3.0.2
   - pip:
     - azureml-sdk
