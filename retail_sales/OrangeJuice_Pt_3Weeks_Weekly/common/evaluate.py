@@ -49,9 +49,6 @@ def evaluate(submission_file):
 
     Args:
         submission_file (String): Submission file name
-
-    Returns:
-        None 
     """
     benchmark_dir = os.path.join("retail_sales", "OrangeJuice_Pt_3Weeks_Weekly")
 
