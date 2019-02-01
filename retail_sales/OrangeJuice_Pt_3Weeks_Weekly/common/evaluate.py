@@ -23,7 +23,14 @@ from common.evaluation_utils import MAPE
 from benchmark_settings import NUM_ROUNDS
 
 def read_test_files(benchmark_dir):
+    """Get the ground truth of the forecasts.
     
+    Args:
+        benchmark_dir (String): Directory of the benchmark
+
+    Returns:
+        Dataframe including the ground truth of all forecast rounds
+    """
     test_data_dir = os.path.join(benchmark_dir, "data", "test")
     for rnd in range(1, NUM_ROUNDS+1):
         test_file = 'test_round_'+str(rnd)+'.csv'
@@ -38,7 +45,11 @@ def read_test_files(benchmark_dir):
 
 
 def evaluate(submission_file):
-    
+    """Evaluate and print the quality of the forecast.
+
+    Args:
+        submission_file (String): Submission file name
+    """
     benchmark_dir = os.path.join("retail_sales", "OrangeJuice_Pt_3Weeks_Weekly")
 
     test = read_test_files(benchmark_dir)

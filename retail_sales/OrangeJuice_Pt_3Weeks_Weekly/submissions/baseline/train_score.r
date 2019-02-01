@@ -3,11 +3,11 @@
 # Naive Method for Retail Forecasting Benchmark - OrangeJuice_Pt_3Weeks_Weekly
 #
 # This script can be executed with the following command
-#       Rscript train_score.R -seed <seed value>
+#            Rscript <submission folder>/train_score.r --seed <seed value>
 # where <seed value> is the random seed value from 1 to 5 (here since the forecast method
 # is deterministic, this value will be simply used as a suffix of the output file name).
 
-## Import packages used at the checkpoint time
+## Import packages
 library(optparse)
 library(dplyr)
 library(tidyr)
@@ -20,7 +20,6 @@ TRAIN_START_WEEK <- 40
 TRAIN_END_WEEK_LIST <- seq(135, 157, 2)
 TEST_START_WEEK_LIST <- seq(137, 159, 2)
 TEST_END_WEEK_LIST <- seq(138, 160, 2)
-DATA_DIR <- './retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
 
 # Parse input argument
 option_list <- list(
@@ -31,27 +30,35 @@ option_list <- list(
 opt_parser <- OptionParser(option_list=option_list)
 opt <- parse_args(opt_parser)
 
-# Get the path of the current script and paths of data directories
-SCRIPT_PATH <- file.path(dirname(DATA_DIR), 'baseline', 'Naive')
-TRAIN_DIR = file.path(DATA_DIR, 'train')
-TEST_DIR = file.path(DATA_DIR, 'test')
+# Paths of the training data and submission folder
+DATA_DIR <- './retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
+TRAIN_DIR <- file.path(DATA_DIR, 'train')
+SUBMISSION_DIR <- file.path(dirname(DATA_DIR), 'submissions', 'baseline')
 
 # Generate submission file name
 if (is.null(opt$seed)){
-  output_file_name <- file.path(SCRIPT_PATH, 'submission.csv') 
+  output_file_name <- file.path(SUBMISSION_DIR, 'submission.csv') 
   print('Random seed is not specified. Output file name will be submission.csv.')
 } else{
-  output_file_name <- file.path(SCRIPT_PATH, paste0('submission_seed_', as.character(opt$seed), '.csv'))
+  output_file_name <- file.path(SUBMISSION_DIR, paste0('submission_seed_', as.character(opt$seed), '.csv'))
   print(paste0('Random seed is specified. Output file name will be submission_seed_', 
         as.character(opt$seed) , '.csv.'))
 }
 
-#### Implement baseline method on all the data  ####
-pred_baseline_all <- list()
+#### Implement baseline method for every store-brand  ####
 print('Using Naive Method')
+pred_baseline_all <- list()
 
 ## Baseline method 
-apply_baseline_method <- function(train_sub) {
+apply_baseline_method <- function(train_sub, r) {
+  # Trains Naive baseline model to forecast sales of each store-brand in a certain round.
+  # 
+  # Args:
+  #   train_sub (Dataframe): Training data of a certain store-brand
+  #   r (Integer): Index of the forecast round
+  # 
+  # Returns:
+  #   pred_baseline_df (Dataframe): Predicted sales of the current store-brand
   cur_store <- train_sub$store[1]
   cur_brand <- train_sub$brand[1]
   train_ts <- ts(train_sub[c('logmove')], frequency = 52)
@@ -94,7 +101,7 @@ for (r in 1:NUM_ROUNDS) {
   pred_baseline_all[[paste0('Round', r)]] <- 
     train_filled %>%
     group_by(store, brand) %>%
-    do(apply_baseline_method(.))
+    do(apply_baseline_method(., r))
 }
 # Combine and save forecast results
 pred_baseline_all <- do.call(rbind, pred_baseline_all)
