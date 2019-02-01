@@ -32,7 +32,7 @@ opt <- parse_args(opt_parser)
 
 # Paths of the training data and submission folder
 DATA_DIR <- './retail_sales/OrangeJuice_Pt_3Weeks_Weekly/data'
-TRAIN_DIR = file.path(DATA_DIR, 'train')
+TRAIN_DIR <- file.path(DATA_DIR, 'train')
 SUBMISSION_DIR <- file.path(dirname(DATA_DIR), 'submissions', 'ETS')
 
 # Generate submission file name
