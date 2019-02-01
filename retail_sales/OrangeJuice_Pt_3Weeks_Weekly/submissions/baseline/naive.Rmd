@@ -19,9 +19,9 @@ TEST_START_WEEK_LIST <- seq(137, 159, 2)
 TEST_END_WEEK_LIST <- seq(138, 160, 2)
 
 # Get the path of the current script and paths of data directories
-SCRIPT_PATH = dirname(rstudioapi::getSourceEditorContext()$path)
-TRAIN_DIR = file.path(dirname(dirname(SCRIPT_PATH)), 'data', 'train')
-TEST_DIR = file.path(dirname(dirname(SCRIPT_PATH)), 'data', 'test')
+SUBMISSION_DIR <- dirname(rstudioapi::getSourceEditorContext()$path)
+TRAIN_DIR <- file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'train')
+TEST_DIR <- file.path(dirname(dirname(SUBMISSION_DIR)), 'data', 'test')
 ```
 
 ```{r}
@@ -74,7 +74,17 @@ pred_baseline_all <- list()
 print(paste0('Using ', baseline_method))
 
 ## Basic methods 
-apply_basic_methods <- function(train_sub, method) {
+apply_basic_methods <- function(train_sub, method, r) {
+  # Trains a basic model to forecast sales of each store-brand in a certain round.
+  # 
+  # Args:
+  #   train_sub (Dataframe): Training data of a certain store-brand
+  #   method (String): Name of the basic method which can be 'naive', 'snaive',
+  #                    'meanf', 'ets', or 'arima'
+  #   r (Integer): Index of the forecast round
+  # 
+  # Returns:
+  #   pred_basic_df (Dataframe): Predicted sales of the current store-brand
   cur_store <- train_sub$store[1]
   cur_brand <- train_sub$brand[1]
   train_ts <- ts(train_sub[c('logmove')], frequency = 52)
@@ -136,12 +146,12 @@ for (r in 1:NUM_ROUNDS) {
   pred_baseline_all[[paste0('Round', r)]] <- 
     train_filled %>%
     group_by(store, brand) %>%
-    do(apply_basic_methods(., baseline_method))
+    do(apply_basic_methods(., baseline_method, r))
 }
 
 pred_baseline_all <- do.call(rbind, pred_baseline_all)
 # Save forecast results
-write.csv(pred_baseline_all, file.path(SCRIPT_PATH, 'submission.csv'), row.names = FALSE)
+write.csv(pred_baseline_all, file.path(SUBMISSION_DIR, 'submission.csv'), row.names = FALSE)
 
 ## Evaluate forecast performance
 # Get the true value dataframe
