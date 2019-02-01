@@ -42,7 +42,7 @@ with open('Benchmarks.csv', 'r') as f:
 print(csvtomd.md_table(table), file=open(readmefile, "a"))
 print('\n\n\n',file=open(readmefile, "a"))
 
-print('A complete documentation of TSPerf, along with the instructions for submitting and reviewing benchmark implementations, can be found [here](./internal_docs/tsperf_rules.md). The tables below show performance of benchmark implementations that are developed so far. These tables are referred to as *performance boards*. Source code of benchmark implementations and instructions for reproducing their performance can be found in submission folders, which are linked in the last column of performance boards.\n', file=open(readmefile, "a"))
+print('A complete documentation of TSPerf, along with the instructions for submitting and reviewing benchmark implementations, can be found [here](./docs/tsperf_rules.md). The tables below show performance of benchmark implementations that are developed so far. These tables are referred to as *performance boards*. Source code of benchmark implementations and instructions for reproducing their performance can be found in submission folders, which are linked in the last column of performance boards.\n', file=open(readmefile, "a"))
 
 ### Write the Energy section
 #============================
@@ -59,23 +59,15 @@ print(csvtomd.md_table(table), file=open(readmefile, "a"))
 df = pd.read_csv('TSPerfBoard-Energy.csv',  engine='python')
 #df
 
-#Plot ,'Pinball Loss' by 'Training and Scoring Time (Sec)' chart
-fig3 = plt.figure(figsize=(12, 8), dpi= 80, facecolor='w', edgecolor='k') #this sets the plotting area size
-fig3 = plot_perf('Training and Scoring Time (Sec)','Pinball Loss',df)
-plt.savefig('../internal_docs/images/Energy-Time.png')
-
 #Plot ,'Pinball Loss' by 'Training and Scoring Cost($)' chart
 fig4 = plt.figure(figsize=(12, 8), dpi= 80, facecolor='w', edgecolor='k') #this sets the plotting area size
 fig4 = plot_perf('Training and Scoring Cost($)','Pinball Loss',df)
-plt.savefig('../internal_docs/images/Energy-Cost.png')
+plt.savefig('../docs/images/Energy-Cost.png')
 
 
 #insetting the performance charts
-print('\n\nThe following chart compares the submissions performance on accuracy in Pinball Loss vs. Training and Scoring time in seconds:\n',file=open(readmefile, "a"))
-print('![EnergyPBLvsTime](./internal_docs/images/Energy-Time.png)\n',file=open(readmefile, "a"))
-
 print('\n\nThe following chart compares the submissions performance on accuracy in Pinball Loss vs. Training and Scoring cost in $:\n\n ', file=open(readmefile, "a"))
-print('![EnergyPBLvsTime](./internal_docs/images/Energy-Cost.png)' ,file=open(readmefile, "a"))
+print('![EnergyPBLvsTime](./docs/images/Energy-Cost.png)' ,file=open(readmefile, "a"))
 print('\n\n\n',file=open(readmefile, "a"))
 
 
@@ -94,23 +86,15 @@ print('\n\n\n',file=open(readmefile, "a"))
 df = pd.read_csv('TSPerfBoard-Retail.csv',  engine='python')
 #df
 
-#Plot  MAPE (%) by Training and Scoring Time (sec) chart
-fig1 = plt.figure(figsize=(12, 8), dpi= 80, facecolor='w', edgecolor='k') #this sets the plotting area size
-fig1 = plot_perf('Training and Scoring Time (sec)','MAPE (%)',df)
-plt.savefig('../internal_docs/images/Retail-Time.png')
-
 #Plot MAPE (%) by Training and Scoring Cost ($) chart
 fig2 = plt.figure(figsize=(12, 8), dpi= 80, facecolor='w', edgecolor='k') #this sets the plotting area size
 fig2 = plot_perf('Training and Scoring Cost ($)','MAPE (%)',df)
-plt.savefig('../internal_docs/images/Retail-Cost.png')
+plt.savefig('../docs/images/Retail-Cost.png')
 
 
 #insetting the performance charts
-print('\n\nThe following chart compares the submissions performance on accuracy in %MAPE vs. Training and Scoring time in seconds:\n',file=open(readmefile, "a"))
-print('![EnergyPBLvsTime](./internal_docs/images/Retail-Time.png)\n',file=open(readmefile, "a"))
-
 print('\n\nThe following chart compares the submissions performance on accuracy in %MAPE vs. Training and Scoring cost in $:\n\n ', file=open(readmefile, "a"))
-print('![EnergyPBLvsTime](./internal_docs/images/Retail-Cost.png)' ,file=open(readmefile, "a"))
+print('![EnergyPBLvsTime](./docs/images/Retail-Cost.png)' ,file=open(readmefile, "a"))
 print('\n\n\n',file=open(readmefile, "a"))
 
 
