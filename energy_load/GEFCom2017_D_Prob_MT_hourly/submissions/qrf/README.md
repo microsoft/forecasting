@@ -60,7 +60,6 @@ We used 2 validation time frames, the first one in January-April 2015, the secon
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd TSPerf
-   git checkout dmitry/qrf
    ```
    Use one of the following options to securely connect to the Git repo:
    * [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts)  
@@ -96,7 +95,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
    sudo docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
    ```
 
-   The `<ACR Acccess Key>` can be found [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/accessKey).   
+   The `<ACR Acccess Key>` can be found [here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fcommon%2Fkey.txt&version=GBmaster).   
    If want to execute docker commands without
    sudo as a non-root user, you need to create a
    Unix group and add users to it by following the instructions
@@ -143,7 +142,8 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 ## Implementation resources
 
 **Platform:** Azure Cloud  
-**Hardware:** F72s v2 (72 vcpus, 144 GB memory) Linux Data Science Virtual Machine (DSVM)  
+**Resource location:** East US region   
+**Hardware:** F72s v2 (72 vcpus, 144 GB memory) Ubuntu Linux VM  
 **Data storage:** Standard SSD  
 **Docker image:** tsperf.azurecr.io/energy_load/gefcom2017_d_prob_mt_hourly/qrf_image  
 
@@ -160,8 +160,7 @@ Then, you can go to `TSPerf` directory in the VM and create a conda environment 
 ## Resource deployment instructions
 Please follow the instructions below to deploy the Linux DSVM.
   - Create an Azure account and log into [Azure portal](portal.azure.com/)
-  - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a *Data Science Virtual Machine for Linux (Ubuntu)*.  
-  - Choose F72s v2 size of VM when deploying DSVM
+  - Refer to the steps [here](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to deploy a *Data Science Virtual Machine for Linux (Ubuntu)*.  Select *F72s_v3* as the virtual machine size.   
 
 
 ## Implementation evaluation
@@ -194,7 +193,7 @@ Please follow the instructions below to deploy the Linux DSVM.
 * Median run time: 22709 seconds (6.3 hours)
 
 **Cost:**  
-The hourly cost of the F72s v2 DSVM is 3.045 USD based on the price at the submission date.   
+The hourly cost of the F72s v2 Ubuntu Linux VM in East US Azure region is 3.045 USD, based on the price at the submission date.   
 Thus, the total cost is 22709/3600 * 3.045 = 19.21 USD.
 
 **Average relative improvement (in %) over GEFCom2017 benchmark model**  (measured over the first run)  
