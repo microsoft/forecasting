@@ -53,8 +53,6 @@ VM.
    cd ~
    git clone https://msdata.visualstudio.com/DefaultCollection/AlgorithmsAndDataScience/_git/TSPerf
    cd TSPerf/
-   # The following step is for reviewers only
-   git checkout chenhui/arima
    ```
 
    Please use the recommended [Git Credential Managers](https://docs.microsoft.com/en-us/vsts/repos/git/set-up-credential-managers?view=vsts) or [Personal Access Tokens](https://docs.microsoft.com/en-us/vsts/organizations/accounts/use-personal-access-tokens-to-authenticate?view=vsts) to securely 
@@ -96,7 +94,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
    docker login --username tsperf --password <ACR Access Key> tsperf.azurecr.io
    ```
    
-   The `<ACR Acccess Key>` can be found [here](https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/ff18d7a8-962a-406c-858f-49acd23d6c01/resourceGroups/tsperf/providers/Microsoft.ContainerRegistry/registries/tsperf/accessKey). If want to execute docker commands without 
+   The `<ACR Acccess Key>` can be found [here](https://msdata.visualstudio.com/AlgorithmsAndDataScience/_git/TSPerf?path=%2Fcommon%2Fkey.txt&version=GBmaster). If want to execute docker commands without 
    sudo as a non-root user, you need to create a 
    Unix group and add users to it by following the instructions 
    [here](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
@@ -142,7 +140,7 @@ to check if conda has been installed by runnning command `conda -V`. If it is in
 
 **Platform:** Azure Cloud 
 
-**Resource location:** West US 2
+**Resource location:** East US  
 
 **Hardware:** Standard D2s v3 (2 vcpus, 8 GB memory, 16 GB temporary storage) Ubuntu Linux VM
 
@@ -194,7 +192,7 @@ We use Azure Linux VM to develop the baseline methods. Please follow the instruc
 
 *median run time: 265.94 seconds*
 
-**Cost:** The total cost is 265.94/3600 $\times$ 0.096 = $0.0071.
+**Cost:** The hourly cost of the D2s v3 Ubuntu Linux VM in East US Azure region is 0.096 USD, based on the price at the submission date. Thus, the total cost is 265.94/3600 $\times$ 0.096 = $0.0071.
 
 Note that there is no randomness in the forecasts obtained by the above method. Thus, quality values do not change over 
 different runs.
