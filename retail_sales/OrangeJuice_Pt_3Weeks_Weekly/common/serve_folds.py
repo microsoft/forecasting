@@ -28,6 +28,15 @@ import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 
 def serve_folds(write_csv=False): 
+    """Generate training, testing, and auxiliary datasets. Training data includes the historical 
+    sales and external features; testing data contains the future sales and external features; 
+    auxiliary data includes the future price, deal, and advertisement information which can be 
+    used for making predictions (we assume such auxiliary information is available at the time 
+    when we generate the forecasts).
+
+    Args:
+        write_csv (Boolean): Whether to write the data files or not
+    """
     # Get the directory of this script and directory of the OrangeJuice dataset
     SCRIPT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     DATA_DIR = os.path.join(os.path.dirname(SCRIPT_DIR), 'data')
