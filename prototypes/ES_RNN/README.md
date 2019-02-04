@@ -1,5 +1,5 @@
 # Forecasting with ES-RNNs
-The Exponential-Smoothing Recurrent Neural Network (ES-RNN), developed by Uber Engineer and former Microsoft Engineer Slawek Smyl, is quite powerful and carries a lot of potential for forecasting. 
+This folder contains the code from former extern Deepankar Gupta at Team Ilan. The Exponential-Smoothing Recurrent Neural Network (ES-RNN), developed by Uber Engineer and former Microsoft Engineer Slawek Smyl, is quite powerful and carries a lot of potential for forecasting. 
 
 This Readme will cover three tasks that the ES-RNN can handle presently with regards to TSPerf. The first of these tasks is to run the ES-RNN with the M4 competition dataset that it was initially built for. The second task involves extending the ES-RNN to a subset of the Orange Juice Sales dataset from the *bayesm* R package. The third task involves expanding the ES-RNN to train on a greater portion of the same Orange Juice Sales dataset (more features). 
 
