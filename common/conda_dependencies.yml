@@ -13,5 +13,7 @@ dependencies:
   - r-essentials=3.5.1
   - scikit-garden
   - joblib
-  - matplotlib
   - csvtomd
+  - matplotlib=3.0.2
+  - pip:
+    - azureml-sdk

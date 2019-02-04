@@ -1,14 +1,16 @@
 """
-This script takes a back test configuration file as input and generates a cross
+This script takes a backtest configuration file as input and generates a cross
 validation setting file containing training and validation time ranges for
 each cross validation round. See the backtest_config.json file and
-cv_settings.json file for examples the configuration files.
+cv_settings.json file in TSPerf/prototypes/cross_validation for examples
+of the configuration files.
 
 There are two levels of cross validation folds.
 The first level is year and here are the yearly training folds
-cv_round_1: training data: 2011 - 2013, validation data: 2014
-cv_round_2: training data: 2011 - 2014, validation data: 2015
-cv_round_3: training data: 2011 - 2015, validation data: 2016
+cv_round_1: training data: 2011 - 2012, validation data: 2013
+cv_round_2: training data: 2011 - 2013, validation data: 2014
+cv_round_3: training data: 2011 - 2014, validation data: 2015
+cv_round_4: training data: 2011 - 2015, validation data: 2016
 The second level is within each year. Two options are provided and can be
 configured by the "FoldsPerYear" field in the back test configuration file.
 Two values are supported for FoldsPerYear: 6 and 12.
@@ -24,6 +26,7 @@ For examples of doing cross validation and parameter tuning with the output
 of this script, see TSPerf/prototypes/cross_validation.
 
 """
+import benchmark_paths
 import json
 import os, sys, getopt
 from datetime import datetime
@@ -33,6 +36,12 @@ from common.train_utils import TSCVSplitter
 
 
 def main(config_file):
+    """
+    Main function that takes backtest configuration file as input and
+    generates a cross-validation settings file containing training and
+    validation time ranges for each cross validation round.
+    """
+
     with open(config_file) as f:
         config = json.load(f)
 

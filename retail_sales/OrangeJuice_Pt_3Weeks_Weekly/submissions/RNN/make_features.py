@@ -1,5 +1,5 @@
 """
-This .py file creates features for the RNN model.
+This script contains the function for creating features for the RNN model.
 """
 
 # import packages
@@ -25,6 +25,14 @@ data_relative_dir = '../../data'
 
 
 def make_features(submission_round):
+    """
+    This function makes the features for the data from certain submission
+    round and save the results to the disk.
+
+    Args:
+        submission_round: integer. The number of submission round.     
+    """
+
     # read in data
     file_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     data_dir = os.path.join(file_dir, data_relative_dir)
