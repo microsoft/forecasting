@@ -1,0 +1,3 @@
+Benchmark,Dataset,Benchmark directory 
+Probabilistic electricity load forecasting,GEFCom2017,`energy_load/GEFCom2017-D_Prob_MT_Hourly`
+Retail sales forecasting,Orange Juice dataset,`retail_sales/OrangeJuice_Pt_3Weeks_Weekly`
