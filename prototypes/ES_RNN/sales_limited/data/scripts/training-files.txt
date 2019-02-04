@@ -1,0 +1,13 @@
+12
+../data/train/train_round_1.csv
+../data/train/train_round_2.csv
+../data/train/train_round_3.csv
+../data/train/train_round_4.csv
+../data/train/train_round_5.csv
+../data/train/train_round_6.csv
+../data/train/train_round_7.csv
+../data/train/train_round_8.csv
+../data/train/train_round_9.csv
+../data/train/train_round_10.csv
+../data/train/train_round_11.csv
+../data/train/train_round_12.csv
