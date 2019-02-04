@@ -1,0 +1,135 @@
+USE [slawek]
+GO
+
+/****** Object:  Table [dbo].[M72nn]    Script Date: 6/2/2018 9:37:26 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING ON
+GO
+
+CREATE TABLE [dbo].[M72nn](
+	[run] [varchar](164) NOT NULL,
+	[LBack] [smallint] NOT NULL,
+	[iBig] [smallint] NOT NULL,
+	[series] [varchar](20) NOT NULL,
+	[epoch] [smallint] NOT NULL,
+	[actual1] [real] NULL,
+	[forec1] [real] NULL,
+	[actual2] [real] NULL,
+	[forec2] [real] NULL,
+	[actual3] [real] NULL,
+	[forec3] [real] NULL,
+	[actual4] [real] NULL,
+	[forec4] [real] NULL,
+	[actual5] [real] NULL,
+	[forec5] [real] NULL,
+	[actual6] [real] NULL,
+	[forec6] [real] NULL,
+	[actual7] [real] NULL,
+	[forec7] [real] NULL,
+	[actual8] [real] NULL,
+	[forec8] [real] NULL,
+	[actual9] [real] NULL,
+	[forec9] [real] NULL,
+	[actual10] [real] NULL,
+	[forec10] [real] NULL,
+	[actual11] [real] NULL,
+	[forec11] [real] NULL,
+	[actual12] [real] NULL,
+	[forec12] [real] NULL,
+	[actual13] [real] NULL,
+	[forec13] [real] NULL,
+	[actual14] [real] NULL,
+	[forec14] [real] NULL,
+	[actual15] [real] NULL,
+	[forec15] [real] NULL,
+	[actual16] [real] NULL,
+	[forec16] [real] NULL,
+	[actual17] [real] NULL,
+	[forec17] [real] NULL,
+	[actual18] [real] NULL,
+	[forec18] [real] NULL,
+	[actual19] [real] NULL,
+	[forec19] [real] NULL,
+	[actual20] [real] NULL,
+	[forec20] [real] NULL,
+	[actual21] [real] NULL,
+	[forec21] [real] NULL,
+	[actual22] [real] NULL,
+	[forec22] [real] NULL,
+	[actual23] [real] NULL,
+	[forec23] [real] NULL,
+	[actual24] [real] NULL,
+	[forec24] [real] NULL,
+	[actual25] [real] NULL,
+	[forec25] [real] NULL,
+	[actual26] [real] NULL,
+	[forec26] [real] NULL,
+	[actual27] [real] NULL,
+	[forec27] [real] NULL,
+	[actual28] [real] NULL,
+	[forec28] [real] NULL,
+	[actual29] [real] NULL,
+	[forec29] [real] NULL,
+	[actual30] [real] NULL,
+	[forec30] [real] NULL,
+	[actual31] [real] NULL,
+	[forec31] [real] NULL,
+	[actual32] [real] NULL,
+	[forec32] [real] NULL,
+	[actual33] [real] NULL,
+	[forec33] [real] NULL,
+	[actual34] [real] NULL,
+	[forec34] [real] NULL,
+	[actual35] [real] NULL,
+	[forec35] [real] NULL,
+	[actual36] [real] NULL,
+	[forec36] [real] NULL,
+	[actual37] [real] NULL,
+	[forec37] [real] NULL,
+	[actual38] [real] NULL,
+	[forec38] [real] NULL,
+	[actual39] [real] NULL,
+	[forec39] [real] NULL,
+	[actual40] [real] NULL,
+	[forec40] [real] NULL,
+	[actual41] [real] NULL,
+	[forec41] [real] NULL,
+	[actual42] [real] NULL,
+	[forec42] [real] NULL,
+	[actual43] [real] NULL,
+	[forec43] [real] NULL,
+	[actual44] [real] NULL,
+	[forec44] [real] NULL,
+	[actual45] [real] NULL,
+	[forec45] [real] NULL,
+	[actual46] [real] NULL,
+	[forec46] [real] NULL,
+	[actual47] [real] NULL,
+	[forec47] [real] NULL,
+	[actual48] [real] NULL,
+	[forec48] [real] NULL,
+	[trainingError] [real] NULL,
+	[variable] [varchar](20) NOT NULL,
+	[n] [smallint] NOT NULL,
+	[dateTimeOfPrediction] [datetime] NOT NULL,
+ CONSTRAINT [M72nn_pk] PRIMARY KEY CLUSTERED 
+(
+	[run] ASC,
+	[LBack] ASC,
+	[iBig] ASC,
+	[series] ASC,
+	[epoch] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+

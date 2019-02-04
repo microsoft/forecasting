@@ -1,0 +1,3 @@
+#!/bin/bash
+c++ -DEIGEN_FAST_MATH -fPIC -funroll-loops -fno-finite-math-only -Wall -Wno-missing-braces -std=c++11 -Ofast -g -march=native -O2 -g -DNDEBUG -I/home/uber/progs/dynet -I/home/uber/progs/eigen -I/home/uber/progs/dynet/buildMKL $1.cc slstm.cpp -o $1 -lodbc -rdynamic /home/uber/progs/dynet/buildMKL/dynet/libdynet.so -lpthread -lrt -Wl,-rpath,/home/uber/progs/dynet/buildMKL/dynet
+
