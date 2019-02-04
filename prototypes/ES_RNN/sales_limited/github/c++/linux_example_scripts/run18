@@ -1,0 +1,20 @@
+#!/bin/bash
+rm ./nohup.out
+nohup nice -n 10 ./$1 9 1  &
+nohup nice -n 10 ./$1 9 2  &
+nohup nice -n 10 ./$1 10 1 5 &
+nohup nice -n 10 ./$1 10 2 5 &
+nohup nice -n 10 ./$1 11 1 10 &
+nohup nice -n 10 ./$1 11 2 10 &
+nohup nice -n 10 ./$1 12 1 15  &
+nohup nice -n 10 ./$1 12 2 15  &
+nohup nice -n 10 ./$1 13 1 20 &
+nohup nice -n 10 ./$1 13 2 20 &
+nohup nice -n 10 ./$1 14 1 25 &
+nohup nice -n 10 ./$1 14 2 25 &
+nohup nice -n 10 ./$1 15 1 30  &
+nohup nice -n 10 ./$1 15 2 30  &
+nohup nice -n 10 ./$1 16 1 35 &
+nohup nice -n 10 ./$1 16 2 35 &
+nohup nice -n 10 ./$1 17 1 40 &
+nohup nice -n 10 ./$1 17 2 40 &
