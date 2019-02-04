@@ -1,7 +1,9 @@
+"""
+This script downloads the SMD Hourly Data from 2011 to 2017
+from https://www.iso-ne.com/isoexpress/web/reports
+/load-and-demand/-/tree/zone-info
+"""
 
-# Downloads the SMD Hourly Data from 2011 to 2017
-# from https://www.iso-ne.com/isoexpress/web/reports
-# /load-and-demand/-/tree/zone-info
 
 import os
 from urllib.request import urlretrieve
@@ -18,6 +20,9 @@ NUM_TRY = 10
 
 
 def validate_file(fpath, fname):
+    """
+    This helper function validates that specified xls file is valid, that is, that it contains expected data.
+    """
     xls = pd.ExcelFile(fpath)
 
     if fname in DATA_FILE_LIST_NEW_FORMAT:
@@ -40,8 +45,12 @@ def validate_file(fpath, fname):
 
 
 def download_data():
-
-    # Download the data
+    """Main function that downloads the SMD data from the urls in urls variable.
+    
+    Raises:
+        Exception: if file at the specified url is not valid.
+    """
+    
     urls = [
         "https://www.iso-ne.com/static-assets/documents/markets/hstdata/znl_info/hourly/2011_smd_hourly.xls",
         "https://www.iso-ne.com/static-assets/documents/markets/hstdata/znl_info/hourly/2012_smd_hourly.xls",
