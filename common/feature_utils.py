@@ -299,6 +299,8 @@ def normalized_columns(datetime_col, value_col,
             df[output_colname] = (df['value'] - min_value)/(max_value - min_value)
         elif min_value == max_value:
             df[output_colname] = 0
+    else:
+        raise ValueError("Valid values for mode are 'log' and 'minmax'")
 
     return df[[output_colname]]
 
