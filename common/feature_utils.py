@@ -260,14 +260,18 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
     return current_datehour
 
 
-def normalized_series(datetime_col, value_col,
-                      output_colname='normalized_series'):
+def normalized_columns(datetime_col, value_col,
+                       mode='log',
+                       output_colname='normalized_columns'):
     """
-    Creates series normalized to be log of input series devided by global average of each series.
+    Creates columns normalized to be log of input columns devided by global average of each columns,
+    or normalized using maximum and minimum.
     
     Args:
         datetime_col: Datetime column.
-        value_col: Series value column to be normalized.
+        value_col: Value column to be normalized.
+        mode: Normalization mode,
+            accepted values are 'log' and 'minmax'. Default value 'log'.
     
     Returns:
         Normalized value column.
@@ -281,47 +285,23 @@ def normalized_series(datetime_col, value_col,
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
-    
-    mean_value = df['value'].mean()
 
-    if mean_value != 0:
-        df[output_colname] = np.log(df['value']/mean_value)
-    elif mean_value == 0:
-        df[output_colname] = 0
+    if mode == 'log':
+        mean_value = df['value'].mean()
+        if mean_value != 0:
+            df[output_colname] = np.log(df['value']/mean_value)
+        elif mean_value == 0:
+            df[output_colname] = 0
+    elif mode == 'minmax':
+        min_value = min(df['value'])
+        max_value = max(df['value'])
+        if min_value != max_value:
+            df[output_colname] = (df['value'] - min_value)/(max_value - min_value)
+        elif min_value == max_value:
+            df[output_colname] = 0
+    else:
+        raise ValueError("Valid values for mode are 'log' and 'minmax'")
 
-    return df[[output_colname]]
-
-
-def normalized_features(datetime_col, value_col,
-                        output_colname='normalized_features'):
-    """
-    Create new features normalized using maximum and minimum.
-
-    Args:
-        datetime_col: Datetime column.
-        value_col: Feature value column to be normalized.
-    
-    Returns:
-        Normalized value column.
-    """
-
-    if not is_datetime_like(datetime_col):
-        datetime_col = pd.to_datetime(datetime_col, format=DATETIME_FORMAT)
-        
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
-
-    if not df.index.is_monotonic:
-        df.sort_index(inplace=True)
-    
-    min_value = min(df['value'])
-    max_value = max(df['value'])
-
-    if min_value != max_value:
-        df[output_colname] = (df['value'] - min_value)/(max_value - min_value)
-    elif min_value == max_value:
-        df[output_colname] = 0
-        
     return df[[output_colname]]
 
 
