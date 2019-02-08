@@ -1,6 +1,6 @@
 # TSPerf
 
-TSPerf is a framework that allows discovery and comparison of various time-series forecasting algorithms and architectures on a cloud-based environment. This framework allows data scientists to discover the best approach that fits their use case from cost, time and quality perspective.
+TSPerf is a framework that allows discovery and comparison of various time-series forecasting algorithms and architectures in a cloud-based environment. This framework allows data scientists to discover the best approach that fits their use case from cost, time and quality perspective.
  TSPerf framework is designed to facilitate data science community participation and contribution through the development of benchmark implementations against a given set of forecasting problems and datasets. Benchmark implementations are measured in terms of standard metrics of model accuracy, training cost and model training time. Each implementation includes all the necessary instructions and tools that ensure its reproducibility on Azure customer's subscription. We plan to leverage TSPerf to propose a new time-series forecasting track in [MLPerf](https://mlperf.org/).
 The following table summarizes benchmarks that are currently included in TSPerf.
 
