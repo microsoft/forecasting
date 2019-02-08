@@ -11,7 +11,6 @@ Retail sales forecasting                    |  Orange Juice dataset  |  `retail_
 
 
 
-
 A complete documentation of TSPerf, along with the instructions for submitting and reviewing benchmark implementations, can be found [here](./docs/tsperf_rules.md). The tables below show performance of benchmark implementations that are developed so far. These tables are referred to as *performance boards*. Source code of benchmark implementations and instructions for reproducing their performance can be found in submission folders, which are linked in the last column of performance boards.
 
 ## Probabilistic energy forecasting performance board
