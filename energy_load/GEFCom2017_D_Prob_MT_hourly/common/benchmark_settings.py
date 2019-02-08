@@ -18,3 +18,7 @@ TEST_STARTS_ENDS = [pd.to_datetime(('2017-01-01', '2017-02-01')),
                     pd.to_datetime(('2017-03-01', '2017-04-01')),
                     pd.to_datetime(('2017-03-01', '2017-04-01')),
                     pd.to_datetime(('2017-04-01', '2017-05-01'))]
+
+DATETIME_COLNAME = 'Datetime'
+GRAIN_COLNAME = 'Zone'
+HOLIDAY_COLNAME = 'Holiday'

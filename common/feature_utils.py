@@ -8,8 +8,9 @@ from datetime import timedelta
 import calendar
 import pandas as pd
 import numpy as np
+from functools import reduce
 
-from utils import is_datetime_like
+from common.utils import is_datetime_like
 
 # 0: Monday, 2: T/W/TR, 4: F, 5:SA, 6: S
 WEEK_DAY_TYPE_MAP = {1: 2, 3: 2}    # Map for converting Wednesday and
@@ -141,6 +142,7 @@ def encoded_month_of_year(month_of_year):
     return month_of_year
 
 
+# Remove all the encodedxxx functions
 def encoded_day_of_week(day_of_week):
     """
     Create one hot encoding of day_of_week.
@@ -186,7 +188,7 @@ def encoded_week_of_year(week_of_year):
     return week_of_year
 
 
-def normalized_current_year(datetime_col, min_year, max_year):
+def normalized_current_year(datetime_col, min_year=None, max_year=None):
     """
     Temporal feature indicating the position of the year of a record in the
     entire time period under consideration, normalized to be between 0 and 1.
@@ -199,6 +201,11 @@ def normalized_current_year(datetime_col, min_year, max_year):
     Returns:
         float: the position of the current year in the min_year:max_year range
     """
+    if min_year is None:
+        min_year = min(datetime_col.dt.year)
+    if max_year is None:
+        max_year = max(datetime_col.dt.year)
+
     year = datetime_col.dt.year
 
     if max_year != min_year:
@@ -209,7 +216,7 @@ def normalized_current_year(datetime_col, min_year, max_year):
     return current_year
 
 
-def normalized_current_date(datetime_col, min_date, max_date):
+def normalized_current_date(datetime_col, min_date=None, max_date=None):
     """
     Temporal feature indicating the position of the date of a record in the
     entire time period under consideration, normalized to be between 0 and 1.
@@ -222,6 +229,11 @@ def normalized_current_date(datetime_col, min_date, max_date):
     Returns:
         float: the position of the current date in the min_date:max_date range
     """
+    if min_date is None:
+        min_date = min(datetime_col.dt.date)
+    if max_date is None:
+        max_date = max(datetime_col.dt.date)
+
     date = datetime_col.dt.date
     current_date = (date - min_date).apply(lambda x: x.days)
     
@@ -233,7 +245,8 @@ def normalized_current_date(datetime_col, min_date, max_date):
     return current_date
 
 
-def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
+def normalized_current_datehour(datetime_col, min_datehour=None,
+                                max_datehour=None):
     """
     Temporal feature indicating the position of the hour of a record in the
     entire time period under consideration, normalized to be between 0 and 1.
@@ -246,6 +259,11 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
     Returns:
         float: the position of the current datehour in the min_datehour:max_datehour range
     """
+    if min_datehour is None:
+        min_datehour = min(datetime_col)
+    if max_datehour is None:
+        max_datehour = max(datetime_col)
+
     current_datehour = (datetime_col - min_datehour)\
         .apply(lambda x: x.days*24 + x.seconds/3600)
 
@@ -260,18 +278,14 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
     return current_datehour
 
 
-def normalized_columns(datetime_col, value_col,
-                       mode='log',
-                       output_colname='normalized_columns'):
+def normalized_series(datetime_col, value_col,
+                      output_colname='normalized_series'):
     """
-    Creates columns normalized to be log of input columns devided by global average of each columns,
-    or normalized using maximum and minimum.
+    Creates series normalized to be log of input series devided by global average of each series.
     
     Args:
         datetime_col: Datetime column.
-        value_col: Value column to be normalized.
-        mode: Normalization mode,
-            accepted values are 'log' and 'minmax'. Default value 'log'.
+        value_col: Series value column to be normalized.
     
     Returns:
         Normalized value column.
@@ -285,23 +299,47 @@ def normalized_columns(datetime_col, value_col,
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
+    
+    mean_value = df['value'].mean()
 
-    if mode == 'log':
-        mean_value = df['value'].mean()
-        if mean_value != 0:
-            df[output_colname] = np.log(df['value']/mean_value)
-        elif mean_value == 0:
-            df[output_colname] = 0
-    elif mode == 'minmax':
-        min_value = min(df['value'])
-        max_value = max(df['value'])
-        if min_value != max_value:
-            df[output_colname] = (df['value'] - min_value)/(max_value - min_value)
-        elif min_value == max_value:
-            df[output_colname] = 0
-    else:
-        raise ValueError("Valid values for mode are 'log' and 'minmax'")
+    if mean_value != 0:
+        df[output_colname] = np.log(df['value']/mean_value)
+    elif mean_value == 0:
+        df[output_colname] = 0
 
+    return df[[output_colname]]
+
+
+def normalized_features(datetime_col, value_col,
+                        output_colname='normalized_features'):
+    """
+    Create new features normalized using maximum and minimum.
+
+    Args:
+        datetime_col: Datetime column.
+        value_col: Feature value column to be normalized.
+    
+    Returns:
+        Normalized value column.
+    """
+
+    if not is_datetime_like(datetime_col):
+        datetime_col = pd.to_datetime(datetime_col, format=DATETIME_FORMAT)
+        
+    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
+    df.set_index('Datetime', inplace=True)
+
+    if not df.index.is_monotonic:
+        df.sort_index(inplace=True)
+    
+    min_value = min(df['value'])
+    max_value = max(df['value'])
+
+    if min_value != max_value:
+        df[output_colname] = (df['value'] - min_value)/(max_value - min_value)
+    elif min_value == max_value:
+        df[output_colname] = 0
+        
     return df[[output_colname]]
 
 
@@ -529,6 +567,7 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
     return df[[output_colname]]
 
 
+# Remove after updating feature_engineering
 def same_day_hour_moving_average(datetime_col, value_col, window_size,
                                  start_week, average_count,
                                  forecast_creation_time,
@@ -594,6 +633,7 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
     return df
 
 
+# Remove after updating feature_engineering
 def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
                                  start_week, quantile_count, q,
                                  forecast_creation_time,
@@ -660,7 +700,7 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
 
     return df
 
-
+# Remove after updating feature_engineering
 def same_day_hour_moving_std(datetime_col, value_col, window_size,
                              start_week, std_count,
                              forecast_creation_time,
@@ -802,3 +842,31 @@ def same_day_hour_moving_agg(datetime_col, value_col, window_size,
     
 
     return df
+
+
+def compute_load_ratio(input_df, datetime_colname, grain_colanme, n_years,
+                       column_prefix, ratio_col_prefix):
+    column_prefix_new = column_prefix + 'lag_'
+    lag_df_list = []
+    columns_old = [col for col in input_df if col.startswith(column_prefix)]
+    for col_old in columns_old:
+        col_new = col_old.replace(column_prefix, column_prefix_new)
+        col_ratio = col_old.replace(column_prefix, ratio_col_prefix)
+        lag_df = input_df[[datetime_colname, col_old, grain_colanme]]\
+            .groupby(grain_colanme)\
+            .apply(lambda g: same_week_day_hour_lag(g[datetime_colname],
+                                                    g[col_old],
+                                                    output_colname=col_new,
+                                                    n_years=n_years,
+                                                    week_window=0))
+        lag_df.reset_index(inplace=True)
+        lag_df[col_ratio] = input_df[col_old]/lag_df[col_new]
+        lag_df.drop(col_new, inplace=True, axis=1)
+        lag_df_list.append(lag_df)
+
+    output_df = reduce(
+        lambda left, right: pd.merge(left, right,
+                                     on=[datetime_colname, grain_colanme]),
+        [input_df] + lag_df_list)
+
+    return output_df
