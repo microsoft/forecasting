@@ -12,34 +12,44 @@ class BaseTSForecaster(BaseTSEstimator, RegressorMixin):
     Args:
         df_config (dict): Configuration of the time series data frame used 
             for building the forecast model.
-        fit_pred_config (dict): Configuration of the model fitting and 
-            prediction including the range of training data and the range
-            of testing data in each forecast round.
         model_params (dict): Parameters of the forecast model.
+        model_type (string): Type of the model which can be either "python"
+             or "r" depending on the modeling language.
         save_model (bool): When this is true, the trained model will be 
             saved as a file; otherwise it will not be saved. The default 
             value is False. 
     """
     def __init__(
         self, 
-        df_config
-        fit_pred_config,
+        df_config,
         model_params=None,
+        model_type="python",
         save_model=False
     ):
         super().__init__(df_config)
-        self.fit_pred_config = fit_pred_config
-        self.model_params
-        self.save_model
+        self.model_params = model_params
+        self.model_type = model_type
+        self.save_model = save_model
 
-    @abstractmethod
+    @property
+    def model_type(self):
+        return self._model_type
+    
+    @model_type.setter
+    def model_type(self, val):
+        if val in ["python", "r"]:
+            self._model_type = val
+        else:
+            raise Exception("Invalid model type is given. Please choose from \"python\" or \"r\!")
+
+    #@abstractmethod
     def fit(self, X, y):
         """
         Fit a forecasting model.
         """
         return self
 
-    @abstractmethod
+    #@abstractmethod
     def predict(self, X):
         """
         Predict using the forecasting model.
@@ -53,3 +63,7 @@ class BaseTSForecaster(BaseTSEstimator, RegressorMixin):
                 values.
         """
         return X
+
+if __name__ == "__main__":
+    df_config = {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y'}
+    dummy_forecaster = BaseTSForecaster(df_config, model_type="r")

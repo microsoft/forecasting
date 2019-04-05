@@ -32,9 +32,12 @@ class BaseTSEstimator(BaseEstimator, ABC):
     def __init__(self, df_config):
         self.time_col_name = df_config["time_col_name"]
         self.target_col_name = df_config["target_col_name"]
-        self.ts_id_col_names = df_config["ts_id_col_names"]
         self.frequency = df_config["frequency"]
         self.time_format = df_config["time_format"]
+        if "ts_id_col_names" not in df_config:
+            self.ts_id_col_names = None
+        else:
+            self.ts_id_col_names = df_config["ts_id_col_names"]
 
     @property
     def ts_id_col_names(self):
