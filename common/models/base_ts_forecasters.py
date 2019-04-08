@@ -1,6 +1,7 @@
 """
 Base class for time series forecasting models.
 """
+import pickle
 from abc import abstractmethod
 from sklearn.base import RegressorMixin
 from common.features.base_ts_estimators import BaseTSEstimator
@@ -12,24 +13,23 @@ class BaseTSForecaster(BaseTSEstimator, RegressorMixin):
     Args:
         df_config (dict): Configuration of the time series data frame used 
             for building the forecast model.
-        model_params (dict): Parameters of the forecast model.
+        model_hparams (dict): Hyperparameters of the forecast model.
         model_type (string): Type of the model which can be either "python"
              or "r" depending on the modeling language.
-        save_model (bool): When this is true, the trained model will be 
-            saved as a file; otherwise it will not be saved. The default 
-            value is False. 
+
+    Attributes: 
+        model (object): Object of the forecasting model.
     """
     def __init__(
         self, 
         df_config,
-        model_params=None,
-        model_type="python",
-        save_model=False
+        model_hparams=None,
+        model_type="python"
     ):
         super().__init__(df_config)
-        self.model_params = model_params
+        self.model_hparams = model_hparams
         self.model_type = model_type
-        self.save_model = save_model
+        self.model=None
 
     @property
     def model_type(self):
@@ -42,14 +42,32 @@ class BaseTSForecaster(BaseTSEstimator, RegressorMixin):
         else:
             raise Exception("Invalid model type is given. Please choose from \"python\" or \"r\!")
 
-    #@abstractmethod
+    def save(self, file_name):
+        """
+        Save the model.
+        """
+        try:
+            pickle.dump(self.model, open(file_name, "wb"))
+        except IOError as e:
+            print(e)
+
+    def load(self, file_name):
+        """
+        Load a trained model.
+        """
+        try:
+            self.model = pickle.load(open(file_name, "rb"))
+        except IOError as e:
+            print(e)  
+
+    @abstractmethod
     def fit(self, X, y):
         """
         Fit a forecasting model.
         """
         return self
 
-    #@abstractmethod
+    @abstractmethod
     def predict(self, X):
         """
         Predict using the forecasting model.
@@ -64,6 +82,16 @@ class BaseTSForecaster(BaseTSEstimator, RegressorMixin):
         """
         return X
 
-if __name__ == "__main__":
-    df_config = {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y'}
-    dummy_forecaster = BaseTSForecaster(df_config, model_type="r")
+    @abstractmethod
+    def eval(self, X, y):
+        """
+        Compute the forecasting accuracy.
+        """
+        return self
+
+
+# if __name__ == "__main__":
+#     df_config = {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y'}
+#     dummy_forecaster = BaseTSForecaster(df_config, model_type="r")
+#     dummy_forecaster.save("./dummpy_model.pkl")
+#     dummy_forecaster.load("./dummpy_model.pkl")
