@@ -82,13 +82,6 @@ class BaseTSForecaster(BaseTSEstimator, RegressorMixin):
         """
         return X
 
-    @abstractmethod
-    def eval(self, X, y):
-        """
-        Compute the forecasting accuracy.
-        """
-        return self
-
 
 # if __name__ == "__main__":
 #     df_config = {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y'}
