@@ -35,23 +35,32 @@ class LGBMForecaster(BaseTSForecaster):
     def predict(
             self, 
             X,
-            apply_round=False):
+            apply_round=False, 
+            combine_forecasts=True,
+            forecast_round_idx=None):
         if isinstance(X, pd.DataFrame):
             self.predictions = self._predict_single_model(self.model, X, apply_round=True)
         elif isinstance(X, list):
             self.predictions = []
-            for cur_model, cur_X in zip(self.model, X):
+            for i, element in enumerate(zip(self.model, X)):
+                cur_model, cur_X = element[0], element[1]
                 cur_predictions = self._predict_single_model(cur_model, cur_X, apply_round=True)
+                if forecast_round_idx is None:
+                    cur_predictions["round"] = i+1
+                else:
+                    cur_predictions["round_idx"] = forecast_round_idx[i]
                 self.predictions.append(cur_predictions)
+            if combine_forecasts:
+                self.predictions = pd.concat(self.predictions, axis=0)
         return self.predictions
 
     def _random_data_split(self, X, y, valid_size, random_state=1):
         """
         Randomly split the features and labels into training and validation sets.
         """
-        train_fea, valid_fea, train_label, valid_label = train_test_split(X, y, test_size=valid_size, random_state=random_state)
-        dtrain = lgb.Dataset(train_fea, train_label)
-        dvalid = lgb.Dataset(valid_fea, valid_label)
+        train_feat, valid_feat, train_label, valid_label = train_test_split(X, y, test_size=valid_size, random_state=random_state)
+        dtrain = lgb.Dataset(train_feat, train_label)
+        dvalid = lgb.Dataset(valid_feat, valid_label)
         return dtrain, dvalid
 
     def _train_single_model(self, X, y, valid_size=0):
@@ -80,61 +89,55 @@ class LGBMForecaster(BaseTSForecaster):
         predictions = pd.concat([X[self.extra_pred_col_names].reset_index(drop=True), predictions], axis=1)
         return predictions
 
-
-
 if __name__ == "__main__":
     import os, sys
     import numpy as np
     import warnings
     warnings.filterwarnings("ignore")
-    # Append TSPerf path to sys.path
-    tsperf_dir = os.getcwd()
-    if tsperf_dir not in sys.path:
-        sys.path.append(tsperf_dir)
+
+    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_paths import *
     from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.make_features import make_features
     import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
+
     df_config = {"time_col_name": "timestamp", "target_col_name": "sales", "frequency": "MS", "time_format": "%m/%d/%Y"}
     submission_config = {"time_col_name": "week"}
     feat_hparams = {"max_lag": 19, "window_size": 40}
     model_hparams = {"objective": "mape", "num_leaves": 124, "min_data_in_leaf": 340, "learning_rate": 0.1, 
                      "feature_fraction": 0.65, "bagging_fraction": 0.87, "bagging_freq": 19, "num_rounds": 940,
                      "early_stopping_rounds": 125, "num_threads": 4, "seed": 1}
-    # Data paths
-    DATA_DIR = os.path.join(tsperf_dir, "retail_sales", "OrangeJuice_Pt_3Weeks_Weekly", "data")
-    SUBMISSION_DIR = os.path.join(tsperf_dir, "retail_sales", "OrangeJuice_Pt_3Weeks_Weekly", "submissions", "LightGBM")
-    TRAIN_DIR = os.path.join(DATA_DIR, "train")
+
     # Lags and categorical features
     lags = np.arange(2, feat_hparams["max_lag"]+1)
     used_columns = ["store", "brand", "week", "week_of_month", "month", "deal", "feat", "move", "price", "price_ratio"]
-    categ_fea = ["store", "brand", "deal"] 
-    # Get unique stores and brands
-    train_df = pd.read_csv(os.path.join(TRAIN_DIR, "train_round_1.csv"))
-    store_list = train_df["store"].unique()
-    brand_list = train_df["brand"].unique()
+    categ_features = ["store", "brand", "deal"] 
 
-    r = 0
-    # Create features
-    features = make_features(r, TRAIN_DIR, lags, feat_hparams["window_size"], 0, used_columns, store_list, brand_list)
-    print(features.head())
-    train_fea = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
-    # Drop rows with NaN values
-    train_fea.dropna(inplace=True)
+    # Model training and prediction 
+    features_list = []
+    labels_list = []
+    test_feat_list = []
+    for r in range(2): #range(bs.NUM_ROUNDS):
+        # Create features
+        features = make_features(r, TRAIN_DIR, lags, feat_hparams["window_size"], 0, used_columns, bs.store_list, bs.brand_list)
+        print(features.head())
+        train_feat = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
+        # Drop rows with NaN values
+        train_feat.dropna(inplace=True)
+        features_list.append(train_feat.drop('move', axis=1, inplace=False))
+        labels_list.append(train_feat['move'])
+        test_feat_list.append(features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True))
 
     LGBM_forecaster = LGBMForecaster(df_config, submission_config, model_hparams)
     print("A LGBM-point forecaster is created")
 
-    #LGBM_forecaster.fit(train_fea.drop('move', axis=1, inplace=False), train_fea['move'])
+    LGBM_forecaster.fit(features_list, labels_list)
 
-    LGBM_forecaster.fit([train_fea.drop('move', axis=1, inplace=False), train_fea.drop('move', axis=1, inplace=False)], [train_fea['move'], train_fea['move']])
-
-    print(LGBM_forecaster.model)
-
-    print(LGBM_forecaster.predictions)
 
     print('Making predictions...') 
-    test_fea = features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
-    LGBM_forecaster.predict([test_fea, test_fea])
+    
+    LGBM_forecaster.predict(test_feat_list)
 
     print(LGBM_forecaster.predictions)
+
+    print(LGBM_forecaster.predictions.shape)
 
     
