@@ -1,5 +1,6 @@
 import pandas as pd
 import lightgbm as lgb
+from sklearn.model_selection import train_test_split
 from base_ts_forecasters import BaseTSForecaster
 from common.evaluation_utils import MAPE
 
@@ -19,26 +20,66 @@ class LGBMForecaster(BaseTSForecaster):
         self.extra_pred_col_names = self.ts_id_col_names + [self.submission_config["time_col_name"]]
         self.predictions = None
 
-    def fit(self, X, y):
-        # Create training set
-        dtrain = lgb.Dataset(X, label = y)
-        self.model = lgb.train(
-            self.model_hparams, 
-            dtrain, 
-            valid_sets = [dtrain], 
-            #categorical_feature = categ_fea,
-            verbose_eval =  False
-        )
+    def fit(self, X, y, valid_size=0):
+        if isinstance(X, pd.DataFrame) and isinstance(y, pd.DataFrame):
+            self.model, _ = self._train_single_model(X, y, valid_size)
+        elif isinstance(X, list) and isinstance(y, list):
+            assert len(X) == len(y)
+            self.model = []
+            for cur_X, cur_y in zip(X, y):
+                cur_model, _ = self._train_single_model(cur_X, cur_y, valid_size)
+                self.model.append(cur_model)
+        else:
+            raise Exception("Invalid types of the input features and labels!")
 
     def predict(
             self, 
             X,
             apply_round=False):
-        predictions = pd.DataFrame({self.target_col_name: self.model.predict(X)})
+        if isinstance(X, pd.DataFrame):
+            self.predictions = self._predict_single_model(self.model, X, apply_round=True)
+        elif isinstance(X, list):
+            self.predictions = []
+            for cur_model, cur_X in zip(self.model, X):
+                cur_predictions = self._predict_single_model(cur_model, cur_X, apply_round=True)
+                self.predictions.append(cur_predictions)
+        return self.predictions
+
+    def _random_data_split(self, X, y, valid_size, random_state=1):
+        """
+        Randomly split the features and labels into training and validation sets.
+        """
+        train_fea, valid_fea, train_label, valid_label = train_test_split(X, y, test_size=valid_size, random_state=random_state)
+        dtrain = lgb.Dataset(train_fea, train_label)
+        dvalid = lgb.Dataset(valid_fea, valid_label)
+        return dtrain, dvalid
+
+    def _train_single_model(self, X, y, valid_size=0):
+        # Create training/validation sets
+        if valid_size == 0:
+            dtrain = lgb.Dataset(X, label = y)
+            valid_sets = [dtrain]
+        else:
+            dtrain, dvalid = self._random_data_split(X, y, valid_size)
+            valid_sets = [dtrain, dvalid]
+        # Train model
+        evals_result = {}
+        model = lgb.train(
+            self.model_hparams, 
+            dtrain, 
+            valid_sets = valid_sets, 
+            verbose_eval =  False,
+            evals_result = evals_result
+        )
+        return model, evals_result
+
+    def _predict_single_model(self, model, X, apply_round=False):
+        predictions = pd.DataFrame({self.target_col_name: model.predict(X)})
         if apply_round: 
             predictions[self.target_col_name] = predictions[self.target_col_name].apply(lambda x: round(x))
-        self.predictions = pd.concat([X[self.extra_pred_col_names].reset_index(drop=True), predictions], axis=1)
-        return self.predictions
+        predictions = pd.concat([X[self.extra_pred_col_names].reset_index(drop=True), predictions], axis=1)
+        return predictions
+
 
 
 if __name__ == "__main__":
@@ -82,13 +123,17 @@ if __name__ == "__main__":
     LGBM_forecaster = LGBMForecaster(df_config, submission_config, model_hparams)
     print("A LGBM-point forecaster is created")
 
-    LGBM_forecaster.fit(train_fea.drop('move', axis=1, inplace=False), train_fea['move'])
+    #LGBM_forecaster.fit(train_fea.drop('move', axis=1, inplace=False), train_fea['move'])
+
+    LGBM_forecaster.fit([train_fea.drop('move', axis=1, inplace=False), train_fea.drop('move', axis=1, inplace=False)], [train_fea['move'], train_fea['move']])
+
+    print(LGBM_forecaster.model)
 
     print(LGBM_forecaster.predictions)
 
     print('Making predictions...') 
     test_fea = features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True)
-    LGBM_forecaster.predict(test_fea)
+    LGBM_forecaster.predict([test_fea, test_fea])
 
     print(LGBM_forecaster.predictions)
 
