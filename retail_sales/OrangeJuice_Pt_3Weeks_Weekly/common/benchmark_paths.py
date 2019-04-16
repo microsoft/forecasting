@@ -13,6 +13,7 @@ TSPERF_DIR = os.path.dirname(os.path.dirname(BENCHMARK_DIR))
 
 SUBMISSIONS_DIR = os.path.join(BENCHMARK_DIR, 'submissions')
 DATA_DIR = os.path.join(BENCHMARK_DIR, 'data')
+TRAIN_DIR = os.path.join(DATA_DIR, "train")
 
 if TSPERF_DIR not in sys.path:
     sys.path.insert(0, TSPERF_DIR)

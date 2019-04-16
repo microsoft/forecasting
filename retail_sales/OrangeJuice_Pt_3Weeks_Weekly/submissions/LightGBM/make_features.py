@@ -17,7 +17,7 @@ if tsperf_dir not in sys.path:
     sys.path.append(tsperf_dir)
 
 # Import TSPerf components
-from utils import *
+from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.utils import *
 import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 def lagged_features(df, lags):

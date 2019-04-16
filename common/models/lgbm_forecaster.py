@@ -20,6 +20,8 @@ class LGBMForecaster(BaseTSForecaster):
         self.extra_pred_col_names = self.ts_id_col_names + [self.submission_config["time_col_name"]]
         self.predictions = None
 
+        print(self.extra_pred_col_names)
+
     def fit(self, X, y, valid_size=0):
         if isinstance(X, pd.DataFrame) and isinstance(y, pd.DataFrame):
             self.model, _ = self._train_single_model(X, y, valid_size)
@@ -64,6 +66,7 @@ class LGBMForecaster(BaseTSForecaster):
         return dtrain, dvalid
 
     def _train_single_model(self, X, y, valid_size=0):
+        from copy import deepcopy
         # Create training/validation sets
         if valid_size == 0:
             dtrain = lgb.Dataset(X, label = y)
@@ -73,11 +76,15 @@ class LGBMForecaster(BaseTSForecaster):
             valid_sets = [dtrain, dvalid]
         # Train model
         evals_result = {}
+        model_hparams = deepcopy(self.model_hparams)
+        categ_features = model_hparams["categorical_feature"]
+        model_hparams.pop("categorical_feature")
         model = lgb.train(
-            self.model_hparams, 
+            model_hparams, 
             dtrain, 
             valid_sets = valid_sets, 
             verbose_eval =  False,
+            categorical_feature = categ_features,
             evals_result = evals_result
         )
         return model, evals_result
@@ -87,6 +94,7 @@ class LGBMForecaster(BaseTSForecaster):
         if apply_round: 
             predictions[self.target_col_name] = predictions[self.target_col_name].apply(lambda x: round(x))
         predictions = pd.concat([X[self.extra_pred_col_names].reset_index(drop=True), predictions], axis=1)
+        predictions = predictions.sort_values(by=self.extra_pred_col_names).reset_index(drop=True)
         return predictions
 
 if __name__ == "__main__":
@@ -95,11 +103,12 @@ if __name__ == "__main__":
     import warnings
     warnings.filterwarnings("ignore")
 
-    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_paths import *
-    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.make_features import make_features
+    import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_paths as bp
     import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
+    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.make_features import make_features
+    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.submission_utils import create_submission
 
-    df_config = {"time_col_name": "timestamp", "target_col_name": "sales", "frequency": "MS", "time_format": "%m/%d/%Y"}
+    df_config = {"time_col_name": "timestamp", "target_col_name": "move", "frequency": "MS", "time_format": "%m/%d/%Y", "ts_id_col_names": ["store", "brand"]}
     submission_config = {"time_col_name": "week"}
     feat_hparams = {"max_lag": 19, "window_size": 40}
     model_hparams = {"objective": "mape", "num_leaves": 124, "min_data_in_leaf": 340, "learning_rate": 0.1, 
@@ -110,6 +119,8 @@ if __name__ == "__main__":
     lags = np.arange(2, feat_hparams["max_lag"]+1)
     used_columns = ["store", "brand", "week", "week_of_month", "month", "deal", "feat", "move", "price", "price_ratio"]
     categ_features = ["store", "brand", "deal"] 
+    model_hparams["categorical_feature"] = categ_features
+    print(model_hparams)
 
     # Model training and prediction 
     features_list = []
@@ -117,27 +128,29 @@ if __name__ == "__main__":
     test_feat_list = []
     for r in range(2): #range(bs.NUM_ROUNDS):
         # Create features
-        features = make_features(r, TRAIN_DIR, lags, feat_hparams["window_size"], 0, used_columns, bs.store_list, bs.brand_list)
+        features = make_features(r, bp.TRAIN_DIR, lags, feat_hparams["window_size"], 0, used_columns, bs.store_list, bs.brand_list)
         print(features.head())
         train_feat = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
         # Drop rows with NaN values
         train_feat.dropna(inplace=True)
-        features_list.append(train_feat.drop('move', axis=1, inplace=False))
-        labels_list.append(train_feat['move'])
-        test_feat_list.append(features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True))
+        features_list.append(train_feat.drop("move", axis=1, inplace=False))
+        labels_list.append(train_feat["move"])
+        test_feat_list.append(features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True).drop("move", axis=1))
 
     LGBM_forecaster = LGBMForecaster(df_config, submission_config, model_hparams)
     print("A LGBM-point forecaster is created")
 
     LGBM_forecaster.fit(features_list, labels_list)
 
-
-    print('Making predictions...') 
-    
+    print("Making predictions...") 
     LGBM_forecaster.predict(test_feat_list)
 
     print(LGBM_forecaster.predictions)
 
-    print(LGBM_forecaster.predictions.shape)
+    # Generate submission
+    raw_predictions = LGBM_forecaster.predictions
+    create_submission(raw_predictions, 0, "LightGBM")
+
+
 
     
