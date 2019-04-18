@@ -22,14 +22,26 @@ class LGBMForecaster(BaseTSForecaster):
 
         print(self.extra_pred_col_names)
 
-    def fit(self, X, y, valid_size=0):
+    def fit(self, X, y, valid_size=0, train_mode=[]):
+        """
+        Fit a single model or multiple models.
+
+        Args:
+            train_mode (list): each element takes a value of either "train" or "skip" 
+            indicating whether to train a model in this round or skip the training.
+        """
         if isinstance(X, pd.DataFrame) and isinstance(y, pd.DataFrame):
             self.model, _ = self._train_single_model(X, y, valid_size)
-        elif isinstance(X, list) and isinstance(y, list):
-            assert len(X) == len(y)
+        elif isinstance(X, list) and isinstance(y, list) and isinstance(train_mode, list):
+            assert len(X) == len(y) == len(train_mode)
             self.model = []
-            for cur_X, cur_y in zip(X, y):
-                cur_model, _ = self._train_single_model(cur_X, cur_y, valid_size)
+            for cur_X, cur_y, cur_mode in zip(X, y, train_mode):
+                if cur_mode == "train":
+                    cur_model, _ = self._train_single_model(cur_X, cur_y, valid_size)
+                elif cur_mode == "skip":
+                    cur_model = self.model[-1]
+                else:
+                    raise Exception("Invalid element found in train_mode!")
                 self.model.append(cur_model)
         else:
             raise Exception("Invalid types of the input features and labels!")
@@ -98,15 +110,13 @@ class LGBMForecaster(BaseTSForecaster):
         return predictions
 
 if __name__ == "__main__":
-    import os, sys
+    import os, sys, warnings
     import numpy as np
-    import warnings
-    warnings.filterwarnings("ignore")
-
     import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_paths as bp
     import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
-    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.make_features import make_features
+    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.make_features_new import make_features
     from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.submission_utils import create_submission
+    warnings.filterwarnings("ignore")
 
     df_config = {"time_col_name": "timestamp", "target_col_name": "move", "frequency": "MS", "time_format": "%m/%d/%Y", "ts_id_col_names": ["store", "brand"]}
     submission_config = {"time_col_name": "week"}
@@ -126,6 +136,7 @@ if __name__ == "__main__":
     features_list = []
     labels_list = []
     test_feat_list = []
+    train_mode = ["train", "skip"] #["train", "skip", "skip"]*4
     for r in range(2): #range(bs.NUM_ROUNDS):
         # Create features
         features = make_features(r, bp.TRAIN_DIR, lags, feat_hparams["window_size"], 0, used_columns, bs.store_list, bs.brand_list)
@@ -140,7 +151,7 @@ if __name__ == "__main__":
     LGBM_forecaster = LGBMForecaster(df_config, submission_config, model_hparams)
     print("A LGBM-point forecaster is created")
 
-    LGBM_forecaster.fit(features_list, labels_list)
+    LGBM_forecaster.fit(features_list, labels_list, train_mode=train_mode)
 
     print("Making predictions...") 
     LGBM_forecaster.predict(test_feat_list)
@@ -149,7 +160,7 @@ if __name__ == "__main__":
 
     # Generate submission
     raw_predictions = LGBM_forecaster.predictions
-    create_submission(raw_predictions, 0, "LightGBM")
+    #create_submission(raw_predictions, 0, "LightGBM")
 
 
 

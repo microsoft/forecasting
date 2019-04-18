@@ -13,7 +13,7 @@ def create_submission(raw_predictions, seed, model_name=None, save_to_csv=True):
         save_to_csv (bool)
     """
     submission = raw_predictions
-    submission["weeks_ahead"] = submission.apply(lambda x: x["week"] - bs.TRAIN_END_WEEK_LIST[x["round"]], axis=1)
+    submission["weeks_ahead"] = submission.apply(lambda x: x["week"] - bs.TRAIN_END_WEEK_LIST[x["round"]-1], axis=1)
     submission.rename(columns={"move": "prediction"}, inplace=True)
     submission = submission[["round", "store", "brand", "week", "weeks_ahead", "prediction"]]
     if save_to_csv:
