@@ -4,8 +4,8 @@ import math
 import datetime
 import itertools
 import pandas as pd
-from benchmark_paths import *
-from benchmark_settings import *
+from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_paths import *
+from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings import *
 from common.data_schema import specify_data_schema
 
 DEFAULT_TARGET_COL = "move"

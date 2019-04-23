@@ -7,27 +7,93 @@ from common.evaluation_utils import MAPE
 class LGBMForecaster(BaseTSForecaster):
     """
     Class for point forecast model using LightGBM package.
+
+    Args:
+        df_config (dict): Configuration of the time series data frame used to
+            train the model.
+        submission_config (dict): Configuration of the submission format which
+             specifies the time column name in the result in this case.
+        model_hparams (dict): Hyperparameters of the LightGBM model.
+        model_type (str): Type of the model ("python" or "r").
+
+    Example:
+        >>>import os, sys, warnings
+        >>>import numpy as np
+        >>>import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_paths as bp
+        >>>import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
+        >>>from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.make_features_new import make_features
+        >>>from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.submission_utils import create_submission
+        >>>from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.retail_data_schema import specify_retail_data_schema
+
+        >>>warnings.filterwarnings("ignore")
+        >>>df_config, _ = specify_retail_data_schema()
+
+        >>>submission_config = {"time_col_name": "week"}
+        >>>feat_hparams = {"max_lag": 19, "window_size": 40}
+        >>>model_hparams = {"objective": "mape", "num_leaves": 124, "min_data_in_leaf": 340, "learning_rate": 0.1, 
+        ...                "feature_fraction": 0.65, "bagging_fraction": 0.87, "bagging_freq": 19, "num_rounds": 940,
+        ...                "early_stopping_rounds": 125, "num_threads": 4, "seed": 1}
+
+        >>># Lags and categorical features
+        >>>lags = np.arange(2, feat_hparams["max_lag"]+1)
+        >>>used_columns = ["store", "brand", "week", "week_of_month", "month", "deal", "feat", "move", "price", "price_ratio"]
+        >>>categ_features = ["store", "brand", "deal"] 
+        >>>model_hparams["categorical_feature"] = categ_features
+
+        >>># Model training and prediction 
+        >>>features_list = []
+        >>>labels_list = []
+        >>>test_feat_list = []
+        >>>train_mode = ["train", "skip", "skip"]*4
+        >>>for r in range(bs.NUM_ROUNDS):
+        ...    # Create features
+        ...    features = make_features(r, bp.TRAIN_DIR, lags, feat_hparams["window_size"], 0, used_columns, bs.store_list, bs.brand_list)
+        ...    train_feat = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
+        ...    # Drop rows with NaN values
+        ...    train_feat.dropna(inplace=True)
+        ...    features_list.append(train_feat.drop("move", axis=1, inplace=False))
+        ...    labels_list.append(train_feat["move"])
+        ...    test_feat_list.append(features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True).drop("move", axis=1))
+
+        >>>LGBM_forecaster = LGBMForecaster(df_config, submission_config, model_hparams)
+        >>>LGBM_forecaster.fit(features_list, labels_list, train_mode=train_mode)
+        >>>LGBM_forecaster.predict(test_feat_list)
+
+        >>># Generate submission
+        >>>raw_predictions = LGBM_forecaster.predictions
+        >>>submission = create_submission(raw_predictions, 0, "LightGBM")
+        >>>print(submission.head())
+
+              round  store  brand  week  weeks_ahead  prediction
+        0         1      2      1   137            2       10735
+        1         1      2      1   138            3       19114
+        2         1      2      2   137            2        6627
+        3         1      2      2   138            3       14125
+        4         1      2      3   137            2        1977    
     """
     def __init__(
         self, 
         df_config,
         submission_config,
-        model_hparams=None,
+        model_hparams={"objective": "mape"},
         model_type="python",
     ):
         super().__init__(df_config, model_hparams, model_type)
+        #self.model_hparams = model_hparams
         self.submission_config = submission_config
         self.extra_pred_col_names = self.ts_id_col_names + [self.submission_config["time_col_name"]]
         self.predictions = None
 
-        print(self.extra_pred_col_names)
 
     def fit(self, X, y, valid_size=0, train_mode=[]):
         """
         Fit a single model or multiple models.
 
         Args:
-            train_mode (list): each element takes a value of either "train" or "skip" 
+            X (pd.DataFrame): Features for training the model
+            y (pd.DataFrame): Labels for training the model
+            valid_size (float): Percentage of data for validation
+            train_mode (list): Each element takes a value of either "train" or "skip" 
             indicating whether to train a model in this round or skip the training.
         """
         if isinstance(X, pd.DataFrame) and isinstance(y, pd.DataFrame):
@@ -52,6 +118,15 @@ class LGBMForecaster(BaseTSForecaster):
             apply_round=False, 
             combine_forecasts=True,
             forecast_round_idx=None):
+        """
+        Generate forecasts with the trained model.
+
+        Args:
+            X (pd.DataFrame): Features for scoring the model
+            apply_round (bool): If round the forecasted values to integers or not 
+            combine_forecasts (bool): If combine the forecasts of multiple rounds or not
+            forecast_round_idx (list): Index of each forecast round
+        """
         if isinstance(X, pd.DataFrame):
             self.predictions = self._predict_single_model(self.model, X, apply_round=True)
         elif isinstance(X, list):
@@ -77,90 +152,58 @@ class LGBMForecaster(BaseTSForecaster):
         dvalid = lgb.Dataset(valid_feat, valid_label)
         return dtrain, dvalid
 
-    def _train_single_model(self, X, y, valid_size=0):
-        from copy import deepcopy
-        # Create training/validation sets
-        if valid_size == 0:
-            dtrain = lgb.Dataset(X, label = y)
-            valid_sets = [dtrain]
+    def _train_single_model(self, X, y, valid_size=0, model_type="python"):
+        """
+        Train a LightGBM model in a single forecast round.
+        """
+        if model_type == "python":
+            from copy import deepcopy
+            # Create training/validation sets
+            if valid_size == 0:
+                dtrain = lgb.Dataset(X, label = y)
+                valid_sets = [dtrain]
+            else:
+                dtrain, dvalid = self._random_data_split(X, y, valid_size)
+                valid_sets = [dtrain, dvalid]
+            # Train model
+            evals_result = {}
+            if "categorical_feature" in self.model_hparams:
+                model_hparams = deepcopy(self.model_hparams)
+                categ_features = model_hparams["categorical_feature"]
+                model_hparams.pop("categorical_feature")
+                model = lgb.train(
+                    model_hparams, 
+                    dtrain, 
+                    valid_sets = valid_sets, 
+                    verbose_eval =  False,
+                    categorical_feature = categ_features,
+                    evals_result = evals_result
+                )
+            else:
+                model = lgb.train(
+                    self.model_hparams,
+                    dtrain, 
+                    valid_sets = valid_sets, 
+                    verbose_eval =  False,
+                    evals_result = evals_result
+                )
+            return model, evals_result
+        else: 
+            pass 
+
+    def _predict_single_model(self, model, X, apply_round=False, model_type="python"):
+        """
+        Generate the forecasts in a single forecast round.
+        """
+        if model_type == "python":
+            predictions = pd.DataFrame({self.target_col_name: model.predict(X)})
+            if apply_round: 
+                predictions[self.target_col_name] = predictions[self.target_col_name].apply(lambda x: round(x))
+            predictions = pd.concat([X[self.extra_pred_col_names].reset_index(drop=True), predictions], axis=1)
+            predictions = predictions.sort_values(by=self.extra_pred_col_names).reset_index(drop=True)
+            return predictions
         else:
-            dtrain, dvalid = self._random_data_split(X, y, valid_size)
-            valid_sets = [dtrain, dvalid]
-        # Train model
-        evals_result = {}
-        model_hparams = deepcopy(self.model_hparams)
-        categ_features = model_hparams["categorical_feature"]
-        model_hparams.pop("categorical_feature")
-        model = lgb.train(
-            model_hparams, 
-            dtrain, 
-            valid_sets = valid_sets, 
-            verbose_eval =  False,
-            categorical_feature = categ_features,
-            evals_result = evals_result
-        )
-        return model, evals_result
-
-    def _predict_single_model(self, model, X, apply_round=False):
-        predictions = pd.DataFrame({self.target_col_name: model.predict(X)})
-        if apply_round: 
-            predictions[self.target_col_name] = predictions[self.target_col_name].apply(lambda x: round(x))
-        predictions = pd.concat([X[self.extra_pred_col_names].reset_index(drop=True), predictions], axis=1)
-        predictions = predictions.sort_values(by=self.extra_pred_col_names).reset_index(drop=True)
-        return predictions
-
-if __name__ == "__main__":
-    import os, sys, warnings
-    import numpy as np
-    import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_paths as bp
-    import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
-    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.submissions.LightGBM.make_features_new import make_features
-    from retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.submission_utils import create_submission
-    warnings.filterwarnings("ignore")
-
-    df_config = {"time_col_name": "timestamp", "target_col_name": "move", "frequency": "MS", "time_format": "%m/%d/%Y", "ts_id_col_names": ["store", "brand"]}
-    submission_config = {"time_col_name": "week"}
-    feat_hparams = {"max_lag": 19, "window_size": 40}
-    model_hparams = {"objective": "mape", "num_leaves": 124, "min_data_in_leaf": 340, "learning_rate": 0.1, 
-                     "feature_fraction": 0.65, "bagging_fraction": 0.87, "bagging_freq": 19, "num_rounds": 940,
-                     "early_stopping_rounds": 125, "num_threads": 4, "seed": 1}
-
-    # Lags and categorical features
-    lags = np.arange(2, feat_hparams["max_lag"]+1)
-    used_columns = ["store", "brand", "week", "week_of_month", "month", "deal", "feat", "move", "price", "price_ratio"]
-    categ_features = ["store", "brand", "deal"] 
-    model_hparams["categorical_feature"] = categ_features
-    print(model_hparams)
-
-    # Model training and prediction 
-    features_list = []
-    labels_list = []
-    test_feat_list = []
-    train_mode = ["train", "skip"] #["train", "skip", "skip"]*4
-    for r in range(2): #range(bs.NUM_ROUNDS):
-        # Create features
-        features = make_features(r, bp.TRAIN_DIR, lags, feat_hparams["window_size"], 0, used_columns, bs.store_list, bs.brand_list)
-        print(features.head())
-        train_feat = features[features.week <= bs.TRAIN_END_WEEK_LIST[r]].reset_index(drop=True)
-        # Drop rows with NaN values
-        train_feat.dropna(inplace=True)
-        features_list.append(train_feat.drop("move", axis=1, inplace=False))
-        labels_list.append(train_feat["move"])
-        test_feat_list.append(features[features.week >= bs.TEST_START_WEEK_LIST[r]].reset_index(drop=True).drop("move", axis=1))
-
-    LGBM_forecaster = LGBMForecaster(df_config, submission_config, model_hparams)
-    print("A LGBM-point forecaster is created")
-
-    LGBM_forecaster.fit(features_list, labels_list, train_mode=train_mode)
-
-    print("Making predictions...") 
-    LGBM_forecaster.predict(test_feat_list)
-
-    print(LGBM_forecaster.predictions)
-
-    # Generate submission
-    raw_predictions = LGBM_forecaster.predictions
-    #create_submission(raw_predictions, 0, "LightGBM")
+            pass
 
 
 
