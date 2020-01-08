@@ -18,7 +18,7 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 Here are the basic steps to get started with your first contribution. Please reach out with any questions.
 1. Use [open issues](https://github.com/Microsoft/Forecasting/issues) to discuss the proposed changes. Create an issue describing changes if necessary to collect feedback. Also, please use provided labels to tag issues so everyone can easily sort issues of interest.
 2. [Fork the repo](https://help.github.com/articles/fork-a-repo/) so you can make and test local changes.
-3. Create a new branch for the issue. We suggest prefixing the branch with your username and then a descriptive title: (e.g. chenhui/python_test_pipeline)
+3. Create a new branch for the issue. We suggest prefixing the branch with your username and then a descriptive title, e.g. chenhui/python_test_pipeline.
 5. Make code changes.
 6. Ensure unit tests pass and code style / formatting is consistent (see [wiki](https://github.com/Microsoft/Recommenders/wiki/Coding-Guidelines#python-and-docstrings-style) for more details).
 7. We use [pre-commit](https://pre-commit.com/) package to run our pre-commit hooks. We use `black` formatter and `flake8` linting on each commit. In order to set up pre-commit on your machine, follow the steps here, please note that you only need to run these steps the first time you use pre-commit for this project.
@@ -44,9 +44,9 @@ Here are the basic steps to get started with your first contribution. Please rea
 8. Create a pull request against __`staging`__ branch.
 
 
-Note: We use the staging branch to land all new features, so please remember to create the Pull Request against staging. To work with GitHub, please see the wiki for more detail about our [github rules](https://github.com/Microsoft/Forecasting/wiki/Rules-to-work-with-GitHub).
+Note: We use the `staging` branch to land all new features, so please remember to create the Pull Request against staging. To work with GitHub, please see the wiki for more detail about our [github rules](https://github.com/Microsoft/Forecasting/wiki/Rules-to-work-with-GitHub).
 
-Once the features included in a milestone are complete we will merge staging into master and make a release. See the wiki for more detail about our [merge strategy](https://github.com/Microsoft/Forecasting/wiki/Strategy-to-merge-the-code-to-master-branch).
+Once the features included in a milestone are complete we will merge staging into `master` branch and make a release. See the wiki for more detail about our [merge strategy](https://github.com/Microsoft/Forecasting/wiki/Strategy-to-merge-the-code-to-master-branch).
 
 ## Coding Guidelines
 
