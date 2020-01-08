@@ -21,7 +21,7 @@ Here are the basic steps to get started with your first contribution. Please rea
 3. Create a new branch for the issue. We suggest prefixing the branch with your username and then a descriptive title, e.g. chenhui/python_test_pipeline.
 5. Make code changes.
 6. Ensure unit tests pass and code style / formatting is consistent (see [wiki](https://github.com/Microsoft/Recommenders/wiki/Coding-Guidelines#python-and-docstrings-style) for more details).
-7. We use [pre-commit](https://pre-commit.com/) package to run our pre-commit hooks. We use `black` formatter and `flake8` linting on each commit. In order to set up pre-commit on your machine, follow the steps here, please note that you only need to run these steps the first time you use pre-commit for this project.
+7. We use [pre-commit](https://pre-commit.com/) package to run our pre-commit hooks. We use [black](https://github.com/ambv/black) formatter and [flake8](https://pypi.org/project/flake8/) for linting on each commit. In order to set up pre-commit on your machine, follow the steps here, please note that you only need to run these steps the first time you use pre-commit for this project.
    
     * Update your conda environment, pre-commit is part of the yaml file or just do
         ```
@@ -31,6 +31,7 @@ Here are the basic steps to get started with your first contribution. Please rea
         ```
         $ pre-commit install
         ```
+        > Note: Git hooks to install are specified in the pre-commit configuration file `.pre-commit-config.yaml`. Settings used by `black` and `flake8` are specified in `pyproject.toml` and `.flake8` files, respectively.
     * When you've made changes on local files and are ready to commit, run
         ```
         $ git commit -m "message" 
@@ -41,12 +42,15 @@ Here are the basic steps to get started with your first contribution. Please rea
         ```
         $ pre-commit run --all-files
         ```
+    
+    
 8. Create a pull request against __`staging`__ branch.
 
 
 Note: We use the `staging` branch to land all new features, so please remember to create the Pull Request against staging. To work with GitHub, please see the wiki for more detail about our [github rules](https://github.com/Microsoft/Forecasting/wiki/Rules-to-work-with-GitHub).
 
 Once the features included in a milestone are complete we will merge staging into `master` branch and make a release. See the wiki for more detail about our [merge strategy](https://github.com/Microsoft/Forecasting/wiki/Strategy-to-merge-the-code-to-master-branch).
+
 
 ## Coding Guidelines
 
@@ -96,3 +100,37 @@ Try to be empathic.
 
 </details>
 
+
+## Appendix
+
+
+### Working with GitHub
+
+**Rule 1.** No commits should be made directly to the `staging` branch.
+
+**Rule 2** All development is done in a branch off from the `staging` and named following this convention: `<user>/<topic>`.
+
+To create this new branch, run these commands:
+```shell
+$ git pull origin staging
+$ git checkout -b <user>/<topic>
+```
+
+When done making the changes locally, push your branch to the server (make sure to sync with the remote first). 
+
+```
+$ git pull origin staging
+$ git push origin <your branch>
+```
+
+**Rule 3.** To merge a new branch into the `staging` branch, please open a pull request (PR). 
+
+**Rule 4.** When a branch is merged into the `staging`, it must be deleted from the remote repository.
+
+```shell
+# Delete local branch
+$ git branch -d <your branch>
+
+# Delete remote branch
+$ git push origin --delete <your branch>
+```
