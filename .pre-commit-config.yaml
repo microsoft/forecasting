@@ -1,0 +1,17 @@
+repos:
+-   repo: https://github.com/psf/black
+    rev: stable
+    hooks:
+    - id: black
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v1.2.3
+    hooks:
+    - id: flake8
+-   repo: local
+    hooks:
+    - id: jupytext
+      name: jupytext
+      entry: jupytext --from ipynb --pipe black --check flake8
+      pass_filenames: true
+      files: .ipynb
+      language: python
