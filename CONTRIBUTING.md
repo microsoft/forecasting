@@ -20,8 +20,29 @@ Here are the basic steps to get started with your first contribution. Please rea
 2. [Fork the repo](https://help.github.com/articles/fork-a-repo/) so you can make and test local changes.
 3. Create a new branch for the issue. We suggest prefixing the branch with your username and then a descriptive title: (e.g. chenhui/python_test_pipeline)
 5. Make code changes.
-6. Ensure unit tests pass and code style / formatting is consistent (see [wiki](https://github.com/Microsoft/Forecasting/wiki/Coding-Guidelines#python-and-docstrings-style) for more details).
-7. Create a pull request against __`staging`__ branch.
+6. Ensure unit tests pass and code style / formatting is consistent (see [wiki](https://github.com/Microsoft/Recommenders/wiki/Coding-Guidelines#python-and-docstrings-style) for more details).
+7. We use [pre-commit](https://pre-commit.com/) package to run our pre-commit hooks. We use `black` formatter and `flake8` linting on each commit. In order to set up pre-commit on your machine, follow the steps here, please note that you only need to run these steps the first time you use pre-commit for this project.
+   
+    * Update your conda environment, pre-commit is part of the yaml file or just do
+        ```
+        $ pip install pre-commit
+        ```    
+    * Set up `pre-commit` by running following command, this will put pre-commit under your .git/hooks directory. 
+        ```
+        $ pre-commit install
+        ```
+    * When you've made changes on local files and are ready to commit, run
+        ```
+        $ git commit -m "message" 
+        ```
+    * Each time you commit, git will run the pre-commit hooks on any python files that are getting committed and are part of the git index. If `black` modifies/formats the file, or if `flake8` finds any linting errors, the commit will not succeed. You will need to stage the file again if `black` changed the file, or fix the issues identified by `flake8` and and stage it again.
+
+    * To run pre-commit on all files just run
+        ```
+        $ pre-commit run --all-files
+        ```
+8. Create a pull request against __`staging`__ branch.
+
 
 Note: We use the staging branch to land all new features, so please remember to create the Pull Request against staging. To work with GitHub, please see the wiki for more detail about our [github rules](https://github.com/Microsoft/Forecasting/wiki/Rules-to-work-with-GitHub).
 
@@ -31,22 +52,8 @@ Once the features included in a milestone are complete we will merge staging int
 
 We strive to maintain high quality code to make it easy to understand, use, and extend. We also work hard to maintain a friendly and constructive environment. We've found that having clear expectations on the development process and consistent style helps to ensure everyone can contribute and collaborate effectively.
 
-Please set up your local development environment according to the instructions in the following [Code formatting and style checking](#code-formatting-and-style-checking) section.
+Please review the [coding guidelines](https://github.com/Microsoft/Recommenders/wiki/Coding-Guidelines) wiki page to see more details about the expectations for development approach and style.
 
-Please also review the [coding guidelines](https://github.com/Microsoft/Forecasting/wiki/Coding-Guidelines) wiki page to see more details about the expectations for development approach and style.
-
-
-### Code formatting and style checking
-We use `git-hooks` to automate the process of formatting and style checking the code. In particular, we use `black` as a code formatter, `flake8` for style checking, and the `pre-commit` Python framework, which ensures that both, code formatter and checker, are ran on the code during commit. If they are executed with no issues, then the commit is made, otherwise, the commit is denied until stylistic or formatting changes are made.
-
-Please follow these instructions to set up `pre-commit` in your local development environment.
-
-```
-pip install pre-commit
-pre-commit install
-```
-
-The above will install the pre-commit package, and install git hooks specified in `.pre-commit-config.yaml` into your `.git/` directory. 
 
 ## Code of Conduct
 
