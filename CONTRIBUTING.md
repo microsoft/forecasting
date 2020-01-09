@@ -106,13 +106,12 @@ Try to be empathic.
 
 ### Working with GitHub
 
-**Rule 1.** No commits should be made directly to the `staging` branch.
+**Rule 1.** No commits should be made directly to the `staging` branch. This is enforced via a branch protection rule on GitHub.
 
 **Rule 2** All development is done in a branch off from the `staging` and named following this convention: `<user>/<topic>`.
 
 To create this new branch, run these commands:
 ```shell
-$ git pull origin staging
 $ git checkout -b <user>/<topic>
 ```
 
@@ -125,7 +124,11 @@ $ git push origin <your branch>
 
 **Rule 3.** To merge a new branch into the `staging` branch, please open a pull request (PR). 
 
-**Rule 4.** When a branch is merged into the `staging`, it must be deleted from the remote repository.
+**Rule 4.** The person who opens a PR should complete the PR, once it has been reviewed and all comments addressed.
+
+**Rule 5.** We will use *Squash and Merge* when completing PRs, to maintain a clean merge history on the repo.
+
+**Rule 6.** When a branch is merged into the `staging`, it must be deleted from the remote repository.
 
 ```shell
 # Delete local branch
