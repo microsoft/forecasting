@@ -21,9 +21,9 @@ Here are the basic steps to get started with your first contribution. Please rea
 3. Create a new branch for the issue. We suggest prefixing the branch with your username and then a descriptive title, e.g. chenhui/python_test_pipeline.
 5. Make code changes.
 6. Ensure unit tests pass and code style / formatting is consistent (see [wiki](https://github.com/Microsoft/Recommenders/wiki/Coding-Guidelines#python-and-docstrings-style) for more details).
-7. We use [pre-commit](https://pre-commit.com/) package to run our pre-commit hooks. We use [black](https://github.com/ambv/black) formatter and [flake8](https://pypi.org/project/flake8/) for linting on each commit. In order to set up pre-commit on your machine, follow the steps here, please note that you only need to run these steps the first time you use pre-commit for this project.
+7. We use [pre-commit](https://pre-commit.com/) package to run our pre-commit hooks. We use [black](https://github.com/ambv/black) formatter and [flake8](https://pypi.org/project/flake8/) for linting on each commit. In order to set up pre-commit on your machine, follow the steps here, please note that you only need to run these steps the first time you use `pre-commit` for this project.
    
-    * Update your conda environment, pre-commit is part of the yaml file or just do
+    * Update your conda environment, `pre-commit` is part of the yaml file or just do
         ```
         $ pip install pre-commit
         ```    
@@ -44,46 +44,43 @@ Here are the basic steps to get started with your first contribution. Please rea
         ```
     
     
-8. Create a pull request against __`staging`__ branch.
+8. Create a pull request (PR) against __`staging`__ branch.
 
 
-We use `staging` branch to land all new features, so please remember to create the Pull Request against staging. To work with GitHub, please see the next section for more detail about our [github rules](#working-with-github).
+We use `staging` branch to land all new features, so please remember to create the Pull Request against `staging`. To work with GitHub, please see the next section for more detail about our [working with GitHub](#working-with-github).
 
 Once the features included in a milestone are complete we will merge `staging` into `master` branch and make a release. See the wiki for more detail about our [merge strategy](https://github.com/Microsoft/Forecasting/wiki/Strategy-to-merge-the-code-to-master-branch).
 
 ### Working with GitHub
 
-**Rule 1.** No commits should be made directly to the `staging` branch. This is enforced via a branch protection rule on GitHub.
+1. All development is done in a branch off from the `staging` and named following this convention: `<user>/<topic>`.
+To create a new branch, run this command:
+    ```shell
+    $ git checkout -b <user>/<topic>
+    ```
 
-**Rule 2** All development is done in a branch off from the `staging` and named following this convention: `<user>/<topic>`.
+    When done making the changes locally, push your branch to the server, but make sure to sync with the remote first. 
 
-To create this new branch, run these commands:
-```shell
-$ git checkout -b <user>/<topic>
-```
+    ```
+    $ git pull origin staging
+    $ git push origin <your branch>
+    ```
 
-When done making the changes locally, push your branch to the server (make sure to sync with the remote first). 
+2. To merge a new branch into the `staging` branch, please open a pull request. 
 
-```
-$ git pull origin staging
-$ git push origin <your branch>
-```
+3. The person who opens a PR should complete the PR, once it has been reviewed and all comments addressed.
 
-**Rule 3.** To merge a new branch into the `staging` branch, please open a pull request (PR). 
+4. We will use *Squash and Merge* when completing PRs, to maintain a clean merge history on the repo.
 
-**Rule 4.** The person who opens a PR should complete the PR, once it has been reviewed and all comments addressed.
+5. When a branch is merged into the `staging`, it must be deleted from the remote repository.
 
-**Rule 5.** We will use *Squash and Merge* when completing PRs, to maintain a clean merge history on the repo.
+    ```shell
+    # Delete local branch
+    $ git branch -d <your branch>
 
-**Rule 6.** When a branch is merged into the `staging`, it must be deleted from the remote repository.
-
-```shell
-# Delete local branch
-$ git branch -d <your branch>
-
-# Delete remote branch
-$ git push origin --delete <your branch>
-```
+    # Delete remote branch
+    $ git push origin --delete <your branch>
+    ```
 
 
 ## Coding Guidelines
