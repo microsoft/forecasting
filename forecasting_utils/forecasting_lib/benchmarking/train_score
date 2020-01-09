@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Run train_score.py script 5 times and measure the running time
+# Usage: train_score <submission directory>
+# Example of submission directory: /TSPerf/energy_load/problem1/benchmarks/submission1
+
+for i in `seq 1 5`;
+do 
+    time -p python $1/train_score.py $i
+done

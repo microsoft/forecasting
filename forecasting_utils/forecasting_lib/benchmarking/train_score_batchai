@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Run Batch AI job 5 times and measure the running time
+# Usage: train_score_batchai <resource group name> <workspace name> <cluster name> <submission directory> <storage account name>
+
+az batchai experiment create -g $1 -w $2 -n $4
+
+for i in `seq 1 5`;
+do 
+     echo "Run $i"
+
+     # change seed value in job.json file
+     seed='"name": "SEED", "value": "'$i'"'
+     sed_command='s/"name": "SEED", "value": "TBD"/'$seed'/g'
+     echo $sed_command > script.sed
+     sed -f script.sed job.json > job_$i.json
+
+     starttime=$(date +%s)
+     az batchai job create -n job_$i -c $3 -g $1 -w $2 -e $4  -f $4/job_$i.json --storage-account-name $5
+     az batchai job file stream -g $1 -w $2 -e $4 -j job_$1 -p submissions -f submission_seed_$i.csv > submission__seed_$i.csv
+     endtime=$(date +%s)
+     echo "Elapsed time: $(expr $endtime - $starttime) seconds"
+     echo "Location of the submission file"
+done
