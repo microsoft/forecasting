@@ -47,9 +47,43 @@ Here are the basic steps to get started with your first contribution. Please rea
 8. Create a pull request against __`staging`__ branch.
 
 
-Note: We use the `staging` branch to land all new features, so please remember to create the Pull Request against staging. To work with GitHub, please see the wiki for more detail about our [github rules](https://github.com/Microsoft/Forecasting/wiki/Rules-to-work-with-GitHub).
+We use `staging` branch to land all new features, so please remember to create the Pull Request against staging. To work with GitHub, please see the next section for more detail about our [github rules](#working-with-github).
 
-Once the features included in a milestone are complete we will merge staging into `master` branch and make a release. See the wiki for more detail about our [merge strategy](https://github.com/Microsoft/Forecasting/wiki/Strategy-to-merge-the-code-to-master-branch).
+Once the features included in a milestone are complete we will merge `staging` into `master` branch and make a release. See the wiki for more detail about our [merge strategy](https://github.com/Microsoft/Forecasting/wiki/Strategy-to-merge-the-code-to-master-branch).
+
+### Working with GitHub
+
+**Rule 1.** No commits should be made directly to the `staging` branch. This is enforced via a branch protection rule on GitHub.
+
+**Rule 2** All development is done in a branch off from the `staging` and named following this convention: `<user>/<topic>`.
+
+To create this new branch, run these commands:
+```shell
+$ git checkout -b <user>/<topic>
+```
+
+When done making the changes locally, push your branch to the server (make sure to sync with the remote first). 
+
+```
+$ git pull origin staging
+$ git push origin <your branch>
+```
+
+**Rule 3.** To merge a new branch into the `staging` branch, please open a pull request (PR). 
+
+**Rule 4.** The person who opens a PR should complete the PR, once it has been reviewed and all comments addressed.
+
+**Rule 5.** We will use *Squash and Merge* when completing PRs, to maintain a clean merge history on the repo.
+
+**Rule 6.** When a branch is merged into the `staging`, it must be deleted from the remote repository.
+
+```shell
+# Delete local branch
+$ git branch -d <your branch>
+
+# Delete remote branch
+$ git push origin --delete <your branch>
+```
 
 
 ## Coding Guidelines
@@ -100,40 +134,3 @@ Try to be empathic.
 
 </details>
 
-
-## Appendix
-
-
-### Working with GitHub
-
-**Rule 1.** No commits should be made directly to the `staging` branch. This is enforced via a branch protection rule on GitHub.
-
-**Rule 2** All development is done in a branch off from the `staging` and named following this convention: `<user>/<topic>`.
-
-To create this new branch, run these commands:
-```shell
-$ git checkout -b <user>/<topic>
-```
-
-When done making the changes locally, push your branch to the server (make sure to sync with the remote first). 
-
-```
-$ git pull origin staging
-$ git push origin <your branch>
-```
-
-**Rule 3.** To merge a new branch into the `staging` branch, please open a pull request (PR). 
-
-**Rule 4.** The person who opens a PR should complete the PR, once it has been reviewed and all comments addressed.
-
-**Rule 5.** We will use *Squash and Merge* when completing PRs, to maintain a clean merge history on the repo.
-
-**Rule 6.** When a branch is merged into the `staging`, it must be deleted from the remote repository.
-
-```shell
-# Delete local branch
-$ git branch -d <your branch>
-
-# Delete remote branch
-$ git push origin --delete <your branch>
-```
