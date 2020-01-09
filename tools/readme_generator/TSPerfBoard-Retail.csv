@@ -1,0 +1,9 @@
+Submission Name,MAPE (%),Training and Scoring Time (sec),Training and Scoring Cost ($),Architecture,Framework,Algorithm,Uni/Multivariate,External Feature Support
+[Baseline](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2Fbaseline),109.67,114.06,0.003,Linux DSVM(Standard D2s v3 - Premium SSD),forecast package of R,Naive Forecast,Univariate,No
+[AutoARIMA](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2FARIMA),70.80,265.94,0.0071,Linux DSVM(Standard D2s v3 - Premium SSD),forecast package of R,Auto ARIMA,Multivariate,Yes
+[ETS](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2FETS),70.99,277,0.01,Linux DSVM(Standard D2s v3 - Premium SSD),forecast package of R,ETS,Multivariate,No
+[MeanForecast](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2FMeanForecast),70.74,69.88,0.002,Linux DSVM(Standard D2s v3 - Premium SSD),forecast package of R,Mean forecast, Univariate,No
+[SeasonalNaive](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2FSeasonalNaive),165.06,160.45,0.004,Linux DSVM(Standard D2s v3 - Premium SSD),forecast package of R,Seasonal Naive,Univariate,No
+[LightGBM](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2FLightGBM),36.28,625.10,0.0167,Linux DSVM (Standard D2s v3 - Premium SSD),lightGBM package of Python,Gradient Boosting Decision Tree,Multivariate,Yes
+[DilatedCNN](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2FDilatedCNN),37.09,413,0.1032,Ubuntu VM(NC6 - Standard HDD),Keras and Tensorflow,Python + Dilated convolutional neural network, Multivariate,Yes
+[RNN Encoder-Decoder](benchmarks%2FOrangeJuice_Pt_3Weeks_Weekly%2FRNN),37.68,669,0.2,Ubuntu VM(NC6 - Standard HDD),Tensorflow,Python + Encoder-decoder architecture of recurrent neural network, Multivariate,Yes

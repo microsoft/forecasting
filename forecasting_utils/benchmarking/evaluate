@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Run evaluate.py script 5 times over submitted predictions
+# Usage: evaluate <submission directory> <benchmark directory>
+# Example of submission directory: /TSPerf/energy_load/problem1/benchmarks/submission1
+# Example of benchmark directory: /TSPerf/energy_load/problem1
+
+for i in `seq 1 5`;
+do
+    python $2/evaluate.py $1/submission_seed_$i.csv
+done

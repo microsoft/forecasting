@@ -1,0 +1,6 @@
+Submission Name,Pinball Loss,Training and Scoring Time (sec),Training and Scoring Cost($),Architecture,Framework,Algorithm,Uni/Multivariate,External Feature Support
+[Baseline](benchmarks%2FGEFCom2017_D_Prob_MT_hourly%2Fbaseline),84.12,188,0.0201,Linux DSVM (Standard D8s v3 - Premium SSD),quantreg package of R,Linear Quantile Regression,Multivariate,Yes
+[GBM](benchmarks%2FGEFCom2017_D_Prob_MT_hourly%2FGBM),78.84,269,0.0287,Linux DSVM (Standard D8s v3 - Premium SSD),gbm package of R,Gradient Boosting Decision Tree,Multivariate,Yes
+[QRF](benchmarks%2FGEFCom2017_D_Prob_MT_hourly%2Fqrf),76.29,20322,17.19, Linux DSVM (F72s v2 - Premium SSD), scikit-garden package of Python, Quantile Regression Forest, Multivariate, Yes
+[FNN](benchmarks%2FGEFCom2017_D_Prob_MT_hourly%2Ffnn),80.06,1085,0.1157, Linux DSVM (Standard D8s v3 - Premium SSD), qrnn package of R, Quantile Regression Neural Network, Multivariate, Yes
+

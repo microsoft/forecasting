@@ -1,4 +1,0 @@
-#!/bin/bash
-rm ./nohup.out
-nohup nice -n 10 ./$1 9 1  &
-nohup nice -n 10 ./$1 9 2  &
