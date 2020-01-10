@@ -15,3 +15,5 @@ ignore =
     W293
     # line too long 
     E501
+    # trailing white spaces
+    W291
