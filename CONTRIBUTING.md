@@ -3,6 +3,7 @@
 Contribution are welcome! Here's a few things to know:
 
 * [Microsoft Contributor License Agreement](#microsoft-contributor-license-agreement)
+* [Setting up Environment](#Setting-up-environment)
 * [Steps to Contributing](#steps-to-contributing)
 * [Coding Guidelines](#forecasting-team-contribution-guidelines)
 * [Code of Conduct](#code-of-conduct)
@@ -12,6 +13,27 @@ Contribution are welcome! Here's a few things to know:
 Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
+
+## Setting up Environment
+
+Follow the instruction bellow to read about compute requirements and install required libraries.
+
+
+#### Compute environment
+
+We recommend using a virtual machine to run the example notebooks and scripts. The easiest way to get started is to use the [Azure Data Science Virtual Machine (DSVM) for Linux (Ubuntu)](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro). This VM will come installed with all the system requirements that are needed to create the conda environment described below and then run the notebooks in this repository. 
+
+#### Conda environment
+
+To install the package contained in this repository, navigate to the directory where you pulled the Forecasting repo to run:
+```bash
+conda update conda
+conda env create -f tools/environment.yaml
+```
+This will create the appropriate conda environment to run experiments. Next activate the installed environment:
+```bash
+conda activate forecast
+```
 
 ## Steps to Contributing
 
