@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """
 This script evaluates an implementation of the 
 GEFCom2017_D_Prob_MT_hourly benchmark. It reads in
@@ -15,9 +18,8 @@ import os
 import sys
 import pandas as pd
 
-sys.path.append(".")
-from tsperf.benchmarking.GEFCom2017_D_Prob_MT_hourly.benchmark_paths import BENCHMARK_DIR
-from tsperf.evaluation.evaluation_utils import pinball_loss
+from forecasting_lib.dataset.energy.benchmark_paths import BENCHMARK_DIR
+from forecasting_lib.evaluation.evaluation_utils import pinball_loss
 
 # baseline losses are taken from Table 2 of
 # F. Ziel. Quantile regression for the qualifying match of GEFCom2017
@@ -40,6 +42,7 @@ def read_test_files(benchmark_dir):
     """Helper function to read test files for all rounds in the benchmark."""
 
     test_data_dir = os.path.join(benchmark_dir, "data", "test_ground_truth")
+    test = []
     for rnd in range(1, 7):
         test_file = "test_round_" + str(rnd) + ".csv"
         test_round = pd.read_csv(os.path.join(test_data_dir, test_file), parse_dates=["Datetime"])

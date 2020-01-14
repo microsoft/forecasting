@@ -232,7 +232,9 @@ def extract_eei_data():
 
         loads_df["date"] = dates24_hr
 
-        format_date = lambda x: str(x.date())
+        def format_date(x):
+            return str(x.date())
+
         loads_df["Datetime"] = loads_df["date"].map(format_date) + " " + loads_df["hour"].map(str)
         loads_df = loads_df[["Datetime", "DEMAND"]]
 
