@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """
 This file contains training and testing settings to be used in this benchmark,
 mainly:

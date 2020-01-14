@@ -37,7 +37,7 @@ import getopt
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from tsperf.evaluation.train_utils import TSCVSplitter
+from forecasting_lib.evaluation.train_utils import TSCVSplitter
 
 
 def main(config_file):

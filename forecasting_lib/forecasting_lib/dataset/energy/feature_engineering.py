@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """
 This script computes features on the GEFCom2017_D dataset. It is
 parameterized so that a selected set of features specified by a feature
@@ -9,25 +12,25 @@ import pandas as pd
 from functools import reduce
 from sklearn.pipeline import Pipeline
 
-from tsperf.feature_engineering.lag import (
+from forecasting_lib.feature_engineering.lag import (
     SameWeekOfYearLagFeaturizer,
     SameDayOfYearLagFeaturizer,
 )
-from tsperf.feature_engineering.temporal import (
+from forecasting_lib.feature_engineering.temporal import (
     TemporalFeaturizer,
     DayTypeFeaturizer,
     AnnualFourierFeaturizer,
     DailyFourierFeaturizer,
     WeeklyFourierFeaturizer,
 )
-from tsperf.feature_engineering.rolling_window import SameDayOfWeekRollingWindowFeaturizer
-from tsperf.feature_engineering.normalization import (
+from forecasting_lib.feature_engineering.rolling_window import SameDayOfWeekRollingWindowFeaturizer
+from forecasting_lib.feature_engineering.normalization import (
     YearNormalizer,
     DateNormalizer,
     DateHourNormalizer,
 )
 
-from tsperf.benchmarking.GEFCom2017_D_Prob_MT_hourly.benchmark_paths import DATA_DIR
+from forecasting_lib.dataset.energy.benchmark_paths import DATA_DIR
 
 print("Data directory used: {}".format(DATA_DIR))
 
