@@ -35,6 +35,22 @@ This will create the appropriate conda environment to run experiments. Next acti
 conda activate forecast
 ```
 
+During development, in case you need to update the environment due to a conda env file change, you can run
+```
+conda env update --file tools/environment.yaml
+```
+from the root of Forecasting repo.
+
+#### Package Installation
+
+Next you will need to install the common package for forecasting:
+```bash
+pip install -e forecasting_lib
+```
+
+The library is installed in developer mode with the `-e` flag. This means that all changes made to the library locally, are immediately available.
+
+
 ## Steps to Contributing
 
 Here are the basic steps to get started with your first contribution. Please reach out with any questions.
