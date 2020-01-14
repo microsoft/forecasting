@@ -1,5 +1,8 @@
-from tsperf.feature_engineering.base_ts_estimators import BaseTSFeaturizer
-from tsperf.feature_engineering.utils import is_iterable_but_not_string
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from forecasting_lib.feature_engineering.utils import is_iterable_but_not_string
 
 
 class PopularityFeaturizer(BaseTSFeaturizer):
@@ -118,8 +121,7 @@ class PopularityFeaturizer(BaseTSFeaturizer):
 
         if data_format not in ["long", "wide"]:
             raise ValueError(
-                "Invalid value for argument data_format, "
-                "accepted values are {0} and {1}".format("long", "wide")
+                "Invalid value for argument data_format, " "accepted values are {0} and {1}".format("long", "wide")
             )
 
     @property
@@ -133,23 +135,15 @@ class PopularityFeaturizer(BaseTSFeaturizer):
     @wide_col_names.setter
     def wide_col_names(self, val):
         if self.data_format == "wide" and val is None:
-            raise ValueError(
-                "For wide data format, wide_col_names can not be " "None."
-            )
+            raise ValueError("For wide data format, wide_col_names can not be " "None.")
         if self.data_format == "wide":
             if is_iterable_but_not_string(val):
                 val = list(val)
             else:
-                raise ValueError(
-                    "wide_col_names must be a non-string Iterable, "
-                    "e.g. a list."
-                )
+                raise ValueError("wide_col_names must be a non-string Iterable, " "e.g. a list.")
             for c in val:
                 if not c.startswith(self.feature_col_name):
-                    raise ValueError(
-                        "Elements of wide_col_names must start "
-                        "with feature_col_name"
-                    )
+                    raise ValueError("Elements of wide_col_names must start " "with feature_col_name")
 
         self._wide_col_names = val
 
@@ -164,9 +158,7 @@ class PopularityFeaturizer(BaseTSFeaturizer):
         id_all = df[self.id_col_name].unique()
         for id in id_all:
             wide_col_name = input_col + str(id)
-            df[wide_col_name] = df.loc[
-                df[self.id_col_name] == id, input_col
-            ].values[0]
+            df[wide_col_name] = df.loc[df[self.id_col_name] == id, input_col].values[0]
         return df
 
     def transform(self, X):
@@ -197,25 +189,16 @@ class PopularityFeaturizer(BaseTSFeaturizer):
                 # X_tmp[wide_col_name] = np.nan
                 self.wide_col_names.append(wide_col_name)
 
-            X_tmp = X_tmp.groupby(group_cols).apply(
-                lambda g: self._add_wide_cols(g, self.feature_col_name)
-            )
+            X_tmp = X_tmp.groupby(group_cols).apply(lambda g: self._add_wide_cols(g, self.feature_col_name))
             X_tmp.reset_index(inplace=True)
 
         else:
             X_tmp = X[self.wide_col_names + [self.id_col_name]].copy()
             X_tmp[self.feature_col_name] = X_tmp.apply(
-                lambda x: x.loc[
-                    self.feature_col_name + str(int(x.loc[self.id_col_name]))
-                ],
-                axis=1,
+                lambda x: x.loc[self.feature_col_name + str(int(x.loc[self.id_col_name]))], axis=1,
             )
 
-        X_tmp["avg"] = (
-            X_tmp[self.wide_col_names]
-            .sum(axis=1)
-            .apply(lambda x: x / len(self.wide_col_names))
-        )
+        X_tmp["avg"] = X_tmp[self.wide_col_names].sum(axis=1).apply(lambda x: x / len(self.wide_col_names))
         X[self.output_col_name] = X_tmp[self.feature_col_name] / X_tmp["avg"]
 
         if self.return_feature_col:

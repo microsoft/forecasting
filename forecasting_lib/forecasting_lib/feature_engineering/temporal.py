@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from datetime import timedelta
 import calendar
 import pandas as pd
@@ -6,7 +9,7 @@ import warnings
 from math import ceil
 
 from abc import ABC, abstractmethod
-from tsperf.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
 
 
 class TemporalFeaturizer(BaseTSFeaturizer):
@@ -61,10 +64,7 @@ class TemporalFeaturizer(BaseTSFeaturizer):
         elif self.frequency == "M":
             self.feature_list = ["month_of_year"]
         else:
-            raise Exception(
-                "Please specify the feature_list, because the "
-                "data frequency is not H, D, W, or M"
-            )
+            raise Exception("Please specify the feature_list, because the " "data frequency is not H, D, W, or M")
 
         self._feature_function_map = {
             "hour_of_day": self.hour_of_day,
@@ -139,23 +139,15 @@ class TemporalFeaturizer(BaseTSFeaturizer):
         """
 
         time_of_year = pd.DataFrame(
-            {
-                "day_of_year": time_col.dt.dayofyear,
-                "hour_of_day": time_col.dt.hour,
-                "year": time_col.dt.year,
-            }
+            {"day_of_year": time_col.dt.dayofyear, "hour_of_day": time_col.dt.hour, "year": time_col.dt.year,}
         )
-        time_of_year["normalized_hour_of_year"] = (
-            time_of_year["day_of_year"] - 1
-        ) * 24 + time_of_year["hour_of_day"]
+        time_of_year["normalized_hour_of_year"] = (time_of_year["day_of_year"] - 1) * 24 + time_of_year["hour_of_day"]
 
-        time_of_year["year_length"] = time_of_year["year"].apply(
-            lambda y: 366 if calendar.isleap(y) else 365
+        time_of_year["year_length"] = time_of_year["year"].apply(lambda y: 366 if calendar.isleap(y) else 365)
+
+        time_of_year["normalized_hour_of_year"] = time_of_year["normalized_hour_of_year"] / (
+            time_of_year["year_length"] * 24 - 1
         )
-
-        time_of_year["normalized_hour_of_year"] = time_of_year[
-            "normalized_hour_of_year"
-        ] / (time_of_year["year_length"] * 24 - 1)
 
         return time_of_year["normalized_hour_of_year"].values
 
@@ -180,10 +172,7 @@ class TemporalFeaturizer(BaseTSFeaturizer):
         time_col = self._get_time_col(X)
         for feature in self.feature_list:
             if feature in X.columns:
-                warnings.warn(
-                    "Column {} is already in the data frame, "
-                    "it will be overwritten.".format(feature)
-                )
+                warnings.warn("Column {} is already in the data frame, " "it will be overwritten.".format(feature))
             feature_function = self._feature_function_map[feature]
             X[feature] = feature_function(time_col)
 
@@ -273,31 +262,21 @@ class DayTypeFeaturizer(BaseTSFeaturizer):
 
             # Create a temporary Date column to calculate dates near
             # the holidays
-            datetype["Date"] = pd.to_datetime(
-                time_col.dt.date, format=self.time_format
-            )
+            datetype["Date"] = pd.to_datetime(time_col.dt.date, format=self.time_format)
             holiday_dates = set(datetype.loc[holiday_mask, "Date"])
 
             semi_holiday_dates = [
-                pd.date_range(
-                    start=d - self.semi_holiday_offset,
-                    end=d + self.semi_holiday_offset,
-                    freq="D",
-                )
+                pd.date_range(start=d - self.semi_holiday_offset, end=d + self.semi_holiday_offset, freq="D",)
                 for d in holiday_dates
             ]
 
             # Flatten the list of lists
-            semi_holiday_dates = [
-                d for dates in semi_holiday_dates for d in dates
-            ]
+            semi_holiday_dates = [d for dates in semi_holiday_dates for d in dates]
 
             semi_holiday_dates = set(semi_holiday_dates)
             semi_holiday_dates = semi_holiday_dates.difference(holiday_dates)
 
-            datetype.loc[
-                datetype["Date"].isin(semi_holiday_dates), "day_type"
-            ] = self.semi_holiday_code
+            datetype.loc[datetype["Date"].isin(semi_holiday_dates), "day_type"] = self.semi_holiday_code
 
         X["day_type"] = datetype["day_type"].values
 

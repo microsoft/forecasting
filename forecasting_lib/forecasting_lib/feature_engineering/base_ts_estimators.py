@@ -1,19 +1,18 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """
 Base classes for time series forecasting tasks.
 """
 from abc import ABC, abstractmethod
 from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
-<<<<<<< HEAD:forecasting_utils/feature_engineering/base_ts_estimators.py
-from tsperf.feature_engineering.utils import is_datetime_like, is_iterable_but_not_string
-=======
 from common.utils import (
     is_datetime_like,
     is_iterable_but_not_string,
     get_offset_by_frequency,
 )
 
->>>>>>> origin/staging:common/features/base_ts_estimators.py
 
 class BaseTSEstimator(BaseEstimator, ABC):
     """
@@ -66,16 +65,10 @@ class BaseTSEstimator(BaseEstimator, ABC):
         Checks if the columns specified in data frame configuration exist.
         """
         if self.time_col_name not in df.columns:
-            raise Exception(
-                "time_col_name {} does not exist in the input "
-                "data frame".format(self.time_col_name)
-            )
+            raise Exception("time_col_name {} does not exist in the input " "data frame".format(self.time_col_name))
         for id_col_name in self.ts_id_col_names:
             if id_col_name not in df.columns:
-                raise Exception(
-                    "ts_id_col_names {} does not exist in the "
-                    "input data frame".format(id_col_name)
-                )
+                raise Exception("ts_id_col_names {} does not exist in the " "input data frame".format(id_col_name))
 
     def _get_time_col(self, df):
         """

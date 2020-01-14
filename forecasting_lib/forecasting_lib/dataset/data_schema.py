@@ -1,15 +1,21 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import pandas as pd
 
+
 def specify_data_schema(
-        df, time_col_name, 
-        target_col_name, 
-        frequency, time_format,
-        ts_id_col_names=None, 
-        static_feat_names=None, 
-        dynamic_feat_names=None,  
-        description=None
-        ):
-        """Specify the schema of a time series dataset.
+    df,
+    time_col_name,
+    target_col_name,
+    frequency,
+    time_format,
+    ts_id_col_names=None,
+    static_feat_names=None,
+    dynamic_feat_names=None,
+    description=None,
+):
+    """Specify the schema of a time series dataset.
 
         Args:
             df (Pandas DataFrame): input time series dataframe
@@ -78,78 +84,87 @@ def specify_data_schema(
             >>> print(df_config)
             {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y', 'ts_id_col_names': None, 'static_feat_names': ['store', 'brand', 'income'], 'dynamic_feat_names': ['price'], 'description': None}          
         """
-        if len(df) == 0:
-            raise ValueError("Input time series dataframe should not be empty.")
+    if len(df) == 0:
+        raise ValueError("Input time series dataframe should not be empty.")
 
-        df_col_names = list(df)  
-        _check_col_names(df_col_names, time_col_name, "timestamp")
-        _check_col_names(df_col_names, target_col_name, "target")
-        _check_time_format(df, time_col_name, time_format)
-        _check_frequency(df, time_col_name, frequency, time_format, ts_id_col_names)
-        if ts_id_col_names is not None:
-            _check_col_names(df_col_names, ts_id_col_names, "name_list")
-        if static_feat_names is not None:
-            _check_col_names(df_col_names, static_feat_names, "name_list")
-            _check_static_feat(df, ts_id_col_names, static_feat_names)
-        if dynamic_feat_names is not None:
-            _check_col_names(df_col_names, dynamic_feat_names, "name_list")
+    df_col_names = list(df)
+    _check_col_names(df_col_names, time_col_name, "timestamp")
+    _check_col_names(df_col_names, target_col_name, "target")
+    _check_time_format(df, time_col_name, time_format)
+    _check_frequency(df, time_col_name, frequency, time_format, ts_id_col_names)
+    if ts_id_col_names is not None:
+        _check_col_names(df_col_names, ts_id_col_names, "name_list")
+    if static_feat_names is not None:
+        _check_col_names(df_col_names, static_feat_names, "name_list")
+        _check_static_feat(df, ts_id_col_names, static_feat_names)
+    if dynamic_feat_names is not None:
+        _check_col_names(df_col_names, dynamic_feat_names, "name_list")
 
-        # Configuration of the time series data
-        df_config = {"time_col_name": time_col_name,
-                     "target_col_name": target_col_name,
-                     "frequency": frequency,
-                     "time_format": time_format,
-                     "ts_id_col_names": ts_id_col_names,
-                     "static_feat_names": static_feat_names,
-                     "dynamic_feat_names": dynamic_feat_names,
-                     "description": description
-                    }
-        return df_config
+    # Configuration of the time series data
+    df_config = {
+        "time_col_name": time_col_name,
+        "target_col_name": target_col_name,
+        "frequency": frequency,
+        "time_format": time_format,
+        "ts_id_col_names": ts_id_col_names,
+        "static_feat_names": static_feat_names,
+        "dynamic_feat_names": dynamic_feat_names,
+        "description": description,
+    }
+    return df_config
 
-def _check_col_names(df_col_names, input_col_names, input_type):   
+
+def _check_col_names(df_col_names, input_col_names, input_type):
     """Check if input column/feature names are valid.
     """
     if input_type in ["timestamp", "target"]:
         assert isinstance(input_col_names, str)
         if input_col_names not in df_col_names:
-            raise ValueError("Invalid {} column name. It cannot be found in the input dataframe.".format(input_type)) 
-    else: 
+            raise ValueError("Invalid {} column name. It cannot be found in the input dataframe.".format(input_type))
+    else:
         assert isinstance(input_col_names, list)
         for c in input_col_names:
             if c not in df_col_names:
                 raise ValueError(c + " is an invalid column name. It cannot be found in the input dataframe.")
 
+
 def _check_time_format(df, time_col_name, time_format):
     """Check if the timestamp format is valid.
-    """   
+    """
     try:
         pd.to_datetime(df[time_col_name], format=time_format)
-    except:
+    except Exception:
         raise ValueError("Incorrect date format is specified.")
-        
+
+
 def _check_frequency(df, time_col_name, frequency, time_format, ts_id_col_names):
     """Check if the data frequency is valid.
-    """        
+    """
     try:
         df[time_col_name] = pd.to_datetime(df[time_col_name], format=time_format)
         timestamps_all = pd.date_range(min(df[time_col_name]), end=max(df[time_col_name]), freq=frequency)
-    except:
-        raise ValueError("Input data frequency is invalid. Please use the aliases in " +
-                         "https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases")
+    except Exception:
+        raise ValueError(
+            "Input data frequency is invalid. Please use the aliases in "
+            + "https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases"
+        )
 
-    condition1 = (ts_id_col_names is None) and \
-                 (not set(df[time_col_name]) <= set(timestamps_all))
-    condition2 = (ts_id_col_names is not None) and \
-                 (not all(df.groupby(ts_id_col_names).apply(lambda x: set(x[time_col_name]) <= set(timestamps_all))))
+    condition1 = (ts_id_col_names is None) and (not set(df[time_col_name]) <= set(timestamps_all))
+    condition2 = (ts_id_col_names is not None) and (
+        not all(df.groupby(ts_id_col_names).apply(lambda x: set(x[time_col_name]) <= set(timestamps_all)))
+    )
     if condition1 or condition2:
-        raise ValueError("Timestamp(s) with irregular frequency in the input dataframe. Please make sure the frequency " + 
-                         "of each time series is as what specified by \'frequency\'.")
+        raise ValueError(
+            "Timestamp(s) with irregular frequency in the input dataframe. Please make sure the frequency "
+            + "of each time series is as what specified by 'frequency'."
+        )
+
 
 def _check_static_feat(df, ts_id_col_names, static_feat_names):
     """Check if the input static features change over time and include ts_id_col_names.
-    """ 
+    """
     for feat in static_feat_names:
         condition1 = (ts_id_col_names is None) and (df[feat].nunique() > 1)
         condition2 = (ts_id_col_names is not None) and (df.groupby(ts_id_col_names)[feat].nunique().max() > 1)
         if condition1 or condition2:
-            raise ValueError("Input feature column {} is supposed to be static but it is not.".format(feat))            
+            raise ValueError("Input feature column {} is supposed to be static but it is not.".format(feat))

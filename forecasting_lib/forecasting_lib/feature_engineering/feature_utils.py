@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """
 This file contains helper functions for creating features for TSPerf
 reference implementations and submissions. All functions defined assume 
@@ -9,19 +12,18 @@ import calendar
 import pandas as pd
 import numpy as np
 
-from tsperf.feature_engineering.utils import is_datetime_like
+from forecasting_lib.feature_engineering.utils import is_datetime_like
 
 # 0: Monday, 2: T/W/TR, 4: F, 5:SA, 6: S
-WEEK_DAY_TYPE_MAP = {1: 2, 3: 2}    # Map for converting Wednesday and
-                                    # Thursday to have the same code as Tuesday
+WEEK_DAY_TYPE_MAP = {1: 2, 3: 2}  # Map for converting Wednesday and
+# Thursday to have the same code as Tuesday
 HOLIDAY_CODE = 7
 SEMI_HOLIDAY_CODE = 8  # days before and after a holiday
 
-DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
-def day_type(datetime_col, holiday_col=None,
-             semi_holiday_offset=timedelta(days=1)):
+def day_type(datetime_col, holiday_col=None, semi_holiday_offset=timedelta(days=1)):
     """
     Convert datetime_col to 7 day types
     0: Monday
@@ -42,23 +44,20 @@ def day_type(datetime_col, holiday_col=None,
         A numpy array containing converted datatime_col into day types.
     """
 
-    datetype = pd.DataFrame({'DayType': datetime_col.dt.dayofweek})
-    datetype.replace({'DayType': WEEK_DAY_TYPE_MAP}, inplace=True)
+    datetype = pd.DataFrame({"DayType": datetime_col.dt.dayofweek})
+    datetype.replace({"DayType": WEEK_DAY_TYPE_MAP}, inplace=True)
 
     if holiday_col is not None:
         holiday_mask = holiday_col > 0
-        datetype.loc[holiday_mask, 'DayType'] = HOLIDAY_CODE
+        datetype.loc[holiday_mask, "DayType"] = HOLIDAY_CODE
 
         # Create a temporary Date column to calculate dates near the holidays
-        datetype['Date'] = pd.to_datetime(datetime_col.dt.date,
-                                          format=DATETIME_FORMAT)
-        holiday_dates = set(datetype.loc[holiday_mask, 'Date'])
+        datetype["Date"] = pd.to_datetime(datetime_col.dt.date, format=DATETIME_FORMAT)
+        holiday_dates = set(datetype.loc[holiday_mask, "Date"])
 
-        semi_holiday_dates = \
-            [pd.date_range(start=d - semi_holiday_offset,
-                           end=d + semi_holiday_offset,
-                           freq='D')
-             for d in holiday_dates]
+        semi_holiday_dates = [
+            pd.date_range(start=d - semi_holiday_offset, end=d + semi_holiday_offset, freq="D") for d in holiday_dates
+        ]
 
         # Flatten the list of lists
         semi_holiday_dates = [d for dates in semi_holiday_dates for d in dates]
@@ -66,10 +65,9 @@ def day_type(datetime_col, holiday_col=None,
         semi_holiday_dates = set(semi_holiday_dates)
         semi_holiday_dates = semi_holiday_dates.difference(holiday_dates)
 
-        datetype.loc[datetype['Date'].isin(semi_holiday_dates), 'DayType'] \
-            = SEMI_HOLIDAY_CODE
+        datetype.loc[datetype["Date"].isin(semi_holiday_dates), "DayType"] = SEMI_HOLIDAY_CODE
 
-    return datetype['DayType'].values
+    return datetype["DayType"].values
 
 
 def hour_of_day(datetime_col):
@@ -91,20 +89,16 @@ def time_of_year(datetime_col):
         A numpy array containing converted datatime_col into time of year.
     """
 
-    time_of_year = pd.DataFrame({'DayOfYear': datetime_col.dt.dayofyear,
-                                 'HourOfDay': datetime_col.dt.hour,
-                                 'Year': datetime_col.dt.year})
-    time_of_year['TimeOfYear'] = \
-        (time_of_year['DayOfYear'] - 1) * 24 + time_of_year['HourOfDay']
+    time_of_year = pd.DataFrame(
+        {"DayOfYear": datetime_col.dt.dayofyear, "HourOfDay": datetime_col.dt.hour, "Year": datetime_col.dt.year}
+    )
+    time_of_year["TimeOfYear"] = (time_of_year["DayOfYear"] - 1) * 24 + time_of_year["HourOfDay"]
 
-    time_of_year['YearLength'] = \
-        time_of_year['Year'].apply(
-            lambda y: 366 if calendar.isleap(y) else 365)
+    time_of_year["YearLength"] = time_of_year["Year"].apply(lambda y: 366 if calendar.isleap(y) else 365)
 
-    time_of_year['TimeOfYear'] = \
-        time_of_year['TimeOfYear']/(time_of_year['YearLength'] * 24 - 1)
+    time_of_year["TimeOfYear"] = time_of_year["TimeOfYear"] / (time_of_year["YearLength"] * 24 - 1)
 
-    return time_of_year['TimeOfYear'].values
+    return time_of_year["TimeOfYear"].values
 
 
 def week_of_year(datetime_col):
@@ -202,7 +196,7 @@ def normalized_current_year(datetime_col, min_year, max_year):
     year = datetime_col.dt.year
 
     if max_year != min_year:
-        current_year = (year - min_year)/(max_year - min_year)
+        current_year = (year - min_year) / (max_year - min_year)
     elif max_year == min_year:
         current_year = 0
 
@@ -224,9 +218,9 @@ def normalized_current_date(datetime_col, min_date, max_date):
     """
     date = datetime_col.dt.date
     current_date = (date - min_date).apply(lambda x: x.days)
-    
+
     if max_date != min_date:
-        current_date = current_date/(max_date - min_date).days
+        current_date = current_date / (max_date - min_date).days
     elif max_date == min_date:
         current_date = 0
 
@@ -246,23 +240,19 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
     Returns:
         float: the position of the current datehour in the min_datehour:max_datehour range
     """
-    current_datehour = (datetime_col - min_datehour)\
-        .apply(lambda x: x.days*24 + x.seconds/3600)
+    current_datehour = (datetime_col - min_datehour).apply(lambda x: x.days * 24 + x.seconds / 3600)
 
     max_min_diff = max_datehour - min_datehour
-    
+
     if max_min_diff != 0:
-        current_datehour = current_datehour/\
-                           (max_min_diff.days * 24 + max_min_diff.seconds/3600)
+        current_datehour = current_datehour / (max_min_diff.days * 24 + max_min_diff.seconds / 3600)
     elif max_min_diff == 0:
         current_datehour = 0
 
     return current_datehour
 
 
-def normalized_columns(datetime_col, value_col,
-                       mode='log',
-                       output_colname='normalized_columns'):
+def normalized_columns(datetime_col, value_col, mode="log", output_colname="normalized_columns"):
     """
     Creates columns normalized to be log of input columns devided by global average of each columns,
     or normalized using maximum and minimum.
@@ -276,27 +266,27 @@ def normalized_columns(datetime_col, value_col,
     Returns:
         Normalized value column.
     """
-    
+
     if not is_datetime_like(datetime_col):
         datetime_col = pd.to_datetime(datetime_col, format=DATETIME_FORMAT)
 
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
+    df = pd.DataFrame({"Datetime": datetime_col, "value": value_col})
+    df.set_index("Datetime", inplace=True)
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
 
-    if mode == 'log':
-        mean_value = df['value'].mean()
+    if mode == "log":
+        mean_value = df["value"].mean()
         if mean_value != 0:
-            df[output_colname] = np.log(df['value']/mean_value)
+            df[output_colname] = np.log(df["value"] / mean_value)
         elif mean_value == 0:
             df[output_colname] = 0
-    elif mode == 'minmax':
-        min_value = min(df['value'])
-        max_value = max(df['value'])
+    elif mode == "minmax":
+        min_value = min(df["value"])
+        max_value = max(df["value"])
         if min_value != max_value:
-            df[output_colname] = (df['value'] - min_value)/(max_value - min_value)
+            df[output_colname] = (df["value"] - min_value) / (max_value - min_value)
         elif min_value == max_value:
             df[output_colname] = 0
     else:
@@ -318,7 +308,7 @@ def fourier_approximation(t, n, period):
         float: Sine component
         float: Cosine component
     """
-    x = n * 2 * np.pi * t/period
+    x = n * 2 * np.pi * t / period
     x_sin = np.sin(x)
     x_cos = np.cos(x)
 
@@ -340,11 +330,11 @@ def annual_fourier(datetime_col, n_harmonics):
     day_of_year = datetime_col.dt.dayofyear
 
     output_dict = {}
-    for n in range(1, n_harmonics+1):
+    for n in range(1, n_harmonics + 1):
         sin, cos = fourier_approximation(day_of_year, n, 365.24)
 
-        output_dict['annual_sin_'+str(n)] = sin
-        output_dict['annual_cos_'+str(n)] = cos
+        output_dict["annual_sin_" + str(n)] = sin
+        output_dict["annual_cos_" + str(n)] = cos
 
     return output_dict
 
@@ -364,11 +354,11 @@ def weekly_fourier(datetime_col, n_harmonics):
     day_of_week = datetime_col.dt.dayofweek + 1
 
     output_dict = {}
-    for n in range(1, n_harmonics+1):
+    for n in range(1, n_harmonics + 1):
         sin, cos = fourier_approximation(day_of_week, n, 7)
 
-        output_dict['weekly_sin_'+str(n)] = sin
-        output_dict['weekly_cos_'+str(n)] = cos
+        output_dict["weekly_sin_" + str(n)] = sin
+        output_dict["weekly_cos_" + str(n)] = cos
 
     return output_dict
 
@@ -388,20 +378,18 @@ def daily_fourier(datetime_col, n_harmonics):
     hour_of_day = datetime_col.dt.hour + 1
 
     output_dict = {}
-    for n in range(1, n_harmonics+1):
+    for n in range(1, n_harmonics + 1):
         sin, cos = fourier_approximation(hour_of_day, n, 24)
 
-        output_dict['daily_sin_'+str(n)] = sin
-        output_dict['daily_cos_'+str(n)] = cos
+        output_dict["daily_sin_" + str(n)] = sin
+        output_dict["daily_cos_" + str(n)] = cos
 
     return output_dict
 
 
-def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
-                           week_window=1, 
-                           agg_func='mean',
-                           q=None,
-                           output_colname='SameWeekHourLag'):
+def same_week_day_hour_lag(
+    datetime_col, value_col, n_years=3, week_window=1, agg_func="mean", q=None, output_colname="SameWeekHourLag"
+):
     """
     Creates a lag feature by calculating quantiles, mean and std of values of and
     around the same week, same day of week, and same hour of day, of previous years.
@@ -428,12 +416,11 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
     min_time_stamp = min(datetime_col)
     max_time_stamp = max(datetime_col)
 
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
+    df = pd.DataFrame({"Datetime": datetime_col, "value": value_col})
+    df.set_index("Datetime", inplace=True)
 
     week_lag_base = 52
-    week_lag_last_year = list(range(week_lag_base - week_window,
-                              week_lag_base + week_window + 1))
+    week_lag_last_year = list(range(week_lag_base - week_window, week_lag_base + week_window + 1))
     week_lag_all = []
     for y in range(n_years):
         week_lag_all += [x + y * 52 for x in week_lag_last_year]
@@ -441,7 +428,7 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
     week_lag_cols = []
     for w in week_lag_all:
         if (max_time_stamp - timedelta(weeks=w)) >= min_time_stamp:
-            col_name = 'week_lag_' + str(w)
+            col_name = "week_lag_" + str(w)
             week_lag_cols.append(col_name)
 
             lag_datetime = df.index.get_level_values(0) - timedelta(weeks=w)
@@ -449,25 +436,22 @@ def same_week_day_hour_lag(datetime_col, value_col, n_years=3,
 
             df[col_name] = np.nan
 
-            df.loc[valid_lag_mask, col_name] = \
-                df.loc[lag_datetime[valid_lag_mask], 'value'].values
+            df.loc[valid_lag_mask, col_name] = df.loc[lag_datetime[valid_lag_mask], "value"].values
 
     # Additional aggregation options will be added as needed
-    if agg_func == 'mean' and q == None:
+    if agg_func == "mean" and q is None:
         df[output_colname] = round(df[week_lag_cols].mean(axis=1))
-    elif agg_func == 'quantile' and q != None:
+    elif agg_func == "quantile" and q is not None:
         df[output_colname] = round(df[week_lag_cols].quantile(q, axis=1))
-    elif agg_func == 'std' and q == None:
+    elif agg_func == "std" and q is None:
         df[output_colname] = round(df[week_lag_cols].std(axis=1))
 
     return df[[output_colname]]
 
 
-def same_day_hour_lag(datetime_col, value_col, n_years=3,
-                      day_window=1, 
-                      agg_func='mean',
-                      q=None,
-                      output_colname='SameDayHourLag'):
+def same_day_hour_lag(
+    datetime_col, value_col, n_years=3, day_window=1, agg_func="mean", q=None, output_colname="SameDayHourLag"
+):
     """
     Creates a lag feature by calculating quantiles, mean, and std of values of
     and around the same day of year, and same hour of day, of previous years.
@@ -494,12 +478,11 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
     min_time_stamp = min(datetime_col)
     max_time_stamp = max(datetime_col)
 
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
+    df = pd.DataFrame({"Datetime": datetime_col, "value": value_col})
+    df.set_index("Datetime", inplace=True)
 
     day_lag_base = 365
-    day_lag_last_year = list(range(day_lag_base - day_window,
-                                   day_lag_base + day_window + 1))
+    day_lag_last_year = list(range(day_lag_base - day_window, day_lag_base + day_window + 1))
     day_lag_all = []
     for y in range(n_years):
         day_lag_all += [x + y * 365 for x in day_lag_last_year]
@@ -507,7 +490,7 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
     day_lag_cols = []
     for d in day_lag_all:
         if (max_time_stamp - timedelta(days=d)) >= min_time_stamp:
-            col_name = 'day_lag_' + str(d)
+            col_name = "day_lag_" + str(d)
             day_lag_cols.append(col_name)
 
             lag_datetime = df.index.get_level_values(0) - timedelta(days=d)
@@ -515,24 +498,28 @@ def same_day_hour_lag(datetime_col, value_col, n_years=3,
 
             df[col_name] = np.nan
 
-            df.loc[valid_lag_mask, col_name] = \
-                df.loc[lag_datetime[valid_lag_mask], 'value'].values
+            df.loc[valid_lag_mask, col_name] = df.loc[lag_datetime[valid_lag_mask], "value"].values
 
     # Additional aggregation options will be added as needed
-    if agg_func == 'mean' and q == None:
+    if agg_func == "mean" and q is None:
         df[output_colname] = round(df[day_lag_cols].mean(axis=1))
-    elif agg_func == 'quantile' and q != None:
+    elif agg_func == "quantile" and q is not None:
         df[output_colname] = round(df[day_lag_cols].quantile(q, axis=1))
-    elif agg_func == 'std' and q == None:
+    elif agg_func == "std" and q is None:
         df[output_colname] = round(df[day_lag_cols].std(axis=1))
 
     return df[[output_colname]]
 
 
-def same_day_hour_moving_average(datetime_col, value_col, window_size,
-                                 start_week, average_count,
-                                 forecast_creation_time,
-                                 output_col_prefix='moving_average_lag_'):
+def same_day_hour_moving_average(
+    datetime_col,
+    value_col,
+    window_size,
+    start_week,
+    average_count,
+    forecast_creation_time,
+    output_col_prefix="moving_average_lag_",
+):
     """
     Creates moving average features by averaging values of the same day of
     week and same hour of day of previous weeks.
@@ -563,41 +550,47 @@ def same_day_hour_moving_average(datetime_col, value_col, window_size,
     11th, 12th, 13th, and 14th weeks before the current week.
     """
 
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
+    df = pd.DataFrame({"Datetime": datetime_col, "value": value_col})
+    df.set_index("Datetime", inplace=True)
 
-    df = df.asfreq('H')
+    df = df.asfreq("H")
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
 
-    df['fct_diff'] = df.index - forecast_creation_time
-    df['fct_diff'] = df['fct_diff'].apply(lambda x: x.days*24 + x.seconds/3600)
-    max_diff = max(df['fct_diff'])
+    df["fct_diff"] = df.index - forecast_creation_time
+    df["fct_diff"] = df["fct_diff"].apply(lambda x: x.days * 24 + x.seconds / 3600)
+    max_diff = max(df["fct_diff"])
 
     for i in range(average_count):
-        output_col = output_col_prefix + str(start_week+i)
+        output_col = output_col_prefix + str(start_week + i)
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
         if len(hour_lags) > 0:
-            tmp_df = df[['value']].copy()
+            tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
-                tmp_col = 'tmp_lag_' + str(h)
+                tmp_col = "tmp_lag_" + str(h)
                 tmp_col_all.append(tmp_col)
-                tmp_df[tmp_col] = tmp_df['value'].shift(h)
+                tmp_df[tmp_col] = tmp_df["value"].shift(h)
 
             df[output_col] = round(tmp_df[tmp_col_all].mean(axis=1))
-    df.drop(['fct_diff','value'], inplace=True, axis=1)
+    df.drop(["fct_diff", "value"], inplace=True, axis=1)
 
     return df
 
 
-def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
-                                 start_week, quantile_count, q,
-                                 forecast_creation_time,
-                                 output_col_prefix='moving_quatile_lag_'):
+def same_day_hour_moving_quantile(
+    datetime_col,
+    value_col,
+    window_size,
+    start_week,
+    quantile_count,
+    q,
+    forecast_creation_time,
+    output_col_prefix="moving_quatile_lag_",
+):
     """
     Creates a series of quantiles features by calculating quantiles of values of
     the same day of week and same hour of day of previous weeks.
@@ -629,42 +622,47 @@ def same_day_hour_moving_quantile(datetime_col, value_col, window_size,
     11th, 12th, 13th, and 14th weeks before the current week.
     """
 
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
+    df = pd.DataFrame({"Datetime": datetime_col, "value": value_col})
+    df.set_index("Datetime", inplace=True)
 
-    df = df.asfreq('H')
+    df = df.asfreq("H")
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
 
-    df['fct_diff'] = df.index - forecast_creation_time
-    df['fct_diff'] = df['fct_diff'].apply(lambda x: x.days*24 + x.seconds/3600)
-    max_diff = max(df['fct_diff'])
+    df["fct_diff"] = df.index - forecast_creation_time
+    df["fct_diff"] = df["fct_diff"].apply(lambda x: x.days * 24 + x.seconds / 3600)
+    max_diff = max(df["fct_diff"])
 
     for i in range(quantile_count):
-        output_col = output_col_prefix + str(start_week+i)
+        output_col = output_col_prefix + str(start_week + i)
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
         if len(hour_lags) > 0:
-            tmp_df = df[['value']].copy()
+            tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
-                tmp_col = 'tmp_lag_' + str(h)
+                tmp_col = "tmp_lag_" + str(h)
                 tmp_col_all.append(tmp_col)
-                tmp_df[tmp_col] = tmp_df['value'].shift(h)
+                tmp_df[tmp_col] = tmp_df["value"].shift(h)
 
         df[output_col] = round(tmp_df[tmp_col_all].quantile(q, axis=1))
-        
-    df.drop(['fct_diff','value'], inplace=True, axis=1)
+
+    df.drop(["fct_diff", "value"], inplace=True, axis=1)
 
     return df
 
 
-def same_day_hour_moving_std(datetime_col, value_col, window_size,
-                             start_week, std_count,
-                             forecast_creation_time,
-                             output_col_prefix='moving_std_lag_'):
+def same_day_hour_moving_std(
+    datetime_col,
+    value_col,
+    window_size,
+    start_week,
+    std_count,
+    forecast_creation_time,
+    output_col_prefix="moving_std_lag_",
+):
     """
     Creates standard deviation features by calculating std of values of the
     same day of week and same hour of day of previous weeks.
@@ -695,44 +693,49 @@ def same_day_hour_moving_std(datetime_col, value_col, window_size,
     11th, 12th, 13th, and 14th weeks before the current week.
     """
 
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
+    df = pd.DataFrame({"Datetime": datetime_col, "value": value_col})
+    df.set_index("Datetime", inplace=True)
 
-    df = df.asfreq('H')
+    df = df.asfreq("H")
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
 
-    df['fct_diff'] = df.index - forecast_creation_time
-    df['fct_diff'] = df['fct_diff'].apply(lambda x: x.days*24 + x.seconds/3600)
-    max_diff = max(df['fct_diff'])
+    df["fct_diff"] = df.index - forecast_creation_time
+    df["fct_diff"] = df["fct_diff"].apply(lambda x: x.days * 24 + x.seconds / 3600)
+    max_diff = max(df["fct_diff"])
 
     for i in range(std_count):
-        output_col = output_col_prefix + str(start_week+i)
+        output_col = output_col_prefix + str(start_week + i)
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
         if len(hour_lags) > 0:
-            tmp_df = df[['value']].copy()
+            tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
-                tmp_col = 'tmp_lag_' + str(h)
+                tmp_col = "tmp_lag_" + str(h)
                 tmp_col_all.append(tmp_col)
-                tmp_df[tmp_col] = tmp_df['value'].shift(h)
+                tmp_df[tmp_col] = tmp_df["value"].shift(h)
 
             df[output_col] = round(tmp_df[tmp_col_all].std(axis=1))
 
-    df.drop(['value','fct_diff'], inplace=True, axis=1)
+    df.drop(["value", "fct_diff"], inplace=True, axis=1)
 
     return df
 
 
-def same_day_hour_moving_agg(datetime_col, value_col, window_size,
-                             start_week, count,
-                             forecast_creation_time,
-                             agg_func='mean',
-                             q=None,
-                             output_col_prefix='moving_agg_lag_'):
+def same_day_hour_moving_agg(
+    datetime_col,
+    value_col,
+    window_size,
+    start_week,
+    count,
+    forecast_creation_time,
+    agg_func="mean",
+    q=None,
+    output_col_prefix="moving_agg_lag_",
+):
     """
     Creates a series of aggregation features by calculating mean, quantiles,
     or std of values of the same day of week and same hour of day of previous weeks.
@@ -766,39 +769,38 @@ def same_day_hour_moving_agg(datetime_col, value_col, window_size,
     11th, 12th, 13th, and 14th weeks before the current week.
     """
 
-    df = pd.DataFrame({'Datetime': datetime_col, 'value': value_col})
-    df.set_index('Datetime', inplace=True)
+    df = pd.DataFrame({"Datetime": datetime_col, "value": value_col})
+    df.set_index("Datetime", inplace=True)
 
-    df = df.asfreq('H')
+    df = df.asfreq("H")
 
     if not df.index.is_monotonic:
         df.sort_index(inplace=True)
 
-    df['fct_diff'] = df.index - forecast_creation_time
-    df['fct_diff'] = df['fct_diff'].apply(lambda x: x.days*24 + x.seconds/3600)
-    max_diff = max(df['fct_diff'])
+    df["fct_diff"] = df.index - forecast_creation_time
+    df["fct_diff"] = df["fct_diff"].apply(lambda x: x.days * 24 + x.seconds / 3600)
+    max_diff = max(df["fct_diff"])
 
     for i in range(count):
-        output_col = output_col_prefix + str(start_week+i)
+        output_col = output_col_prefix + str(start_week + i)
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
         if len(hour_lags) > 0:
-            tmp_df = df[['value']].copy()
+            tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
-                tmp_col = 'tmp_lag_' + str(h)
+                tmp_col = "tmp_lag_" + str(h)
                 tmp_col_all.append(tmp_col)
-                tmp_df[tmp_col] = tmp_df['value'].shift(h)
+                tmp_df[tmp_col] = tmp_df["value"].shift(h)
 
-        if agg_func == 'mean' and q == None:
-            df[output_col] = round(tmp_df[tmp_col_all].mean(axis=1))        
-        elif agg_func == 'quantile' and q != None:
+        if agg_func == "mean" and q is None:
+            df[output_col] = round(tmp_df[tmp_col_all].mean(axis=1))
+        elif agg_func == "quantile" and q is not None:
             df[output_col] = round(tmp_df[tmp_col_all].quantile(q, axis=1))
-        elif agg_func == 'std' and q == None:
+        elif agg_func == "std" and q is None:
             df[output_col] = round(tmp_df[tmp_col_all].std(axis=1))
-            
-    df.drop(['fct_diff','value'], inplace=True, axis=1)
-    
+
+    df.drop(["fct_diff", "value"], inplace=True, axis=1)
 
     return df

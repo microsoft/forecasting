@@ -1,10 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from abc import abstractmethod
 import pandas as pd
 import numpy as np
 from collections import Iterable
 
-from tsperf.feature_engineering.base_ts_estimators import BaseTSFeaturizer
-from tsperf.feature_engineering.utils import convert_to_tsdf, is_iterable_but_not_string
+from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from forecasting_lib.feature_engineering.utils import convert_to_tsdf, is_iterable_but_not_string
 
 
 class BaseLagFeaturizer(BaseTSFeaturizer):
@@ -38,10 +41,7 @@ class BaseLagFeaturizer(BaseTSFeaturizer):
     @max_horizon.setter
     def max_horizon(self, val):
         if val is None and not self.future_value_available:
-            raise Exception(
-                "max_horizon must be set when "
-                "future_value_available is False"
-            )
+            raise Exception("max_horizon must be set when " "future_value_available is False")
         self._max_horizon = val
 
     @abstractmethod
@@ -80,23 +80,11 @@ class BaseLagFeaturizer(BaseTSFeaturizer):
                 "to convert it first."
             )
         input_col_names = input_df.columns
-        tmp_df = pd.DataFrame(
-            {input_df.index.name: input_df.index.get_level_values(0)}
-        )
-        lag_df = pd.DataFrame(
-            {input_df.index.name: input_df.index.get_level_values(0)}
-        )
+        tmp_df = pd.DataFrame({input_df.index.name: input_df.index.get_level_values(0)})
+        lag_df = pd.DataFrame({input_df.index.name: input_df.index.get_level_values(0)})
         for lag in lags:
-            tmp_df["lag_time"] = (
-                input_df.index.get_level_values(0) - int(lag) * offset
-            )
-            lag_df_cur = pd.merge(
-                tmp_df,
-                input_df,
-                how="left",
-                left_on="lag_time",
-                right_index=True,
-            )
+            tmp_df["lag_time"] = input_df.index.get_level_values(0) - int(lag) * offset
+            lag_df_cur = pd.merge(tmp_df, input_df, how="left", left_on="lag_time", right_index=True,)
             for col in input_col_names:
                 lag_df[col + "_lag_" + str(lag)] = lag_df_cur[col]
 
@@ -121,9 +109,7 @@ class BaseLagFeaturizer(BaseTSFeaturizer):
         """
         self._check_config_cols_exist(X)
 
-        col_names = (
-            [self.time_col_name] + self.input_col_names + self.ts_id_col_names
-        )
+        col_names = [self.time_col_name] + self.input_col_names + self.ts_id_col_names
         merge_col_names = [self.time_col_name] + self.ts_id_col_names
 
         if self.train_df is not None:
@@ -138,9 +124,7 @@ class BaseLagFeaturizer(BaseTSFeaturizer):
                 # Compute an imaginary forecast creation time for the training
                 # data based on the maximum horizon to forecast on
                 max_train_timestamp = time_col.max()
-                forecast_creation_time = (
-                    max_train_timestamp - self.max_horizon * self._offset
-                )
+                forecast_creation_time = max_train_timestamp - self.max_horizon * self._offset
             else:
                 forecast_creation_time = time_col.max()
             X_tmp = X[col_names].copy()
@@ -158,9 +142,7 @@ class BaseLagFeaturizer(BaseTSFeaturizer):
             # X_lag_tmp.fillna(method='ffill', inplace=True)
 
         if self.train_df is not None:
-            X_lag_tmp = X_lag_tmp.loc[
-                X_lag_tmp[self.time_col_name] > forecast_creation_time
-            ].copy()
+            X_lag_tmp = X_lag_tmp.loc[X_lag_tmp[self.time_col_name] > forecast_creation_time].copy()
         X = pd.merge(X, X_lag_tmp, on=merge_col_names)
 
         if X.shape[0] == 0:
@@ -205,44 +187,25 @@ class BasePeriodicLagFeaturizer(BaseLagFeaturizer):
             pandas.DataFrame: Data frame with time column and lag features.
         """
         input_df = input_df.copy()
-        input_df = convert_to_tsdf(
-            input_df,
-            time_col_name=self.time_col_name,
-            time_format=self.time_format,
-        )
+        input_df = convert_to_tsdf(input_df, time_col_name=self.time_col_name, time_format=self.time_format,)
 
-        output_df = pd.DataFrame(
-            {self.time_col_name: input_df.index.get_level_values(0)}
-        )
+        output_df = pd.DataFrame({self.time_col_name: input_df.index.get_level_values(0)})
         min_time_stamp = output_df[self.time_col_name].min()
         max_time_stamp = output_df[self.time_col_name].max()
 
         if not self.future_value_available:
-            input_df.loc[
-                input_df.index.get_level_values(0) > forecast_creation_time,
-                self.input_col_names,
-            ] = np.nan
+            input_df.loc[input_df.index.get_level_values(0) > forecast_creation_time, self.input_col_names,] = np.nan
 
         lag_all = self._calculate_lags()
 
-        lag_all = [
-            lag
-            for lag in lag_all
-            if (max_time_stamp - int(lag) * self._lag_offset) >= min_time_stamp
-        ]
+        lag_all = [lag for lag in lag_all if (max_time_stamp - int(lag) * self._lag_offset) >= min_time_stamp]
 
-        lag_df = self._create_lag_df(
-            input_df[self.input_col_names],
-            lags=lag_all,
-            offset=self._lag_offset,
-        )
+        lag_df = self._create_lag_df(input_df[self.input_col_names], lags=lag_all, offset=self._lag_offset,)
         for col in self.input_col_names:
             lag_cols = [c for c in lag_df.columns if c.startswith(col)]
             output_col_name = col + "_" + self.output_col_suffix
 
-            output_df[output_col_name] = lag_df[lag_cols].apply(
-                self.agg_func, axis=1, **self.agg_args
-            )
+            output_df[output_col_name] = lag_df[lag_cols].apply(self.agg_func, axis=1, **self.agg_args)
             if self.round_agg_result:
                 output_df[output_col_name] = round(output_df[output_col_name])
         output_df.set_index(self.time_col_name, inplace=True)
@@ -334,13 +297,7 @@ class LagFeaturizer(BaseLagFeaturizer):
     """
 
     def __init__(
-        self,
-        df_config,
-        input_col_names,
-        lags,
-        future_value_available=False,
-        max_horizon=None,
-        train_df=None,
+        self, df_config, input_col_names, lags, future_value_available=False, max_horizon=None, train_df=None,
     ):
         super().__init__(df_config)
 
@@ -365,10 +322,7 @@ class LagFeaturizer(BaseLagFeaturizer):
         if not self.future_value_available:
             for lag in val:
                 if lag < 0:
-                    raise Exception(
-                        "lag can not be negative when "
-                        "future_value_available is False"
-                    )
+                    raise Exception("lag can not be negative when " "future_value_available is False")
         self._lags = val
 
     def _lag_single_ts(self, input_df, forecast_creation_time):
@@ -383,21 +337,12 @@ class LagFeaturizer(BaseLagFeaturizer):
         Returns:
             pandas.DataFrame: Data frame with time column and lag features.
         """
-        input_df = convert_to_tsdf(
-            input_df,
-            time_col_name=self.time_col_name,
-            time_format=self.time_format,
-        )
+        input_df = convert_to_tsdf(input_df, time_col_name=self.time_col_name, time_format=self.time_format,)
 
         if not self.future_value_available:
-            input_df.loc[
-                input_df.index.get_level_values(0) > forecast_creation_time,
-                self.input_col_names,
-            ] = np.nan
+            input_df.loc[input_df.index.get_level_values(0) > forecast_creation_time, self.input_col_names,] = np.nan
 
-        lag_df = self._create_lag_df(
-            input_df[self.input_col_names], lags=self.lags, offset=self._offset
-        )
+        lag_df = self._create_lag_df(input_df[self.input_col_names], lags=self.lags, offset=self._offset)
 
         lag_df.set_index(self.time_col_name, inplace=True)
 
@@ -542,12 +487,7 @@ class SameWeekOfYearLagFeaturizer(BasePeriodicLagFeaturizer):
     def _calculate_lags(self):
         """Calculate of list of numbers of weeks to lag."""
         week_lag_base = 52
-        week_lag_last_year = list(
-            range(
-                week_lag_base - self.week_window,
-                week_lag_base + self.week_window + 1,
-            )
-        )
+        week_lag_last_year = list(range(week_lag_base - self.week_window, week_lag_base + self.week_window + 1,))
         week_lag_all = []
         for i in range(self.n_years):
             week_lag_all += [j + i * 52 for j in week_lag_last_year]
@@ -691,12 +631,7 @@ class SameDayOfYearLagFeaturizer(BasePeriodicLagFeaturizer):
     def _calculate_lags(self):
         """Calculates a list of numbers of days to lag."""
         day_lag_base = 365
-        day_lag_last_year = list(
-            range(
-                day_lag_base - self.day_window,
-                day_lag_base + self.day_window + 1,
-            )
-        )
+        day_lag_last_year = list(range(day_lag_base - self.day_window, day_lag_base + self.day_window + 1,))
         day_lag_all = []
         for i in range(self.n_years):
             day_lag_all += [j + i * 365 for j in day_lag_last_year]

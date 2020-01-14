@@ -1,5 +1,8 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from datetime import datetime
-from common.utils import get_offset_by_frequency
+from forecasting_lib.common.utils import get_offset_by_frequency
 
 
 class TSCVSplitter:
@@ -117,23 +120,17 @@ class TSCVSplitter:
         if "validation_step_unit" not in back_test_config:
             self.validation_step_unit = self.data_frequency
         else:
-            self.validation_step_unit = back_test_config[
-                "validation_step_unit"
-            ]
+            self.validation_step_unit = back_test_config["validation_step_unit"]
 
         if "train_validation_gap" not in back_test_config:
             self.train_validation_gap = 1
         else:
-            self.train_validation_gap = back_test_config[
-                "train_validation_gap"
-            ]
+            self.train_validation_gap = back_test_config["train_validation_gap"]
 
         if "train_validation_gap_unit" not in back_test_config:
             self.train_validation_gap_unit = self.data_frequency
         else:
-            self.train_validation_gap_unit = back_test_config[
-                "train_validation_gap_unit"
-            ]
+            self.train_validation_gap_unit = back_test_config["train_validation_gap_unit"]
 
         if "fixed_train_size" not in back_test_config:
             self.fixed_train_size = False
@@ -147,12 +144,8 @@ class TSCVSplitter:
         self.train_validation_split = self.create_train_validation_split()
 
     def _compute_train_size(self, train_validation_split, round_number):
-        round_split = train_validation_split[
-            self._round_name_prefix + str(round_number)
-        ]
-        train_size = (
-            round_split["train_range"][1] - round_split["train_range"][0]
-        )
+        round_split = train_validation_split[self._round_name_prefix + str(round_number)]
+        train_size = round_split["train_range"][1] - round_split["train_range"][0]
 
         return train_size
 
@@ -161,30 +154,17 @@ class TSCVSplitter:
             Creates cross validation time ranges for given back test
             configuration.
         """
-        validation_step_offset = get_offset_by_frequency(
-            self.validation_step_unit
-        )
-        train_validation_gap_offset = get_offset_by_frequency(
-            self.train_validation_gap_unit
-        )
+        validation_step_offset = get_offset_by_frequency(self.validation_step_unit)
+        train_validation_gap_offset = get_offset_by_frequency(self.train_validation_gap_unit)
 
         train_validation_split = {}
-        train_start = datetime.strptime(
-            self.train_start_time, self.time_format
-        )
-        validation_end = datetime.strptime(
-            self.train_end_time, self.time_format
-        )
+        train_start = datetime.strptime(self.train_start_time, self.time_format)
+        validation_end = datetime.strptime(self.train_end_time, self.time_format)
         for iR in range(self.cv_folds):
             fold_number = self.cv_folds - iR
-            validation_start = (
-                validation_end - self.validation_steps * validation_step_offset
-            )
+            validation_start = validation_end - self.validation_steps * validation_step_offset
 
-            train_end = (
-                validation_start
-                - self.train_validation_gap * train_validation_gap_offset
-            )
+            train_end = validation_start - self.train_validation_gap * train_validation_gap_offset
 
             if train_end < train_start:
                 raise Exception(
@@ -193,66 +173,39 @@ class TSCVSplitter:
                     "validation_stride, "
                     "or validation_steps".format(self.cv_folds)
                 )
-            train_validation_split[
-                self._round_name_prefix + str(fold_number)
-            ] = {
+            train_validation_split[self._round_name_prefix + str(fold_number)] = {
                 "train_range": [train_start, train_end],
                 "validation_range": [validation_start, validation_end],
             }
 
             # Update validation_end for the next fold
-            validation_end = (
-                validation_end
-                - self.validation_stride * validation_step_offset
-            )
+            validation_end = validation_end - self.validation_stride * validation_step_offset
 
         if self.fixed_train_size is True:
-            first_round_train_size = self._compute_train_size(
-                train_validation_split, 1
-            )
-            last_round_train_size = self._compute_train_size(
-                train_validation_split, self.cv_folds
-            )
+            first_round_train_size = self._compute_train_size(train_validation_split, 1)
+            last_round_train_size = self._compute_train_size(train_validation_split, self.cv_folds)
             if first_round_train_size < last_round_train_size:
                 for iR in range(2, self.cv_folds + 1):
-                    round_train_size = self._compute_train_size(
-                        train_validation_split, iR
-                    )
+                    round_train_size = self._compute_train_size(train_validation_split, iR)
                     if round_train_size > first_round_train_size:
                         round_name = self._round_name_prefix + str(iR)
-                        train_end = train_validation_split[round_name][
-                            "train_range"
-                        ][1]
+                        train_end = train_validation_split[round_name]["train_range"][1]
                         train_start_new = train_end - first_round_train_size
-                        train_validation_split[round_name]["train_range"][
-                            0
-                        ] = train_start_new
+                        train_validation_split[round_name]["train_range"][0] = train_start_new
 
         for iR in range(1, self.cv_folds + 1):
             round_name = self._round_name_prefix + str(iR)
-            train_validation_split[round_name]["train_range"][
+            train_validation_split[round_name]["train_range"][0] = train_validation_split[round_name]["train_range"][
                 0
-            ] = train_validation_split[round_name]["train_range"][0].strftime(
-                self.time_format
-            )
-            train_validation_split[round_name]["train_range"][
+            ].strftime(self.time_format)
+            train_validation_split[round_name]["train_range"][1] = train_validation_split[round_name]["train_range"][
                 1
-            ] = train_validation_split[round_name]["train_range"][1].strftime(
-                self.time_format
-            )
-            train_validation_split[round_name]["validation_range"][
-                0
-            ] = train_validation_split[round_name]["validation_range"][
-                0
-            ].strftime(
-                self.time_format
-            )
-            train_validation_split[round_name]["validation_range"][
-                1
-            ] = train_validation_split[round_name]["validation_range"][
-                1
-            ].strftime(
-                self.time_format
-            )
+            ].strftime(self.time_format)
+            train_validation_split[round_name]["validation_range"][0] = train_validation_split[round_name][
+                "validation_range"
+            ][0].strftime(self.time_format)
+            train_validation_split[round_name]["validation_range"][1] = train_validation_split[round_name][
+                "validation_range"
+            ][1].strftime(self.time_format)
 
         return train_validation_split

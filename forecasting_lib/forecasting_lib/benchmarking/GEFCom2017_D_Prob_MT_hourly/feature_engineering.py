@@ -122,9 +122,7 @@ def parse_feature_config(feature_config, feature_map):
     return feature_name, feature_args, featurizer
 
 
-def compute_training_features(
-    train_df, df_config, feature_config_list, feature_map, max_horizon
-):
+def compute_training_features(train_df, df_config, feature_config_list, feature_map, max_horizon):
     """
     Creates a pipeline based on the input feature configuration list and the
     feature_map. Fit the pipeline on the training data and transform
@@ -158,29 +156,20 @@ def compute_training_features(
     """
     pipeline_steps = []
     for feature_config in feature_config_list:
-        feature_name, feature_args, featurizer = parse_feature_config(
-            feature_config, feature_map
-        )
+        feature_name, feature_args, featurizer = parse_feature_config(feature_config, feature_map)
         if feature_name in FEATURES_REQUIRE_MAX_HORIZON:
             feature_args["max_horizon"] = max_horizon
-        pipeline_steps.append(
-            (feature_name, featurizer(df_config=df_config, **feature_args))
-        )
+        pipeline_steps.append((feature_name, featurizer(df_config=df_config, **feature_args)))
 
     feature_engineering_pipeline = Pipeline(pipeline_steps)
-    feature_engineering_pipeline_fitted = feature_engineering_pipeline.fit(
-        train_df
-    )
+    feature_engineering_pipeline_fitted = feature_engineering_pipeline.fit(train_df)
     train_features = feature_engineering_pipeline_fitted.transform(train_df)
 
     return train_features, feature_engineering_pipeline_fitted
 
 
 def compute_testing_features(
-    test_df,
-    feature_engineering_pipeline,
-    feature_config_list=None,
-    train_df=None,
+    test_df, feature_engineering_pipeline, feature_config_list=None, train_df=None,
 ):
 
     """
@@ -256,41 +245,22 @@ def compute_features_one_round(
     max_train_timestamp = train_round_df[df_config["time_col_name"]].max()
     max_test_timestamp = test_df[df_config["time_col_name"]].max()
     train_test_diff = max_test_timestamp - max_train_timestamp
-    max_horizon = ceil(
-        train_test_diff.days * 24 + train_test_diff.seconds / 3600
-    )
+    max_horizon = ceil(train_test_diff.days * 24 + train_test_diff.seconds / 3600)
     train_features, feature_pipeline = compute_training_features(
-        train_round_df,
-        df_config,
-        feature_config_list,
-        feature_map,
-        max_horizon,
+        train_round_df, df_config, feature_config_list, feature_map, max_horizon,
     )
 
-    test_features = compute_testing_features(
-        test_df, feature_pipeline, feature_config_list, train_round_df
-    )
+    test_features = compute_testing_features(test_df, feature_pipeline, feature_config_list, train_round_df)
 
     if compute_load_ratio:
-        rolling_window_args = LOAD_RATIO_CONFIG[
-            "same_day_of_week_rolling_args"
-        ]
-        previous_years_lag_args = LOAD_RATIO_CONFIG[
-            "same_week_of_year_lag_args"
-        ]
+        rolling_window_args = LOAD_RATIO_CONFIG["same_day_of_week_rolling_args"]
+        previous_years_lag_args = LOAD_RATIO_CONFIG["same_week_of_year_lag_args"]
         same_week_day_hour_rolling_featurizer = SameDayOfWeekRollingWindowFeaturizer(
-            df_config,
-            input_col_names=df_config["target_col_name"],
-            max_horizon=max_horizon,
-            **rolling_window_args
+            df_config, input_col_names=df_config["target_col_name"], max_horizon=max_horizon, **rolling_window_args
         )
-        train_df_with_recent_load = same_week_day_hour_rolling_featurizer.transform(
-            train_round_df
-        )
+        train_df_with_recent_load = same_week_day_hour_rolling_featurizer.transform(train_round_df)
         same_week_day_hour_rolling_featurizer.train_df = train_round_df
-        test_df_with_recent_load = same_week_day_hour_rolling_featurizer.transform(
-            test_df
-        )
+        test_df_with_recent_load = same_week_day_hour_rolling_featurizer.transform(test_df)
 
         time_col_name = df_config["time_col_name"]
         ts_id_col_names = df_config["ts_id_col_names"]
@@ -304,16 +274,8 @@ def compute_features_one_round(
         start_week = rolling_window_args["start_week"]
         end_week = start_week + rolling_window_args["agg_count"]
         for i in range(start_week, end_week):
-            col_old = (
-                df_config["target_col_name"]
-                + "_"
-                + rolling_window_args["output_col_suffix"]
-                + "_"
-                + str(i)
-            )
-            col_new = (
-                col_old + "_" + previous_years_lag_args["output_col_suffix"]
-            )
+            col_old = df_config["target_col_name"] + "_" + rolling_window_args["output_col_suffix"] + "_" + str(i)
+            col_new = col_old + "_" + previous_years_lag_args["output_col_suffix"]
             col_ratio = "recent_load_ratio_" + str(i)
 
             same_week_day_hour_lag_featurizer = SameWeekOfYearLagFeaturizer(
@@ -324,22 +286,17 @@ def compute_features_one_round(
                 **previous_years_lag_args
             )
 
-            lag_df = same_week_day_hour_lag_featurizer.transform(
-                test_df_with_recent_load
-            )
+            lag_df = same_week_day_hour_lag_featurizer.transform(test_df_with_recent_load)
             lag_df[col_ratio] = lag_df[col_old] / lag_df[col_new]
             lag_df_list.append(lag_df[keep_col_names + [col_ratio]].copy())
 
         test_features = reduce(
-            lambda left, right: pd.merge(left, right, on=keep_col_names),
-            [test_features] + lag_df_list,
+            lambda left, right: pd.merge(left, right, on=keep_col_names), [test_features] + lag_df_list,
         )
 
     if filter_by_month:
         test_month = test_features["month_of_year"].values[0]
-        train_features = train_features.loc[
-            train_features["month_of_year"] == test_month,
-        ].copy()
+        train_features = train_features.loc[train_features["month_of_year"] == test_month,].copy()
 
     train_features.dropna(inplace=True)
 
@@ -347,13 +304,7 @@ def compute_features_one_round(
 
 
 def compute_features(
-    train_dir,
-    test_dir,
-    output_dir,
-    df_config,
-    feature_config_list,
-    filter_by_month=True,
-    compute_load_ratio=False,
+    train_dir, test_dir, output_dir, df_config, feature_config_list, filter_by_month=True, compute_load_ratio=False,
 ):
     """
     Computes training and testing features of all rounds on the
@@ -384,14 +335,10 @@ def compute_features(
     if not os.path.isdir(output_test_dir):
         os.mkdir(output_test_dir)
 
-    train_base_df = pd.read_csv(
-        os.path.join(train_dir, TRAIN_BASE_FILE), parse_dates=[time_col_name]
-    )
+    train_base_df = pd.read_csv(os.path.join(train_dir, TRAIN_BASE_FILE), parse_dates=[time_col_name])
 
     for i in range(1, NUM_ROUND + 1):
-        train_file = os.path.join(
-            train_dir, TRAIN_FILE_PREFIX + str(i) + ".csv"
-        )
+        train_file = os.path.join(train_dir, TRAIN_FILE_PREFIX + str(i) + ".csv")
         test_file = os.path.join(test_dir, TEST_FILE_PREFIX + str(i) + ".csv")
 
         train_delta_df = pd.read_csv(train_file, parse_dates=[time_col_name])
@@ -408,12 +355,8 @@ def compute_features(
             compute_load_ratio,
         )
 
-        train_output_file = os.path.join(
-            output_dir, "train", TRAIN_FILE_PREFIX + str(i) + ".csv"
-        )
-        test_output_file = os.path.join(
-            output_dir, "test", TEST_FILE_PREFIX + str(i) + ".csv"
-        )
+        train_output_file = os.path.join(output_dir, "train", TRAIN_FILE_PREFIX + str(i) + ".csv")
+        test_output_file = os.path.join(output_dir, "test", TEST_FILE_PREFIX + str(i) + ".csv")
 
         train_all_features.to_csv(train_output_file, index=False)
         test_all_features.to_csv(test_output_file, index=False)
@@ -421,24 +364,8 @@ def compute_features(
         print("Round {}".format(i))
         print("Training data size: {}".format(train_all_features.shape))
         print("Testing data size: {}".format(test_all_features.shape))
-        print(
-            "Minimum training timestamp: {}".format(
-                min(train_all_features[time_col_name])
-            )
-        )
-        print(
-            "Maximum training timestamp: {}".format(
-                max(train_all_features[time_col_name])
-            )
-        )
-        print(
-            "Minimum testing timestamp: {}".format(
-                min(test_all_features[time_col_name])
-            )
-        )
-        print(
-            "Maximum testing timestamp: {}".format(
-                max(test_all_features[time_col_name])
-            )
-        )
+        print("Minimum training timestamp: {}".format(min(train_all_features[time_col_name])))
+        print("Maximum training timestamp: {}".format(max(train_all_features[time_col_name])))
+        print("Minimum testing timestamp: {}".format(min(test_all_features[time_col_name])))
+        print("Maximum testing timestamp: {}".format(max(test_all_features[time_col_name])))
         print("")

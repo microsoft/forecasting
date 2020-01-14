@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import datetime
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -13,9 +16,7 @@ ALLOWED_TIME_COLUMN_TYPES = [
 
 def is_datetime_like(x):
     """Function that checks if a data frame column x is of a datetime type."""
-    return any(
-        isinstance(x, col_type) for col_type in ALLOWED_TIME_COLUMN_TYPES
-    )
+    return any(isinstance(x, col_type) for col_type in ALLOWED_TIME_COLUMN_TYPES)
 
 
 def get_datetime_col(df, datetime_colname):
@@ -39,10 +40,7 @@ def get_datetime_col(df, datetime_colname):
     elif datetime_colname in df.columns:
         datetime_col = df[datetime_colname]
     else:
-        raise Exception(
-            "Column or index {0} does not exist in the data "
-            "frame".format(datetime_colname)
-        )
+        raise Exception("Column or index {0} does not exist in the data " "frame".format(datetime_colname))
 
     if not is_datetime_like(datetime_col):
         datetime_col = pd.to_datetime(df[datetime_colname])
@@ -79,10 +77,7 @@ def split_train_validation(df, fct_horizon, datetime_colname):
     for fct, horizon in fct_horizon:
         i_round += 1
         train = df.loc[df[datetime_colname] < fct].copy()
-        validation = df.loc[
-            (df[datetime_colname] >= horizon[0])
-            & (df[datetime_colname] <= horizon[1]),
-        ].copy()
+        validation = df.loc[(df[datetime_colname] >= horizon[0]) & (df[datetime_colname] <= horizon[1]),].copy()
 
         yield i_round, train, validation
 
@@ -119,9 +114,7 @@ def add_datetime(input_datetime, unit, add_count):
         new_datetime = input_datetime + relativedelta(minutes=add_count)
     else:
         raise Exception(
-            "Invalid backtest step unit, {}, provided. Valid "
-            "step units are Y, M, W, D, h, "
-            "and m".format(unit)
+            "Invalid backtest step unit, {}, provided. Valid " "step units are Y, M, W, D, h, " "and m".format(unit)
         )
     return new_datetime
 
@@ -141,9 +134,7 @@ def convert_to_tsdf(input_df, time_col_name, time_format):
     """
     output_df = input_df.copy()
     if not is_datetime_like(output_df[time_col_name]):
-        output_df[time_col_name] = pd.to_datetime(
-            output_df[time_col_name], format=time_format
-        )
+        output_df[time_col_name] = pd.to_datetime(output_df[time_col_name], format=time_format)
 
     output_df.set_index(time_col_name, inplace=True)
 

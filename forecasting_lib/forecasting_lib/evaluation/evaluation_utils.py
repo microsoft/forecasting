@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def MAPE(predictions, actuals):
     """
     Implements Mean Absolute Percent Error (MAPE).
@@ -41,5 +42,5 @@ def pinball_loss(predictions, actuals, q):
     Returns:
         A pandas Series of pinball loss values for each prediction.
     """
-    zeros = pd.Series([0]*len(predictions))
-    return (predictions-actuals).combine(zeros, max)*(1-q) + (actuals-predictions).combine(zeros, max)*q
+    zeros = pd.Series([0] * len(predictions))
+    return (predictions - actuals).combine(zeros, max) * (1 - q) + (actuals - predictions).combine(zeros, max) * q

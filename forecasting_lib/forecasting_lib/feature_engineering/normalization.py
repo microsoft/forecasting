@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """
 A set of classes  for creating normalized time features. These types of
 features are useful for capturing trend in time series data.
@@ -5,8 +8,8 @@ features are useful for capturing trend in time series data.
 from abc import abstractmethod
 import warnings
 import pandas as pd
-from tsperf.feature_engineering.utils import is_datetime_like
-from tsperf.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from forecasting_lib.feature_engineering.utils import is_datetime_like
+from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
 
 
 class BaseTemporalNormalizer(BaseTSFeaturizer):
@@ -59,15 +62,11 @@ class BaseTemporalNormalizer(BaseTSFeaturizer):
             added to the input data frame.
         """
         if not self._is_fit:
-            raise Exception(
-                "The featurizer needs to be fitted first to be "
-                "used to transform data."
-            )
+            raise Exception("The featurizer needs to be fitted first to be " "used to transform data.")
         self._check_config_cols_exist(X)
         if self._output_col_name in X.columns:
             warnings.warn(
-                "Column {} is already in the data frame, "
-                "it will be overwritten.".format(self._output_col_name)
+                "Column {} is already in the data frame, " "it will be overwritten.".format(self._output_col_name)
             )
 
         time_col = X[self.time_col_name]
@@ -106,9 +105,7 @@ class YearNormalizer(BaseTemporalNormalizer):
     def _normalize_time(self, time_col):
         year = time_col.dt.year
         if self.max_time != self.min_time:
-            normalized_time = (year - self.min_time) / (
-                self.max_time - self.min_time
-            )
+            normalized_time = (year - self.min_time) / (self.max_time - self.min_time)
         else:
             normalized_time = 0
 
@@ -143,9 +140,7 @@ class DateNormalizer(BaseTemporalNormalizer):
         current_date = (date - self.min_time).apply(lambda x: x.days)
 
         if self.max_time != self.min_time:
-            normalized_time = (
-                current_date / (self.max_time - self.min_time).days
-            )
+            normalized_time = current_date / (self.max_time - self.min_time).days
         else:
             normalized_time = 0
 
@@ -176,16 +171,12 @@ class DateHourNormalizer(BaseTemporalNormalizer):
         return min_datehour, max_datehour
 
     def _normalize_time(self, time_col):
-        current_datehour = (time_col - self.min_time).apply(
-            lambda x: x.days * 24 + x.seconds / 3600
-        )
+        current_datehour = (time_col - self.min_time).apply(lambda x: x.days * 24 + x.seconds / 3600)
 
         max_min_diff = self.max_time - self.min_time
 
         if max_min_diff != 0:
-            normalized_time = current_datehour / (
-                max_min_diff.days * 24 + max_min_diff.seconds / 3600
-            )
+            normalized_time = current_datehour / (max_min_diff.days * 24 + max_min_diff.seconds / 3600)
         else:
             normalized_time = 0
 

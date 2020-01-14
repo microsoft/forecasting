@@ -17,3 +17,5 @@ ignore =
     E501
     # trailing white spaces
     W291
+    # missing white space after ,
+    E231

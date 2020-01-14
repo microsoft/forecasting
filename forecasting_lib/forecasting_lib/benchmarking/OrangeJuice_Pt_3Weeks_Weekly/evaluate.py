@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """
 This script evaluates an implementation of the 
 OrangeJuice_Pt_3Weeks_Weekly benchmark. It reads in
@@ -18,9 +21,10 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-sys.path.append('.')
-from tsperf.evaluation.evaluation_utils import MAPE
+
+from forecasting_lib.evaluation.evaluation_utils import MAPE
 from benchmark_settings import NUM_ROUNDS
+
 
 def read_test_files(benchmark_dir):
     """Get the ground truth of the forecasts.
@@ -32,11 +36,12 @@ def read_test_files(benchmark_dir):
         Dataframe including the ground truth of all forecast rounds
     """
     test_data_dir = os.path.join(benchmark_dir, "data", "test")
-    for rnd in range(1, NUM_ROUNDS+1):
-        test_file = 'test_round_'+str(rnd)+'.csv'
+    test = []
+    for rnd in range(1, NUM_ROUNDS + 1):
+        test_file = "test_round_" + str(rnd) + ".csv"
         test_round = pd.read_csv(os.path.join(test_data_dir, test_file))
-        test_round['round'] = rnd
-        test_round = test_round[['round', 'store', 'brand', 'week', 'logmove']]
+        test_round["round"] = rnd
+        test_round = test_round[["round", "store", "brand", "week", "logmove"]]
         if rnd > 1:
             test = test.append(test_round)
         else:
@@ -56,16 +61,15 @@ def evaluate(submission_file):
 
     submission = pd.read_csv(submission_file)
 
-    evaluation = pd.merge(submission, test, on=['round', 'store', 'brand', 'week'], how='left')
+    evaluation = pd.merge(submission, test, on=["round", "store", "brand", "week"], how="left")
 
     # convert log sales to sales
-    evaluation['sales'] = evaluation['logmove'].apply(lambda x: round(np.exp(x)))
+    evaluation["sales"] = evaluation["logmove"].apply(lambda x: round(np.exp(x)))
 
-    print("MAPE: ", MAPE(evaluation['prediction'], evaluation['sales'])*100)
+    print("MAPE: ", MAPE(evaluation["prediction"], evaluation["sales"]) * 100)
 
 
+if __name__ == "__main__":
 
-if __name__=="__main__":
-    
     submission_file = sys.argv[1]
     evaluate(submission_file)
