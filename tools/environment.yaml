@@ -1,0 +1,34 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# To create the conda environment:
+# $ conda env create -f environment.yaml
+# 
+# To update the conda environment:
+# $ conda env update -f environment.yaml
+#
+# To register the conda environment in Jupyter:
+# $ conda activate forecast
+# $ python -m ipykernel install --user --name forecast
+
+name: forecast
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.6
+  - pip
+  - jupyter
+  - ipykernel
+  - numpy>=1.15.1
+  - pandas=0.25.3
+  - xlrd=1.1.0
+  - urllib3=1.21.1
+  - scikit-learn=0.21.3
+  - pytest
+  - papermill>=1.0.1
+  - pip:
+    - black
+    - flake8
+    - jupytext==1.3.0
+    # - fire==0.2.1 # for CLI capabilities

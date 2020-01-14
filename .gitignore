@@ -1,5 +1,6 @@
 **/__pycache__
 **/.ipynb_checkpoints
+*.egg-info/
 
 data/*
 energy_load/GEFCom2017-D_Prob_MT_hourly/data/*
