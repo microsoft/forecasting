@@ -9,11 +9,10 @@ import getopt
 
 import localpath
 
-from tsperf.benchmarking.GEFCom2017_D_Prob_MT_hourly.feature_engineering \
-    import compute_features
-    
+from tsperf.benchmarking.GEFCom2017_D_Prob_MT_hourly.feature_engineering import compute_features
+
 SUBMISSIONS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(SUBMISSIONS_DIR,'data')
+DATA_DIR = os.path.join(SUBMISSIONS_DIR, "data")
 print("Data directory used: {}".format(DATA_DIR))
 
 OUTPUT_DIR = os.path.join(DATA_DIR, "features")
@@ -59,23 +58,11 @@ feature_config_list = [
     ("normalized_datehour", {}),
     ("normalized_year", {}),
     ("day_type", {"holiday_col_name": HOLIDAY_COLNAME}),
-    (
-        "previous_year_load_lag",
-        {"input_col_names": "DEMAND", "round_agg_result": True},
-    ),
-    (
-        "previous_year_temp_lag",
-        {"input_col_names": ["DryBulb", "DewPnt"], "round_agg_result": True},
-    ),
+    ("previous_year_load_lag", {"input_col_names": "DEMAND", "round_agg_result": True},),
+    ("previous_year_temp_lag", {"input_col_names": ["DryBulb", "DewPnt"], "round_agg_result": True},),
     (
         "recent_load_lag",
-        {
-            "input_col_names": "DEMAND",
-            "start_week": 10,
-            "window_size": 4,
-            "agg_count": 8,
-            "round_agg_result": True,
-        },
+        {"input_col_names": "DEMAND", "start_week": 10, "window_size": 4, "agg_count": 8, "round_agg_result": True,},
     ),
     (
         "recent_temp_lag",
@@ -95,9 +82,7 @@ if __name__ == "__main__":
     for opt, arg in opts:
         if opt == "--submission":
             submission_folder = arg
-            output_data_dir = os.path.join(
-                SUBMISSIONS_DIR, submission_folder, "data"
-            )
+            output_data_dir = os.path.join(SUBMISSIONS_DIR, submission_folder, "data")
             if not os.path.isdir(output_data_dir):
                 os.mkdir(output_data_dir)
             OUTPUT_DIR = os.path.join(output_data_dir, "features")
@@ -105,10 +90,5 @@ if __name__ == "__main__":
         os.mkdir(OUTPUT_DIR)
 
     compute_features(
-        TRAIN_DATA_DIR,
-        TEST_DATA_DIR,
-        OUTPUT_DIR,
-        DF_CONFIG,
-        feature_config_list,
-        filter_by_month=False,
+        TRAIN_DATA_DIR, TEST_DATA_DIR, OUTPUT_DIR, DF_CONFIG, feature_config_list, filter_by_month=False,
     )

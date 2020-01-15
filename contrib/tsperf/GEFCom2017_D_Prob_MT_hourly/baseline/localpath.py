@@ -5,6 +5,7 @@ localpath.py file.
 """
 
 import os, sys
+
 _CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 TSPERF_DIR = os.path.dirname(os.path.dirname(os.path.dirname(_CURR_DIR)))
 

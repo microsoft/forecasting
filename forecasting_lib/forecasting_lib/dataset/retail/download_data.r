@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # Retrieves the orangeJuice dataset from the bayesm R package
 # and saves as csv
 

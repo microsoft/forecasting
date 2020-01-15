@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # Define benchmark related parameters. The parameters should conform with the benchmark definition
 # in ../README.md file
 

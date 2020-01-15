@@ -4,14 +4,22 @@ from tensorflow.python.util import nest
 import tensorflow.contrib.layers as layers
 import tensorflow.contrib.rnn as rnn
 import tensorflow.contrib.cudnn_rnn as cudnn_rnn
+
 RNN = cudnn_rnn.CudnnGRU
 GRAD_CLIP_THRESHOLD = 10
 
 
 # input pipe utils
-def cut(ts_value_train_slice, feature_train_slice,
-        feature_test_slice, train_window, predict_window, ts_length,
-        cut_mode='train', back_offset=0):
+def cut(
+    ts_value_train_slice,
+    feature_train_slice,
+    feature_test_slice,
+    train_window,
+    predict_window,
+    ts_length,
+    cut_mode="train",
+    back_offset=0,
+):
     """
     Cut each element of the tensorflow dataset into x and y for supervised
     learning.
@@ -33,32 +41,30 @@ def cut(ts_value_train_slice, feature_train_slice,
         feature_x: (#train_window, #features)
         feature_y: (#predict_window, #features)
     """
-    if cut_mode in ['train', 'eval']:
-        if cut_mode == 'train':
+    if cut_mode in ["train", "eval"]:
+        if cut_mode == "train":
             min_start_idx = 0
-            max_start_idx = (ts_length - back_offset) - \
-                            (train_window + predict_window)
-            train_start = tf.random_uniform((), min_start_idx, max_start_idx,
-                                            dtype=tf.int32)
-        elif cut_mode == 'eval':
+            max_start_idx = (ts_length - back_offset) - (train_window + predict_window)
+            train_start = tf.random_uniform((), min_start_idx, max_start_idx, dtype=tf.int32)
+        elif cut_mode == "eval":
             train_start = ts_length - (train_window + predict_window)
 
         train_end = train_start + train_window
         test_start = train_end
         test_end = test_start + predict_window
 
-        true_x = ts_value_train_slice[train_start: train_end]
-        true_y = ts_value_train_slice[test_start: test_end]
-        feature_x = feature_train_slice[train_start: train_end]
-        feature_y = feature_train_slice[test_start: test_end]
+        true_x = ts_value_train_slice[train_start:train_end]
+        true_y = ts_value_train_slice[test_start:test_end]
+        feature_x = feature_train_slice[train_start:train_end]
+        feature_y = feature_train_slice[test_start:test_end]
 
     else:
         train_start = ts_length - train_window
         train_end = ts_length
 
-        true_x = ts_value_train_slice[train_start: train_end]
+        true_x = ts_value_train_slice[train_start:train_end]
         true_y = tf.fill((predict_window,), np.nan)
-        feature_x = feature_train_slice[train_start: train_end]
+        feature_x = feature_train_slice[train_start:train_end]
         feature_y = feature_test_slice
 
     return true_x, true_y, feature_x, feature_y
@@ -106,10 +112,13 @@ def make_encoder(time_inputs, is_train, hparams):
     """
 
     def build_rnn():
-        return RNN(num_layers=hparams.encoder_rnn_layers, num_units=hparams.rnn_depth,
-                   kernel_initializer=tf.initializers.random_uniform(minval=-0.05, maxval=0.05),
-                   direction='unidirectional',
-                   dropout=hparams.encoder_dropout if is_train else 0)
+        return RNN(
+            num_layers=hparams.encoder_rnn_layers,
+            num_units=hparams.rnn_depth,
+            kernel_initializer=tf.initializers.random_uniform(minval=-0.05, maxval=0.05),
+            direction="unidirectional",
+            dropout=hparams.encoder_dropout if is_train else 0,
+        )
 
     cuda_model = build_rnn()
 
@@ -152,23 +161,21 @@ def convert_cudnn_state_v2(h_state, hparams, dropout=1.0):
     # encoder_layers < decoder_layers: feed encoder outputs to lower decoder layers, feed zeros to top layers
     h_layers = tf.unstack(h_state)
     if hparams.encoder_rnn_layers >= hparams.decoder_rnn_layers:
-        return squeeze(wrap_dropout(h_layers[hparams.encoder_rnn_layers - hparams.decoder_rnn_layers:]))
+        return squeeze(wrap_dropout(h_layers[hparams.encoder_rnn_layers - hparams.decoder_rnn_layers :]))
     else:
         lower_inputs = wrap_dropout(h_layers)
-        upper_inputs = [tf.zeros_like(h_layers[0]) for _ in
-                        range(hparams.decoder_rnn_layers - hparams.encoder_rnn_layers)]
+        upper_inputs = [
+            tf.zeros_like(h_layers[0]) for _ in range(hparams.decoder_rnn_layers - hparams.encoder_rnn_layers)
+        ]
         return squeeze(lower_inputs + upper_inputs)
 
 
 def default_init():
     # replica of tf.glorot_uniform_initializer(seed=seed)
-    return layers.variance_scaling_initializer(factor=1.0,
-                                               mode="FAN_AVG",
-                                               uniform=True)
+    return layers.variance_scaling_initializer(factor=1.0, mode="FAN_AVG", uniform=True)
 
 
-def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train,
-            predict_window):
+def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train, predict_window):
     """
     Build the decoder part for the RNN model.
 
@@ -187,18 +194,25 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train,
     """
 
     def build_cell(idx):
-        with tf.variable_scope('decoder_cell', initializer=default_init()):
+        with tf.variable_scope("decoder_cell", initializer=default_init()):
             cell = rnn.GRUBlockCell(hparams.rnn_depth)
-            has_dropout = hparams.decoder_input_dropout[idx] < 1 \
-                          or hparams.decoder_state_dropout[idx] < 1 or hparams.decoder_output_dropout[idx] < 1
+            has_dropout = (
+                hparams.decoder_input_dropout[idx] < 1
+                or hparams.decoder_state_dropout[idx] < 1
+                or hparams.decoder_output_dropout[idx] < 1
+            )
 
             if is_train and has_dropout:
                 input_size = prediction_inputs.shape[-1].value + 1 if idx == 0 else hparams.rnn_depth
-                cell = rnn.DropoutWrapper(cell, dtype=tf.float32, input_size=input_size,
-                                          variational_recurrent=hparams.decoder_variational_dropout[idx],
-                                          input_keep_prob=hparams.decoder_input_dropout[idx],
-                                          output_keep_prob=hparams.decoder_output_dropout[idx],
-                                          state_keep_prob=hparams.decoder_state_dropout[idx])
+                cell = rnn.DropoutWrapper(
+                    cell,
+                    dtype=tf.float32,
+                    input_size=input_size,
+                    variational_recurrent=hparams.decoder_variational_dropout[idx],
+                    input_keep_prob=hparams.decoder_input_dropout[idx],
+                    output_keep_prob=hparams.decoder_output_dropout[idx],
+                    state_keep_prob=hparams.decoder_state_dropout[idx],
+                )
             return cell
 
     if hparams.decoder_rnn_layers > 1:
@@ -218,7 +232,7 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train,
 
     # FC projecting layer to get single predicted value from RNN output
     def project_output(tensor):
-        return tf.layers.dense(tensor, 1, name='decoder_output_proj', kernel_initializer=default_init())
+        return tf.layers.dense(tensor, 1, name="decoder_output_proj", kernel_initializer=default_init())
 
     def loop_fn(time, prev_output, prev_state, array_targets: tf.TensorArray, array_outputs: tf.TensorArray):
         """
@@ -245,7 +259,6 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train,
         # Append previous predicted value to input features
         next_input = tf.concat([prev_output, features], axis=1)
 
-
         # Run RNN cell
         output, state = cell(next_input, prev_state)
         # Make prediction from RNN outputs
@@ -256,11 +269,13 @@ def decoder(encoder_state, prediction_inputs, previous_y, hparams, is_train,
         return time + 1, projected_output, state, array_targets, array_outputs
 
     # Initial values for loop
-    loop_init = [tf.constant(0, dtype=tf.int32),
-                 tf.expand_dims(previous_y, -1),
-                 encoder_state,
-                 tf.TensorArray(dtype=tf.float32, size=predict_window),
-                 tf.constant(0)]
+    loop_init = [
+        tf.constant(0, dtype=tf.int32),
+        tf.expand_dims(previous_y, -1),
+        encoder_state,
+        tf.TensorArray(dtype=tf.float32, size=predict_window),
+        tf.constant(0),
+    ]
     # Run the loop
     _, _, _, targets_ta, outputs_ta = tf.while_loop(cond_fn, loop_fn, loop_init)
 
@@ -289,8 +304,7 @@ def decode_predictions(decoder_readout, norm_mean, norm_std):
     return batch_readout * batch_std + batch_mean
 
 
-def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std,
-                    predict_window, is_train, hparams):
+def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std, predict_window, is_train, hparams):
     """
     For a single supervised learning time series sample, feed the input
     features and historical time series value into the RNN model, and create
@@ -303,12 +317,12 @@ def build_rnn_model(norm_x, feature_x, feature_y, norm_mean, norm_std,
     encoder_output, h_state = make_encoder(x_all_features, is_train, hparams)
 
     # convert the encoder state
-    encoder_state = convert_cudnn_state_v2(h_state, hparams,
-                                       dropout=hparams.gate_dropout if is_train else 1.0)
+    encoder_state = convert_cudnn_state_v2(h_state, hparams, dropout=hparams.gate_dropout if is_train else 1.0)
 
     # Run decoder
-    decoder_targets = decoder(encoder_state, feature_y, norm_x[:, -1], hparams, is_train=is_train,
-                                               predict_window=predict_window)
+    decoder_targets = decoder(
+        encoder_state, feature_y, norm_x[:, -1], hparams, is_train=is_train, predict_window=predict_window
+    )
 
     # get predictions
     predictions = decode_predictions(decoder_targets, norm_mean, norm_std)
@@ -365,16 +379,13 @@ def calc_rounded_mape(true_y, predictions):
     return mape
 
 
-def make_train_op(loss, learning_rate,  beta1, beta2, epsilon,
-                  ema_decay=None, prefix=None):
+def make_train_op(loss, learning_rate, beta1, beta2, epsilon, ema_decay=None, prefix=None):
     """
     Creates the training operation which updates the gradient using the
     AdamOptimizer.
     """
 
-    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,
-                                       beta1=beta1, beta2=beta2,
-                                       epsilon=epsilon)
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2, epsilon=epsilon)
     glob_step = tf.train.get_global_step()
 
     # Add regularization losses

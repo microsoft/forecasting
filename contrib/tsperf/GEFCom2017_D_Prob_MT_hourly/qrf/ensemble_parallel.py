@@ -13,6 +13,7 @@ from skgarden.quantile.tree import DecisionTreeQuantileRegressor
 from skgarden.quantile.ensemble import generate_sample_indices
 from ensemble_parallel_utils import weighted_percentile_vectorized
 
+
 class BaseForestQuantileRegressor(ForestRegressor):
     """Training and scoring of Quantile Regression Random Forest
 
@@ -34,6 +35,7 @@ class BaseForestQuantileRegressor(ForestRegressor):
             a weight of zero when estimator j is fit, then the value is -1.
 
     """
+
     def fit(self, X, y):
         """Builds a forest from the training set (X, y).
 
@@ -68,8 +70,7 @@ class BaseForestQuantileRegressor(ForestRegressor):
                 Returns self.
         """
         # apply method requires X to be of dtype np.float32
-        X, y = check_X_y(
-            X, y, accept_sparse="csc", dtype=np.float32, multi_output=False)
+        X, y = check_X_y(X, y, accept_sparse="csc", dtype=np.float32, multi_output=False)
         super(BaseForestQuantileRegressor, self).fit(X, y)
 
         self.y_train_ = y
@@ -78,8 +79,7 @@ class BaseForestQuantileRegressor(ForestRegressor):
 
         for i, est in enumerate(self.estimators_):
             if self.bootstrap:
-                bootstrap_indices = generate_sample_indices(
-                    est.random_state, len(y))
+                bootstrap_indices = generate_sample_indices(est.random_state, len(y))
             else:
                 bootstrap_indices = np.arange(len(y))
 
@@ -87,8 +87,7 @@ class BaseForestQuantileRegressor(ForestRegressor):
             y_train_leaves = est.y_train_leaves_
             for curr_leaf in np.unique(y_train_leaves):
                 y_ind = y_train_leaves == curr_leaf
-                self.y_weights_[i, y_ind] = (
-                    est_weights[y_ind] / np.sum(est_weights[y_ind]))
+                self.y_weights_[i, y_ind] = est_weights[y_ind] / np.sum(est_weights[y_ind])
 
             self.y_train_leaves_[i, bootstrap_indices] = y_train_leaves[bootstrap_indices]
 
@@ -167,21 +166,24 @@ class RandomForestQuantileRegressor(BaseForestQuantileRegressor):
         oob_prediction_ : array of shape = [n_samples]
             Prediction computed with out-of-bag estimate on the training set.
     """
-    def __init__(self,
-                 n_estimators=10,
-                 criterion='mse',
-                 max_depth=None,
-                 min_samples_split=2,
-                 min_samples_leaf=1,
-                 min_weight_fraction_leaf=0.0,
-                 max_features='auto',
-                 max_leaf_nodes=None,
-                 bootstrap=True,
-                 oob_score=False,
-                 n_jobs=1,
-                 random_state=None,
-                 verbose=0,
-                 warm_start=False):
+
+    def __init__(
+        self,
+        n_estimators=10,
+        criterion="mse",
+        max_depth=None,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        min_weight_fraction_leaf=0.0,
+        max_features="auto",
+        max_leaf_nodes=None,
+        bootstrap=True,
+        oob_score=False,
+        n_jobs=1,
+        random_state=None,
+        verbose=0,
+        warm_start=False,
+    ):
         """Initialize RandomForestQuantileRegressor class
 
         Args:
@@ -271,16 +273,23 @@ class RandomForestQuantileRegressor(BaseForestQuantileRegressor):
         super(RandomForestQuantileRegressor, self).__init__(
             base_estimator=DecisionTreeQuantileRegressor(),
             n_estimators=n_estimators,
-            estimator_params=("criterion", "max_depth", "min_samples_split",
-                              "min_samples_leaf", "min_weight_fraction_leaf",
-                              "max_features", "max_leaf_nodes",
-                              "random_state"),
+            estimator_params=(
+                "criterion",
+                "max_depth",
+                "min_samples_split",
+                "min_samples_leaf",
+                "min_weight_fraction_leaf",
+                "max_features",
+                "max_leaf_nodes",
+                "random_state",
+            ),
             bootstrap=bootstrap,
             oob_score=oob_score,
             n_jobs=n_jobs,
             random_state=random_state,
             verbose=verbose,
-            warm_start=warm_start)
+            warm_start=warm_start,
+        )
 
         self.criterion = criterion
         self.max_depth = max_depth
@@ -289,5 +298,3 @@ class RandomForestQuantileRegressor(BaseForestQuantileRegressor):
         self.min_weight_fraction_leaf = min_weight_fraction_leaf
         self.max_features = max_features
         self.max_leaf_nodes = max_leaf_nodes
-
-

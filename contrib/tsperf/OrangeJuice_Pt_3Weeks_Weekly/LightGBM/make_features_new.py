@@ -21,15 +21,12 @@ if tsperf_dir not in sys.path:
 
 # Import TSPerf components
 from utils import df_from_cartesian_product
-import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings \
-    as bs
+import retail_sales.OrangeJuice_Pt_3Weeks_Weekly.common.benchmark_settings as bs
 
 pd.set_option("display.max_columns", None)
 
 
-def oj_preprocess(
-    df, aux_df, week_list, store_list, brand_list, train_df=None
-):
+def oj_preprocess(df, aux_df, week_list, store_list, brand_list, train_df=None):
 
     df["move"] = df["logmove"].apply(lambda x: round(math.exp(x)))
     df = df[["store", "brand", "week", "move"]].copy()
@@ -37,14 +34,10 @@ def oj_preprocess(
     # Create a dataframe to hold all necessary data
     d = {"store": store_list, "brand": brand_list, "week": week_list}
     data_grid = df_from_cartesian_product(d)
-    data_filled = pd.merge(
-        data_grid, df, how="left", on=["store", "brand", "week"]
-    )
+    data_filled = pd.merge(data_grid, df, how="left", on=["store", "brand", "week"])
 
     # Get future price, deal, and advertisement info
-    data_filled = pd.merge(
-        data_filled, aux_df, how="left", on=["store", "brand", "week"]
-    )
+    data_filled = pd.merge(data_filled, aux_df, how="left", on=["store", "brand", "week"])
 
     # Fill missing values
     if train_df is not None:
@@ -60,22 +53,13 @@ def oj_preprocess(
     )
 
     if train_df is not None:
-        data_filled = data_filled.loc[
-            data_filled["week_start"] > forecast_creation_time
-        ].copy()
+        data_filled = data_filled.loc[data_filled["week_start"] > forecast_creation_time].copy()
 
     return data_filled
 
 
 def make_features(
-    pred_round,
-    train_dir,
-    lags,
-    window_size,
-    offset,
-    used_columns,
-    store_list,
-    brand_list,
+    pred_round, train_dir, lags, window_size, offset, used_columns, store_list, brand_list,
 ):
     """Create a dataframe of the input features.
 
@@ -95,19 +79,11 @@ def make_features(
             target variable
     """
     # Load training data
-    train_df = pd.read_csv(
-        os.path.join(train_dir, "train_round_" + str(pred_round + 1) + ".csv")
-    )
-    aux_df = pd.read_csv(
-        os.path.join(train_dir, "aux_round_" + str(pred_round + 1) + ".csv")
-    )
-    week_list = range(
-        bs.TRAIN_START_WEEK + offset, bs.TEST_END_WEEK_LIST[pred_round] + 1
-    )
+    train_df = pd.read_csv(os.path.join(train_dir, "train_round_" + str(pred_round + 1) + ".csv"))
+    aux_df = pd.read_csv(os.path.join(train_dir, "aux_round_" + str(pred_round + 1) + ".csv"))
+    week_list = range(bs.TRAIN_START_WEEK + offset, bs.TEST_END_WEEK_LIST[pred_round] + 1)
 
-    train_df_preprocessed = oj_preprocess(
-        train_df, aux_df, week_list, store_list, brand_list
-    )
+    train_df_preprocessed = oj_preprocess(train_df, aux_df, week_list, store_list, brand_list)
 
     df_config = {
         "time_col_name": "week_start",
@@ -117,9 +93,7 @@ def make_features(
         "time_format": "%Y-%m-%d",
     }
 
-    temporal_featurizer = TemporalFeaturizer(
-        df_config=df_config, feature_list=["month_of_year", "week_of_month"]
-    )
+    temporal_featurizer = TemporalFeaturizer(df_config=df_config, feature_list=["month_of_year", "week_of_month"])
 
     popularity_featurizer = PopularityFeaturizer(
         df_config=df_config,
@@ -143,12 +117,7 @@ def make_features(
         return_feature_col=True,
     )
 
-    lag_featurizer = LagFeaturizer(
-        df_config=df_config,
-        input_col_names="move",
-        lags=lags,
-        future_value_available=True,
-    )
+    lag_featurizer = LagFeaturizer(df_config=df_config, input_col_names="move", lags=lags, future_value_available=True,)
     moving_average_featurizer = RollingWindowFeaturizer(
         df_config=df_config,
         input_col_names="move",

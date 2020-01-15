@@ -3,6 +3,7 @@ This script inserts the TSPerf directory into sys.path, so that scripts can impo
 """
 
 import os, sys
+
 _CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 TSPERF_DIR = os.path.dirname(os.path.dirname(os.path.dirname(_CURR_DIR)))
 

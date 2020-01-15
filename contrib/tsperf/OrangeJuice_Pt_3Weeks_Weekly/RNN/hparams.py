@@ -22,7 +22,7 @@ hparams_manual = dict(
     learning_rate=0.001,
     beta1=0.9,
     beta2=0.999,
-    epsilon=1e-08
+    epsilon=1e-08,
 )
 # this is the hyperparameter selected when running 50 trials in SMAC
 # hyperparameter tuning.
@@ -43,7 +43,7 @@ hparams_smac = dict(
     learning_rate=0.001,
     beta1=0.7763754022206656,
     beta2=0.7923825287287111,
-    epsilon=1e-08
+    epsilon=1e-08,
 )
 
 # this is the hyperparameter selected when running 100 trials in SMAC
@@ -68,5 +68,5 @@ hparams_smac_100 = dict(
     learning_rate=0.01,
     beta1=0.6011027681578323,
     beta2=0.9809964662293627,
-    epsilon=1e-08
+    epsilon=1e-08,
 )

@@ -1,10 +1,11 @@
 # coding: utf-8
 
-# Utility functions for building the Dilated Convolutional Neural Network (CNN) model. 
+# Utility functions for building the Dilated Convolutional Neural Network (CNN) model.
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+
 
 def week_of_month(dt):
     """Get the week of the month for the specified date.
@@ -14,13 +15,15 @@ def week_of_month(dt):
         
     Returns:
         wom (Integer): Week of the month of the input date
-    """ 
+    """
     from math import ceil
+
     first_day = dt.replace(day=1)
     dom = dt.day
     adjusted_dom = dom + first_day.weekday()
-    wom = int(ceil(adjusted_dom/7.0))
+    wom = int(ceil(adjusted_dom / 7.0))
     return wom
+
 
 def df_from_cartesian_product(dict_in):
     """Generate a Pandas dataframe from Cartesian product of lists.
@@ -33,10 +36,12 @@ def df_from_cartesian_product(dict_in):
     """
     from collections import OrderedDict
     from itertools import product
+
     od = OrderedDict(sorted(dict_in.items()))
     cart = list(product(*od.values()))
     df = pd.DataFrame(cart, columns=od.keys())
     return df
+
 
 def gen_sequence(df, seq_len, seq_cols, start_timestep=0, end_timestep=None):
     """Reshape features into an array of dimension (time steps, features).  
@@ -54,8 +59,11 @@ def gen_sequence(df, seq_len, seq_cols, start_timestep=0, end_timestep=None):
     data_array = df[seq_cols].values
     if end_timestep is None:
         end_timestep = df.shape[0]
-    for start, stop in zip(range(start_timestep, end_timestep-seq_len+2), range(start_timestep+seq_len, end_timestep+2)):
+    for start, stop in zip(
+        range(start_timestep, end_timestep - seq_len + 2), range(start_timestep + seq_len, end_timestep + 2)
+    ):
         yield data_array[start:stop, :]
+
 
 def gen_sequence_array(df_all, store_brand, seq_len, seq_cols, start_timestep=0, end_timestep=None):
     """Combine feature sequences for all the combinations of (store, brand) into an 3d array.
@@ -70,10 +78,21 @@ def gen_sequence_array(df_all, store_brand, seq_len, seq_cols, start_timestep=0,
     Returns:
         seq_array (Numpy Array): An array of the feature sequences of all stores and brands    
     """
-    seq_gen = (list(gen_sequence(df_all[(df_all['store']==cur_store) & (df_all['brand']==cur_brand)], seq_len, seq_cols, start_timestep, end_timestep)) \
-                    for cur_store, cur_brand in store_brand) 
+    seq_gen = (
+        list(
+            gen_sequence(
+                df_all[(df_all["store"] == cur_store) & (df_all["brand"] == cur_brand)],
+                seq_len,
+                seq_cols,
+                start_timestep,
+                end_timestep,
+            )
+        )
+        for cur_store, cur_brand in store_brand
+    )
     seq_array = np.concatenate(list(seq_gen)).astype(np.float32)
     return seq_array
+
 
 def static_feature_array(df_all, total_timesteps, seq_cols):
     """Generate an array which encodes all the static features.
@@ -86,9 +105,10 @@ def static_feature_array(df_all, total_timesteps, seq_cols):
     Return:
         fea_array (Numpy Array): An array of static features of all stores and brands
     """
-    fea_df = df_all.groupby(['store', 'brand']).apply(lambda x: x.iloc[:total_timesteps,:]).reset_index(drop=True)
+    fea_df = df_all.groupby(["store", "brand"]).apply(lambda x: x.iloc[:total_timesteps, :]).reset_index(drop=True)
     fea_array = fea_df[seq_cols].values
     return fea_array
+
 
 def normalize_dataframe(df, seq_cols, scaler=MinMaxScaler()):
     """Normalize a subset of columns of a dataframe.
@@ -102,7 +122,6 @@ def normalize_dataframe(df, seq_cols, scaler=MinMaxScaler()):
         df_scaled (Dataframe): Normalized dataframe
     """
     cols_fixed = df.columns.difference(seq_cols)
-    df_scaled = pd.DataFrame(scaler.fit_transform(df[seq_cols]), 
-                            columns=seq_cols, index=df.index)
+    df_scaled = pd.DataFrame(scaler.fit_transform(df[seq_cols]), columns=seq_cols, index=df.index)
     df_scaled = pd.concat([df[cols_fixed], df_scaled], axis=1)
     return df_scaled, scaler

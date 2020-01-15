@@ -7,14 +7,12 @@ import datetime
 import itertools
 import pandas as pd
 from forecasting_lib.dataset.data_schema import specify_data_schema
+from forecasting_lib.dataset.retail.benchmark_paths import DATA_DIR
+from forecasting_lib.dataset.retail.benchmark_settings import FIRST_WEEK_START
 
 DEFAULT_TARGET_COL = "move"
 DEFAULT_STATIC_FEA = None
 DEFAULT_DYNAMIC_FEA = ["deal", "feat"]
-
-# TODO: resolve the following
-DATA_DIR = "TBD"
-FIRST_WEEK_START = "TBD"
 
 
 def specify_retail_data_schema(

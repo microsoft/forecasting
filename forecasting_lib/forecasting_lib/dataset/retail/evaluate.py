@@ -23,7 +23,7 @@ import pandas as pd
 import numpy as np
 
 from forecasting_lib.evaluation.evaluation_utils import MAPE
-from benchmark_settings import NUM_ROUNDS
+from forecasting_lib.dataset.retail.benchmark_settings import NUM_ROUNDS
 
 
 def read_test_files(benchmark_dir):

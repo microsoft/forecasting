@@ -3,6 +3,7 @@
 
 import numpy as np
 
+
 def weighted_percentile_vectorized(a, quantiles, weights=None, sorter=None):
     """Returns the weighted percentile of a at q given weights.
 
@@ -69,8 +70,7 @@ def weighted_percentile_vectorized(a, quantiles, weights=None, sorter=None):
     percentiles = np.zeros_like(quantiles)
     for i, q in enumerate(quantiles):
         if q > 100 or q < 0:
-            raise ValueError("q should be in-between 0 and 100, "
-                             "got %d" % q)
+            raise ValueError("q should be in-between 0 and 100, " "got %d" % q)
 
         start = np.searchsorted(partial_sum, q) - 1
         if start == len(sorted_cum_weights) - 1:

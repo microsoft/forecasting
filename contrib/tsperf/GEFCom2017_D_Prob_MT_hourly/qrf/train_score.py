@@ -9,16 +9,10 @@ from ensemble_parallel import RandomForestQuantileRegressor
 # get seed value
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--data-folder",
-    type=str,
-    dest="data_folder",
-    help="data folder mounting point",
+    "--data-folder", type=str, dest="data_folder", help="data folder mounting point",
 )
 parser.add_argument(
-    "--output-folder",
-    type=str,
-    dest="output_folder",
-    help="output folder mounting point",
+    "--output-folder", type=str, dest="output_folder", help="output folder mounting point",
 )
 parser.add_argument("--seed", type=int, dest="seed", help="random seed")
 args = parser.parse_args()
@@ -27,9 +21,7 @@ args = parser.parse_args()
 data_dir = join(args.data_folder, "features")
 train_dir = join(data_dir, "train")
 test_dir = join(data_dir, "test")
-output_file = join(
-    args.output_folder, "submission_seed_{}.csv".format(args.seed)
-)
+output_file = join(args.output_folder, "submission_seed_{}.csv".format(args.seed))
 
 # do 6 rounds of forecasting, at each round output 9 quantiles
 n_rounds = 6
@@ -59,19 +51,13 @@ for i in range(1, n_rounds + 1):
         train_df_hour = pd.get_dummies(train_df_hour, columns=["Zone"])
         # remove column that are not useful (Datetime) or are not
         # available in the test set (DEMAND, DryBulb, DewPnt)
-        X_train = train_df_hour.drop(
-            columns=["Datetime", "DEMAND", "DryBulb", "DewPnt"]
-        ).values
+        X_train = train_df_hour.drop(columns=["Datetime", "DEMAND", "DryBulb", "DewPnt"]).values
 
         y_train = train_df_hour["DEMAND"].values
 
         # train a model
         rfqr = RandomForestQuantileRegressor(
-            random_state=args.seed,
-            n_jobs=-1,
-            n_estimators=1000,
-            max_features="sqrt",
-            max_depth=12,
+            random_state=args.seed, n_jobs=-1, n_estimators=1000, max_features="sqrt", max_depth=12,
         )
         rfqr.fit(X_train, y_train)
 

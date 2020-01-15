@@ -17,43 +17,54 @@ run = Run.get_submitted_run()
 
 base_command = "Rscript train_validate_aml.R"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     opts, args = getopt.getopt(
-        sys.argv[1:], '', ['path=', 'cv_path=', 'n_hidden_1=', 'n_hidden_2=',
-                           'iter_max=', 'penalty='])
+        sys.argv[1:], "", ["path=", "cv_path=", "n_hidden_1=", "n_hidden_2=", "iter_max=", "penalty="]
+    )
     for opt, arg in opts:
-        if opt == '--path':
+        if opt == "--path":
             path = arg
-        elif opt == '--cv_path':
+        elif opt == "--cv_path":
             cv_path = arg
-        elif opt == '--n_hidden_1':
+        elif opt == "--n_hidden_1":
             n_hidden_1 = arg
-        elif opt == '--n_hidden_2':
+        elif opt == "--n_hidden_2":
             n_hidden_2 = arg
-        elif opt == '--iter_max':
+        elif opt == "--iter_max":
             iter_max = arg
-        elif opt == '--penalty':
+        elif opt == "--penalty":
             penalty = arg
-    time_stamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    task = " ".join([base_command,
-                    '--path', path,
-                    '--cv_path', cv_path,
-                    '--n_hidden_1', n_hidden_1,
-                    '--n_hidden_2', n_hidden_2,
-                    '--iter_max', iter_max,
-                    '--penalty', penalty,
-                    '--time_stamp', time_stamp])
+    time_stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    task = " ".join(
+        [
+            base_command,
+            "--path",
+            path,
+            "--cv_path",
+            cv_path,
+            "--n_hidden_1",
+            n_hidden_1,
+            "--n_hidden_2",
+            n_hidden_2,
+            "--iter_max",
+            iter_max,
+            "--penalty",
+            penalty,
+            "--time_stamp",
+            time_stamp,
+        ]
+    )
     process = subprocess.call(task, shell=True)
 
     # process.communicate()
     # process.wait()
-    
-    output_file_name = 'cv_output_' + time_stamp + '.csv'
+
+    output_file_name = "cv_output_" + time_stamp + ".csv"
     result = pd.read_csv(os.path.join(cv_path, output_file_name))
 
-    APL = result['loss'].mean()
+    APL = result["loss"].mean()
 
     print(APL)
     print("--- %s seconds ---" % (time.time() - start_time))
 
-    run.log('average pinball loss', APL)
+    run.log("average pinball loss", APL)

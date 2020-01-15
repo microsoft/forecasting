@@ -8,12 +8,20 @@ from utils import *
 import numpy as np
 import shutil
 
-MODE = 'train'
+MODE = "train"
 IS_TRAIN = True
 
 
-def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_window, intermediate_data_dir,
-              submission_round, back_offset=0):
+def rnn_train(
+    ts_value_train,
+    feature_train,
+    feature_test,
+    hparams,
+    predict_window,
+    intermediate_data_dir,
+    submission_round,
+    back_offset=0,
+):
 
     """
     This function trains the RNN model and saves it to the disk.
@@ -42,14 +50,26 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
     max_train_empty = int(round(hparams.train_window * max_train_empty_percentage))
 
     # build the dataset
-    root_ds = tf.data.Dataset.from_tensor_slices(
-        (ts_value_train, feature_train, feature_test)).shuffle(ts_value_train.shape[0], reshuffle_each_iteration=True).repeat()
-    batch = (root_ds
-             .map(lambda *x: cut(*x, cut_mode=MODE, train_window=hparams.train_window,
-                                 predict_window=predict_window, ts_length=ts_value_train.shape[1], back_offset=back_offset))
-             .filter(lambda *x: reject_filter(max_train_empty, *x))
-             .map(normalize_target)
-             .batch(hparams.batch_size))
+    root_ds = (
+        tf.data.Dataset.from_tensor_slices((ts_value_train, feature_train, feature_test))
+        .shuffle(ts_value_train.shape[0], reshuffle_each_iteration=True)
+        .repeat()
+    )
+    batch = (
+        root_ds.map(
+            lambda *x: cut(
+                *x,
+                cut_mode=MODE,
+                train_window=hparams.train_window,
+                predict_window=predict_window,
+                ts_length=ts_value_train.shape[1],
+                back_offset=back_offset
+            )
+        )
+        .filter(lambda *x: reject_filter(max_train_empty, *x))
+        .map(normalize_target)
+        .batch(hparams.batch_size)
+    )
 
     iterator = batch.make_initializable_iterator()
     it_tensors = iterator.get_next()
@@ -67,24 +87,26 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
 
     # Sum all losses
     total_loss = mape_loss
-    train_op, glob_norm, ema = make_train_op(total_loss, hparams.learning_rate,  hparams.beta1, hparams.beta2,
-                                             hparams.epsilon, hparams.asgd_decay)
+    train_op, glob_norm, ema = make_train_op(
+        total_loss, hparams.learning_rate, hparams.beta1, hparams.beta2, hparams.epsilon, hparams.asgd_decay
+    )
 
     train_size = ts_value_train.shape[0]
     steps_per_epoch = train_size // hparams.batch_size
 
-    global_step = tf.Variable(0, name='global_step', trainable=False)
+    global_step = tf.Variable(0, name="global_step", trainable=False)
     inc_step = tf.assign_add(global_step, 1)
 
-    saver = tf.train.Saver(max_to_keep=1, name='train_saver')
+    saver = tf.train.Saver(max_to_keep=1, name="train_saver")
     init = tf.global_variables_initializer()
 
     results_mae = []
     results_mape = []
     results_mape_loss = []
 
-    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
-                                          gpu_options=tf.GPUOptions(allow_growth=False))) as sess:
+    with tf.Session(
+        config=tf.ConfigProto(allow_soft_placement=True, gpu_options=tf.GPUOptions(allow_growth=False))
+    ) as sess:
         sess.run(init)
         sess.run(iterator.initializer)
 
@@ -137,10 +159,10 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
             results_mape_loss.append(results_epoch_mape_loss)
 
         step = results[0]
-        saver_path = os.path.join(intermediate_data_dir, 'cpt_round_{}'.format(submission_round))
+        saver_path = os.path.join(intermediate_data_dir, "cpt_round_{}".format(submission_round))
         if os.path.exists(saver_path):
             shutil.rmtree(saver_path)
-        saver.save(sess, os.path.join(saver_path, 'cpt'), global_step=step, write_state=True)
+        saver.save(sess, os.path.join(saver_path, "cpt"), global_step=step, write_state=True)
 
     # look at the training results
     # examine step_mae and step_mape_loss
@@ -152,5 +174,3 @@ def rnn_train(ts_value_train, feature_train, feature_test, hparams, predict_wind
     # print(np.mean(results_mape, axis=1))
 
     return np.mean(results_mape, axis=1)[-1]
-
-
