@@ -1,5 +1,8 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from datetime import datetime
-from ..feature_engineering.utils import add_datetime
+from forecasting_lib.feature_engineering.utils import add_datetime
 
 
 class TSCVSplitter:
