@@ -15,7 +15,7 @@ DESCRIPTION = "A library for forecasting"
 URL = ""
 EMAIL = "vapaunic@users.noreply.github.com"
 AUTHOR = "AUTHORS.md"
-LICENSE = ""
+LICENSE = "MIT"
 LONG_DESCRIPTION = DESCRIPTION
 
 
