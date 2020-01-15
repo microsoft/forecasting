@@ -6,7 +6,7 @@ import math
 import itertools
 import pandas as pd
 import datetime
-from .benchmark_paths import DATA_DIR
+from forecasting_lib.dataset.retail.benchmark_paths import DATA_DIR
 import forecasting_lib.dataset.retail.benchmark_settings as bs
 
 
