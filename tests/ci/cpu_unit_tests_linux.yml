@@ -31,6 +31,7 @@ jobs:
   
   - bash: |
       echo "##vso[task.prependpath]/data/anaconda/bin"
+      export PATH="/data/anaconda/bin:$PATH"
       conda env list
     displayName: Add Conda to PATH
 
