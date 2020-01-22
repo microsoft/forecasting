@@ -106,6 +106,31 @@ def week_of_year(datetime_col):
     return datetime_col.dt.week
 
 
+def week_of_month(date_time):
+    """Returns the week of the month for a specified date.
+
+    Args:
+        dt (Datetime): Input date
+
+    Returns:
+        wom (Integer): Week of the month of the input date
+    """
+
+    def _week_of_month(date_time):
+        from math import ceil
+
+        first_day = date_time.replace(day=1)
+        dom = date_time.day
+        adjusted_dom = dom + first_day.weekday()
+        wom = int(ceil(adjusted_dom / 7.0))
+        return wom
+
+    if isinstance(date_time, pd.Series):
+        return date_time.apply(lambda x: _week_of_month(x))
+    else:
+        return _week_of_month(date_time)
+
+
 def month_of_year(date_time_col):
     """Returns the month from a datetime column."""
     return date_time_col.dt.month
