@@ -829,3 +829,19 @@ def same_day_hour_moving_agg(
     df.drop(["fct_diff", "value"], inplace=True, axis=1)
 
     return df
+
+
+def df_from_cartesian_product(dict_in):
+    """Generate a Pandas dataframe from Cartesian product of lists.
+    
+    Args: 
+        dict_in (Dictionary): Dictionary containing multiple lists, e.g. {"fea1": list1, "fea2": list2}
+        
+    Returns:
+        df (Dataframe): Dataframe corresponding to the Caresian product of the lists
+    """
+    from itertools import product
+
+    cart = list(product(*dict_in.values()))
+    df = pd.DataFrame(cart, columns=dict_in.keys())
+    return df
