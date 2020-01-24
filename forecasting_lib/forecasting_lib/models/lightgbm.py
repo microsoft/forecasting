@@ -9,7 +9,7 @@ solve time series forecasting problems.
 import pandas as pd
 
 
-def make_predictions(df, model, target_col, idx_cols, integer_output=True):
+def predict(df, model, target_col, idx_cols, integer_output=True):
     """Predict target variable with a trained LightGBM model.
     
     Args: 
