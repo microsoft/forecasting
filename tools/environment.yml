@@ -28,6 +28,8 @@ dependencies:
   - pytest
   - papermill>=1.0.1
   - matplotlib=3.1.2
+  - r-base
+  - r-bayesm
   - pip:
     - black
     - flake8

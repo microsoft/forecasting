@@ -41,7 +41,7 @@ conda env update --file tools/environment.yaml
 ```
 from the root of Forecasting repo.
 
-#### Package Installation
+#### Package installation
 
 Next you will need to install the common package for forecasting:
 ```bash
@@ -50,6 +50,22 @@ pip install -e forecasting_lib
 
 The library is installed in developer mode with the `-e` flag. This means that all changes made to the library locally, are immediately available.
 
+## Getting Started with Examples
+
+### Dataset
+
+This repository provides examples on how to run various forecasting algorithms on a publicly available `orangeJuice` dataset. This dataset containes weekly sales of refrigerated orange juice at 83 stores, as well as, demographic information on those stores. The data is provided via [`bayesm`](https://CRAN.R-project.org/package=bayesm) package in `R`, and further described in [Chapter 5, Bayesian Statistics and Marketing by Rossi, Allenby, and McCulloch](http://www.perossi.org/home/bsm-1). `Forecasting_lib` package provides utilies for downloading and processing this data. 
+
+### Run Examples
+
+#### Notebooks
+We provide example notebooks under `examples/` to demonstrate how to train and evaluate forecasting algorithms.
+
+Make sure to run the notebooks in the conda environment we previously set up (`forecast`). To register the conda environment in Jupyter, please run:
+
+```
+python -m ipykernel install --user --name forecast
+```
 
 ## Steps to Contributing
 
