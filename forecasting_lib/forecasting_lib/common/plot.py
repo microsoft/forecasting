@@ -21,6 +21,8 @@ def plot_predictions_with_history(
     grain2_name="grain2",
     min_timestep=1,
     num_samples=4,
+    predict_at_timestep=1,
+    line_at_predict_time=False,
     title="Prediction results for a few sample time series",
     x_label="time step",
     y_label="target value",
@@ -29,10 +31,29 @@ def plot_predictions_with_history(
     """Plot prediction results with historical values
 
     Args:
-        predictions (Dataframe): Prediction results (results)
-        history (Dataframe): Historical values (sales)
-        grain1_unique_vals (List): store_list
-        grain2_unique_vals (List): brand_list
+        predictions (Dataframe): Prediction results with a time step column (e.g., week_index), a 
+        forecasted value column (e.g., forecasted sales of each store-brand), and two columns that 
+        identify each individual time series (e.g., store_id and brand_id) 
+        history (Dataframe): A dataframe containing historical values of the prediction target, a 
+        time step column, and two columns that specify each time series
+        grain1_unique_vals (List): Unique values of the 1st column indicating the granularity of
+        the time series data (e.g, store_list)
+        grain2_unique_vals (List): Unique values of the 2nd column indicating the granularity of
+        the time series data (e.g., brand_list)
+        time_col_name (String): Name of the time step column (e.g., week_index)
+        target_col_name (String): Name of the forecast target column (e.g., unit_sales)
+        grain1_name (String): Name of the 1st column indicating the time series graunularity
+        grain2_name (String): Name of the 2nd column indicating the time series graunularity
+        min_timestep (Integer): Minimum time steps in the plots
+        num_samples (Integer): Number of samples from all the time series (each combination of 
+        grain1 column and grain2 column gives an individual time series)
+        predict_at_timestep (Integer): Time step at which the forecasts are made
+        line_at_predict_time (Boolean): Whether to add a vertical line indicating the time step 
+        when the forecasts are made
+        title (String): Overall title of the plots 
+        x_label (String): Label of the x-axis of the plots
+        y_label (String): Label of the y-axis of the plots
+        random_seed (Integer): Random seed used for sampling the time series
     """
 
     random.seed(random_seed)
@@ -70,6 +91,8 @@ def plot_predictions_with_history(
                     marker="^",
                     color="red",
                 )
+                if line_at_predict_time:
+                    col.axvline(x=predict_at_timestep, linestyle="--")
                 col.set_title("{} {} {} {}".format(grain1_name, grain1_id, grain2_name, grain2_id))
                 col.xaxis.set_major_locator(MaxNLocator(integer=True))
                 col.set_xlabel(x_label)
