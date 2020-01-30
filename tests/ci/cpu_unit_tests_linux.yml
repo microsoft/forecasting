@@ -47,6 +47,7 @@ jobs:
   - bash: |
       eval "$(conda shell.bash hook)" && conda activate forecast_cpu
       python -m ipykernel install --user --name forecast_cpu
+      R -e "install.packages("bayesm", repos = "http://mran.revolutionanalytics.com/snapshot/2018-08-27/")"
       pytest --durations=0 forecasting_lib/tests -m "not gpu and not azureml" --junitxml=junit/test-unitttest.xml
     displayName: 'Run Unit tests'
 
