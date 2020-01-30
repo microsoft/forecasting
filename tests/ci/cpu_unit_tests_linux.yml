@@ -32,7 +32,7 @@ jobs:
       ls
       uname -ra
       echo "Running cleanup ... "
-      conda env remove -n forecasting_cpu
+      conda env remove -n forecast_cpu
       echo "Cleanup done."
     displayName: 'Cleanup existing conda environment'
 
