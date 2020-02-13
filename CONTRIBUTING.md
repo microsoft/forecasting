@@ -2,10 +2,15 @@
 
 Contribution are welcome! Here's a few things to know:
 
+* [Setup](./SETUP.md)
 * [Microsoft Contributor License Agreement](#microsoft-contributor-license-agreement)
 * [Steps to Contributing](#steps-to-contributing)
 * [Coding Guidelines](#forecasting-team-contribution-guidelines)
 * [Code of Conduct](#code-of-conduct)
+
+
+## Setup
+To get started, navigate to the [Setup Guide](./SETUP.md), which lists instructions on how to set up your environment and dependencies.
 
 ## Microsoft Contributor License Agreement
 
