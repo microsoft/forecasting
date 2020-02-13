@@ -68,14 +68,6 @@ def predict(
         for grain in grain_col_names:
             dict2[grain] = [dict2[grain]] * len(cur_pred)
         cur_pred_df = pd.DataFrame({**dict1, **dict2})
-        # cur_pred_df = pd.DataFrame(
-        #     {
-        #         time_col_name: list(group[time_col_name]),
-        #         grain_col_names[0]: name[0],
-        #         grain_col_names[1]: name[1],
-        #         "prediction": cur_pred,
-        #     }
-        # )
         pred_dfs.append(cur_pred_df)
     pred_all = pd.concat(pred_dfs)
     pred_all.reset_index(drop=True, inplace=True)
