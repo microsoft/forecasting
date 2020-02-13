@@ -8,4 +8,4 @@ A set of utility functions for forecasting.
 pip install -e .
 ```
 
-This will install the package forecasting_lib.
+This will install the package fclib.

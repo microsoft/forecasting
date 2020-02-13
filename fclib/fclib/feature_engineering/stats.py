@@ -1,8 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
-from forecasting_lib.feature_engineering.utils import is_iterable_but_not_string
+from fclib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from fclib.feature_engineering.utils import is_iterable_but_not_string
 
 
 class PopularityFeaturizer(BaseTSFeaturizer):

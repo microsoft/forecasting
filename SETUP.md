@@ -29,7 +29,7 @@ from the root of Forecasting repo.
 
 Next you will need to install the common package for forecasting:
 ```bash
-pip install -e forecasting_lib
+pip install -e fclib
 ```
 
 The library is installed in developer mode with the `-e` flag. This means that all changes made to the library locally, are immediately available.
@@ -38,7 +38,7 @@ The library is installed in developer mode with the `-e` flag. This means that a
 
 ### Dataset
 
-This repository provides examples on how to run various forecasting algorithms on a publicly available `orangeJuice` dataset. This dataset containes weekly sales of refrigerated orange juice at 83 stores, as well as, demographic information on those stores. The data is provided via [`bayesm`](https://CRAN.R-project.org/package=bayesm) package in `R`, and further described in [Chapter 5, Bayesian Statistics and Marketing by Rossi, Allenby, and McCulloch](http://www.perossi.org/home/bsm-1). `Forecasting_lib` package provides utilies for downloading and processing this data. 
+This repository provides examples on how to run various forecasting algorithms on a publicly available `orangeJuice` dataset. This dataset containes weekly sales of refrigerated orange juice at 83 stores, as well as, demographic information on those stores. The data is provided via [`bayesm`](https://CRAN.R-project.org/package=bayesm) package in `R`, and further described in [Chapter 5, Bayesian Statistics and Marketing by Rossi, Allenby, and McCulloch](http://www.perossi.org/home/bsm-1). `fclib` package provides utilies for downloading and processing this data. 
 
 ### Run Examples
 

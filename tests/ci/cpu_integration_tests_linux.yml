@@ -40,7 +40,7 @@ jobs:
       echo "Running conda env setup ..."
       yes | conda env create -n forecast_cpu -f tools/environment.yml
       eval "$(conda shell.bash hook)" && conda activate forecast_cpu
-      pip install -e forecasting_lib
+      pip install -e fclib
       echo "Conda env installed."
     displayName: 'Creating conda environment with dependencies'
 

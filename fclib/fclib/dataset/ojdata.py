@@ -68,7 +68,7 @@ def split_train_test(data_dir, forecast_settings, write_csv=False):
     for model performance evaluation.
 
     Example:
-        from forecasting_lib.common.utils import forecast_settings
+        from fclib.common.utils import forecast_settings
 
         data_dir = "/home/forecasting/ojdata"
 
@@ -380,7 +380,7 @@ def specify_retail_data_schema(
 
 
 if __name__ == "__main__":
-    from forecasting_lib.common import forecast_settings
+    from fclib.common import forecast_settings
 
     forecast_settings.NUM_ROUNDS = 3
     data_dir = "/home/vapaunic/forecasting/ojdata"

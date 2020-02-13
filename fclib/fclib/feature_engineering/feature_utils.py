@@ -12,7 +12,7 @@ import calendar
 import pandas as pd
 import numpy as np
 
-from forecasting_lib.feature_engineering.utils import is_datetime_like
+from fclib.feature_engineering.utils import is_datetime_like
 
 # 0: Monday, 2: T/W/TR, 4: F, 5:SA, 6: S
 WEEK_DAY_TYPE_MAP = {1: 2, 3: 2}  # Map for converting Wednesday and

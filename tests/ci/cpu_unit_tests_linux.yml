@@ -40,7 +40,7 @@ jobs:
       echo "Running conda env setup ..."
       yes | conda env create -n forecast_cpu -f tools/environment.yml
       eval "$(conda shell.bash hook)" && conda activate forecast_cpu
-      pip install -e forecasting_lib
+      pip install -e fclib
       echo "Conda env installed."
     displayName: 'Creating Conda Environment with dependencies'
 
@@ -48,7 +48,7 @@ jobs:
       sudo ln -s /usr/lib/R/modules/lapack.so /usr/lib/libRlapack.so
       eval "$(conda shell.bash hook)" && conda activate forecast_cpu
       python -m ipykernel install --user --name forecast_cpu
-      pytest --durations=0 forecasting_lib/tests -m "not notebooks and not gpu and not azureml" --junitxml=junit/test-unitttest.xml
+      pytest --durations=0 fclib/tests -m "not notebooks and not gpu and not azureml" --junitxml=junit/test-unitttest.xml
     displayName: 'Run Unit tests'
 
   - task: PublishTestResults@2

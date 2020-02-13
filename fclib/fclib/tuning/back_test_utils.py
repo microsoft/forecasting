@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 from datetime import datetime
-from forecasting_lib.common.utils import get_offset_by_frequency
+from fclib.common.utils import get_offset_by_frequency
 
 
 class TSCVSplitter:

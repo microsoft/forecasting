@@ -9,7 +9,7 @@ import warnings
 from math import ceil
 
 from abc import ABC, abstractmethod
-from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from fclib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
 
 
 class TemporalFeaturizer(BaseTSFeaturizer):

@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 from datetime import datetime
-from forecasting_lib.feature_engineering.utils import add_datetime
+from fclib.feature_engineering.utils import add_datetime
 
 
 class TSCVSplitter:

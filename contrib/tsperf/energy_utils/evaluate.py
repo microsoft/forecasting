@@ -18,8 +18,8 @@ import os
 import sys
 import pandas as pd
 
-from forecasting_lib.dataset.energy.benchmark_paths import BENCHMARK_DIR
-from forecasting_lib.evaluation.evaluation_utils import pinball_loss
+from fclib.dataset.energy.benchmark_paths import BENCHMARK_DIR
+from fclib.evaluation.evaluation_utils import pinball_loss
 
 # baseline losses are taken from Table 2 of
 # F. Ziel. Quantile regression for the qualifying match of GEFCom2017

@@ -12,25 +12,25 @@ import pandas as pd
 from functools import reduce
 from sklearn.pipeline import Pipeline
 
-from forecasting_lib.feature_engineering.lag import (
+from fclib.feature_engineering.lag import (
     SameWeekOfYearLagFeaturizer,
     SameDayOfYearLagFeaturizer,
 )
-from forecasting_lib.feature_engineering.temporal import (
+from fclib.feature_engineering.temporal import (
     TemporalFeaturizer,
     DayTypeFeaturizer,
     AnnualFourierFeaturizer,
     DailyFourierFeaturizer,
     WeeklyFourierFeaturizer,
 )
-from forecasting_lib.feature_engineering.rolling_window import SameDayOfWeekRollingWindowFeaturizer
-from forecasting_lib.feature_engineering.normalization import (
+from fclib.feature_engineering.rolling_window import SameDayOfWeekRollingWindowFeaturizer
+from fclib.feature_engineering.normalization import (
     YearNormalizer,
     DateNormalizer,
     DateHourNormalizer,
 )
 
-from forecasting_lib.dataset.energy.benchmark_paths import DATA_DIR
+from fclib.dataset.energy.benchmark_paths import DATA_DIR
 
 print("Data directory used: {}".format(DATA_DIR))
 
