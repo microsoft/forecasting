@@ -8,10 +8,10 @@
 # $ conda env update -f environment.yaml
 #
 # To register the conda environment in Jupyter:
-# $ conda activate forecast
-# $ python -m ipykernel install --user --name forecast
+# $ conda activate forecasting_env
+# $ python -m ipykernel install --user --name forecasting_env
 
-name: forecast
+name: forecasting_env
 channels:
   - defaults
   - conda-forge
@@ -37,4 +37,3 @@ dependencies:
     - lightgbm==2.3.1
     - nteract-scrapbook==0.3.1
     - gitpython==3.0.5
-    # - fire==0.2.1 # for CLI capabilities
