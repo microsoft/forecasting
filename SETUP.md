@@ -16,7 +16,7 @@ conda env create -f tools/environment.yaml
 ```
 This will create the appropriate conda environment to run experiments. Next activate the installed environment:
 ```bash
-conda activate forecast
+conda activate forecasting_env
 ```
 
 During development, in case you need to update the environment due to a conda env file change, you can run
@@ -45,8 +45,8 @@ This repository provides examples on how to run various forecasting algorithms o
 #### Notebooks
 We provide example notebooks under `examples/` to demonstrate how to train and evaluate forecasting algorithms.
 
-Make sure to run the notebooks in the conda environment we previously set up (`forecast`). To register the conda environment in Jupyter, please run:
+Make sure to run the notebooks in the conda environment we previously set up (`forecasting_env`). To register the conda environment in Jupyter, please run:
 
 ```
-python -m ipykernel install --user --name forecast
+python -m ipykernel install --user --name forecasting_env
 ```
