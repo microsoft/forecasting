@@ -1,0 +1,76 @@
+---
+title: Simple models
+output: html_notebook
+encoding: utf8
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+We fit some simple models to the orange juice data. One model is fit for each combination of store and brand.
+
+- `mean`: This is just a simple mean.
+- `naive`: A random walk model without any other components. This amounts to setting all forecast values to the last observed value.
+- `drift`: This adjusts the `naive` model to incorporate a trend.
+- `arima`: An ARIMA model with the parameter values estimated from the data.
+- `ets`: An exponentially weighted model, again with parameter values estimated from the data.
+
+```{r}
+load("oj_data.Rdata")
+
+# train the models in parallel
+ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
+cl <- parallel::makeCluster(ncores)
+invisible(parallel::clusterEvalQ(cl,
+{
+    library(feasts)
+    library(fable)
+    library(tsibble)
+}))
+
+# we have multiple training sets, so parallelise by dataset
+oj_modelset <- parallel::parLapply(cl, oj_train, function(df)
+{
+    model(df,
+        mean=MEAN(logmove),
+        naive=NAIVE(logmove),
+        drift=RW(logmove ~ drift()),
+        arima=ARIMA(logmove),
+        ets=ETS(logmove ~ error("A") + trend("A") + season("N"))
+    )
+})
+
+head(oj_modelset[[1]])
+```
+
+Having fit the models, let's examine their goodness of fit, using the MAPE (mean absolute percentage error) metric.
+
+```{r}
+# compute forecasts, again parallelised by dataset
+oj_fcast <- parallel::clusterMap(cl, function(mod, df) forecast(mod, df), oj_modelset, oj_test)
+
+parallel::stopCluster(cl)
+
+# compute GOF statistics
+orig <- do.call(rbind, oj_test) %>%
+    select(store, brand, week, logmove)
+
+fcast <- do.call(rbind, oj_fcast) %>%
+    as_tibble() %>%
+    select(store, brand, week, .model, logmove) %>%
+    pivot_wider(id_cols=c(store, brand, week), names_from=.model, values_from=logmove)
+
+full_join(fcast, orig) %>%
+    summarise(
+        mean=MAPE(mean - logmove, logmove),
+        naive=MAPE(naive - logmove, logmove),
+        drift=MAPE(drift - logmove, logmove),
+        arima=MAPE(arima - logmove, logmove),
+        ets=MAPE(ets - logmove, logmove)
+    )
+```

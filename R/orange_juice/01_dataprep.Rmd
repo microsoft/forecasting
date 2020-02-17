@@ -1,0 +1,53 @@
+---
+title: Data preparation
+output: html_notebook
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+In this notebook, we generate the datasets that will be used for model training and validating. The experiment parameters are obtained from the file `ojdata_forecast_settings.json`; you can modify that file to vary the experimental setup, or just edit the values in this notebook.
+
+The orange juice dataset comes from the bayesm package, and gives pricing and sales figures over time for a variety of orange juice brands in several stores in Florida.
+
+```{r}
+settings <- jsonlite::fromJSON("ojdata_forecast_settings.json")
+
+train_periods <- seq(settings$TRAIN_END[1], settings$TRAIN_END[2], settings$STEP)
+start_date <- as.Date(settings$START_DATE)
+
+data(orangeJuice, package="bayesm")
+
+# fill out missing weeks
+# use complete() to force all store/brand combinations to have the same no. of weeks
+oj_data <- orangeJuice$yx %>%
+    complete(store, brand, week) %>%
+    mutate(week=yearweek(start_date + week*7)) %>%
+    as_tsibble(index=week, key=c(store, brand)) %>%
+    fill(everything())
+
+subset_oj_data <- function(start, end)
+{
+    start <- yearweek(start_date + start*7)
+    end <- yearweek(start_date + end*7)
+    filter(oj_data, week >= start, week <= end)
+}
+
+oj_train <- lapply(train_periods, function(i) subset_oj_data(settings$TRAIN_START_WEEK, i))
+oj_test <- lapply(train_periods, function(i) subset_oj_data(i + 1, i + settings$STEP))
+
+save(oj_train, oj_test, file="oj_data.Rdata")
+```
+
+Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. The variables starting with `price` are the sales price for each brand, in that week.
+
+```{r}
+head(oj_train[[1]])
+
+head(oj_test[[1]])
+```
