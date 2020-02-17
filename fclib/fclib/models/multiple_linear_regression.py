@@ -15,14 +15,13 @@ def fit(train_df, grain_col_names, fea_col_names=[], target_col_name="target"):
     series specified by columns in grain_col_names.
     
     Args: 
-        train_df (Dataframe): Training data frame including all the features
-        grain_col_names (List): List of the column names that specify each time series
-        fea_col_names (List): List of the names of columns that we want to use as input 
-        features
-        target_col_name (String): Name of the target column
+        train_df (pandas.DataFrame): Training data frame including all the features
+        grain_col_names (list[str]): List of the column names that specify each time series
+        fea_col_names (list[str]): List of the names of columns that we want to use as input features
+        target_col_name (str): Name of the target column
         
     Returns:
-        Dictionary including all the trained linear regression models
+        dict: Dictionary including all the trained linear regression models
     """
     lr_models = {}
     if not fea_col_names:
@@ -41,18 +40,17 @@ def predict(
     """Predict target variable with multiple linear regression models that have been trained.
 
     Args:
-        test_df (Dataframe): Dataframe including all needed features
-        lr_models (Dictionary): A dictionary that includes all the trained linear regression
-        models with format {(grain1, grain2, ...): model1, (grain1, grain2, ...): model2, ...}
-        time_col_name (String): Name of the time column
-        grain_col_names (List): List of the column names that specify each time series
-        fea_col_names (List): List of the names of the columns that are needed for generating 
-        predictions
-        positive_output (Boolean): If it is True, negative forecasts will be replaced by 0
-        integer_output (Boolean): If it is True, the forecast will be rounded to an integer
+        test_df (pandas.DataFrame): Dataframe including all needed features
+        lr_models (dict): A dictionary that includes all the trained linear regression models with format 
+            {(grain1, grain2, ...): model1, (grain1, grain2, ...): model2, ...}
+        time_col_name (str): Name of the time column
+        grain_col_names (list[str]): List of the column names that specify each time series
+        fea_col_names (list[str]): List of the names of the columns that are needed for generating predictions
+        positive_output (bool): If it is True, negative forecasts will be replaced by 0
+        integer_output (bool): If it is True, the forecast will be rounded to an integer
 
     Returns:
-        Dataframe including the predictions of the target variable
+        pandas.DataFrame including the predictions of the target variable
     """
     pred_dfs = []
     if not fea_col_names:
