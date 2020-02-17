@@ -68,26 +68,26 @@ def split_train_test(data_dir, forecast_settings, write_csv=False):
     for model performance evaluation.
 
     Example:
-        from fclib.common.utils import forecast_settings
+        from fclib.common import forecast_settings
 
-        data_dir = "/home/forecasting/ojdata"
+        forecast_settings.NUM_ROUNDS = 3
+        data_dir = "/home/vapaunic/forecasting/ojdata"
 
-        for train, test, aux in split_train_test(data_dir=data_dir, forecast_settings=forecast_settings):
-            print("Training data size: {}".format(train.shape))
-            print("Testing data size: {}".format(test.shape))
-            print("Auxiliary data size: {}".format(aux.shape))
-            print("Minimum training week number: {}".format(min(train["week"])))
-            print("Maximum training week number: {}".format(max(train["week"])))
-            print("Minimum testing week number: {}".format(min(test["week"])))
-            print("Maximum testing week number: {}".format(max(test["week"])))
-            print("Minimum auxiliary week number: {}".format(min(aux["week"])))
-            print("Maximum auxiliary week number: {}".format(max(aux["week"])))
-            print("")
+        train, test, aux = split_train_test(data_dir=data_dir, forecast_settings=forecast_settings, write_csv=True)
+
+        print(len(train))
+        print(len(test))
+        print(len(aux))
 
     Args:
         data_dir (str): location of the download directory
         forecast_settings (dict): dictionary containing forecast experiment parameters
         write_csv (Boolean): Whether to write out the data files or not
+    
+    Returns:
+        list[pandas.DataFrame]: a list the length of NUM_ROUNDS containing train data frames
+        list[pandas.DataFrame]: a list the length of NUM_ROUNDS containing test data frames
+        list[pandas.DataFrame]: a list the length of NUM_ROUNDS containing aux data frames
         
     """
     # Read sales data into dataframe
@@ -101,27 +101,36 @@ def split_train_test(data_dir, forecast_settings, write_csv=False):
         if not os.path.isdir(TEST_DATA_DIR):
             os.mkdir(TEST_DATA_DIR)
 
+    train_df_list = list()
+    test_df_list = list()
+    aux_df_list = list()
+
     for i in range(forecast_settings.NUM_ROUNDS):
         data_mask = (sales.week >= forecast_settings.TRAIN_START_WEEK) & (
             sales.week <= forecast_settings.TRAIN_END_WEEK_LIST[i]
         )
-        train = sales[data_mask].copy()
+        train_df = sales[data_mask].copy()
         data_mask = (sales.week >= forecast_settings.TEST_START_WEEK_LIST[i]) & (
             sales.week <= forecast_settings.TEST_END_WEEK_LIST[i]
         )
-        test = sales[data_mask].copy()
+        test_df = sales[data_mask].copy()
         data_mask = (sales.week >= forecast_settings.TRAIN_START_WEEK) & (
             sales.week <= forecast_settings.TEST_END_WEEK_LIST[i]
         )
-        aux = sales[data_mask].copy()
-        aux.drop(["logmove", "constant", "profit"], axis=1, inplace=True)
+        aux_df = sales[data_mask].copy()
+        aux_df.drop(["logmove", "constant", "profit"], axis=1, inplace=True)
 
         if write_csv:
             roundstr = "_" + str(i + 1) if forecast_settings.NUM_ROUNDS > 1 else ""
-            train.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
-            test.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
-            aux.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
-        yield train, test, aux
+            train_df.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
+            test_df.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
+            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
+
+        train_df_list.append(train_df)
+        test_df_list.append(test_df)
+        aux_df_list.append(aux_df)
+
+    return train_df_list, test_df_list, aux_df_list
 
 
 def specify_data_schema(
@@ -382,17 +391,7 @@ def specify_retail_data_schema(
 if __name__ == "__main__":
     from fclib.common import forecast_settings
 
-    forecast_settings.NUM_ROUNDS = 3
+    forecast_settings.NUM_ROUNDS = 10
     data_dir = "/home/vapaunic/forecasting/ojdata"
 
-    for train, test, aux in split_train_test(data_dir=data_dir, forecast_settings=forecast_settings, write_csv=True):
-        print("Training data size: {}".format(train.shape))
-        print("Testing data size: {}".format(test.shape))
-        print("Auxiliary data size: {}".format(aux.shape))
-        print("Minimum training week number: {}".format(min(train["week"])))
-        print("Maximum training week number: {}".format(max(train["week"])))
-        print("Minimum testing week number: {}".format(min(test["week"])))
-        print("Maximum testing week number: {}".format(max(test["week"])))
-        print("Minimum auxiliary week number: {}".format(min(aux["week"])))
-        print("Maximum auxiliary week number: {}".format(max(aux["week"])))
-        print("")
+    _, _, _ = split_train_test(data_dir=data_dir, forecast_settings=forecast_settings, write_csv=True)
