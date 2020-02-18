@@ -327,7 +327,6 @@ def _check_static_feat(df, ts_id_col_names, static_feat_names):
 
 def specify_retail_data_schema(
     data_dir,
-    forecast_settings,
     sales=None,
     target_col_name=DEFAULT_TARGET_COL,
     static_feat_names=DEFAULT_STATIC_FEA,
