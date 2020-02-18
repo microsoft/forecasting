@@ -15,6 +15,8 @@ In this notebook, we generate the datasets that will be used for model training 
 
 The orange juice dataset comes from the bayesm package, and gives pricing and sales figures over time for a variety of orange juice brands in several stores in Florida.
 
+A complicating factor is that the data is in a hybrid of long and wide format: while the sales figures are long (one column of sales data for every store and brand), the prices are wide (one price column for each brand). Therefore we need to reshape the data if we want to use prices for modelling. As part of this, we also compute a new column `maxpricediff`: this represents the log-ratio of the price of this brand compared to the best competing price. A positive `maxpricediff` means this brand is cheaper than all the other brands, and a negative `maxpricediff` means it is more expensive.
+
 ```{r}
 settings <- jsonlite::fromJSON("ojdata_forecast_settings.json")
 
@@ -23,13 +25,21 @@ start_date <- as.Date(settings$START_DATE)
 
 data(orangeJuice, package="bayesm")
 
-# fill out missing weeks
 # use complete() to force all store/brand combinations to have the same no. of weeks
 oj_data <- orangeJuice$yx %>%
     complete(store, brand, week) %>%
-    mutate(week=yearweek(start_date + week*7)) %>%
-    as_tsibble(index=week, key=c(store, brand)) %>%
-    fill(everything())
+    group_by(store, brand) %>%
+    group_modify(~ {
+        pricevars <- grep("price", names(.x), value=TRUE)
+        thispricevar <- paste0("price", .y$brand)
+        best_other_price <- do.call(pmin, .x[setdiff(pricevars, thispricevar)])
+        .x$price <- .x[[thispricevar]]
+        .x$maxpricediff <- log(best_other_price/.x$price)
+        select(.x, week, logmove, deal, feat, price, maxpricediff)
+    }) %>%
+    ungroup() %>%
+    mutate(week=yearweek(start_date + week*7)) %>%  # do this separately because of tsibble/vctrs issues
+    as_tsibble(index=week, key=c(store, brand))
 
 subset_oj_data <- function(start, end)
 {
@@ -44,7 +54,7 @@ oj_test <- lapply(train_periods, function(i) subset_oj_data(i + 1, i + settings$
 save(oj_train, oj_test, file="oj_data.Rdata")
 ```
 
-Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. The variables starting with `price` are the sales price for each brand, in that week.
+Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. Note that we do _not_ fill in the missing values in the data, as (with the exception of `ETS`) the modelling functions in the fable package can handle this innately.
 
 ```{r}
 head(oj_train[[1]])

@@ -1,0 +1,55 @@
+---
+title: Model evaluation
+output: html_notebook
+encoding: utf8
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+Having fit the models, let's examine their rolling goodness of fit, using the MAPE (mean absolute percentage error) metric.
+
+```{r}
+for(f in dir(pattern="Rdata$"))
+    load(f)
+
+ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
+cl <- parallel::makeCluster(ncores)
+invisible(parallel::clusterEvalQ(cl,
+{
+    library(feasts)
+    library(fable)
+    library(tsibble)
+}))
+
+# compute forecasts for each modelset and dataset (parallelised by the latter)
+fcast_sets <- lapply(ls(pattern="^oj_modelset"), function(mod)
+    parallel::clusterMap(cl, function(mod, df) forecast(mod, df), get(mod), oj_test)
+)
+
+parallel::stopCluster(cl)
+
+# compute GOF statistics
+orig <- do.call(rbind, oj_test) %>%
+    as_tibble() %>%
+    arrange(store, brand, week) %>%
+    select(store, brand, week, logmove)
+
+gof <- function(fcast_data)
+{
+    fcast_data <- do.call(rbind, fcast_data) %>%
+        as_tibble() %>%
+        select(store, brand, week, .model, logmove) %>%
+        pivot_wider(id_cols=c(store, brand, week), names_from=.model, values_from=logmove) %>%
+        arrange(store, brand, week) %>%
+        select(-store, -brand, -week) %>%
+        summarise_all(function(x) MAPE(x - orig$logmove, orig$logmove))
+}
+
+lapply(fcast_sets, gof) %>% bind_cols()
+```
