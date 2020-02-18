@@ -45,7 +45,7 @@ jobs:
     displayName: 'Creating conda environment with dependencies'
 
   - bash: |
-      sudo ln -s /usr/lib/R/modules/lapack.so /usr/lib/libRlapack.so
+      sudo ln -sf /usr/lib/R/modules/lapack.so /usr/lib/libRlapack.so
       eval "$(conda shell.bash hook)" && conda activate forecast_cpu
       python -m ipykernel install --user --name forecast_cpu
       pytest --durations=0 tests/integration -m "not gpu and not azureml" --junitxml=report/test-integration.xml
