@@ -13,14 +13,14 @@ def predict(df, model, target_col, idx_cols, integer_output=True):
     """Predict target variable with a trained LightGBM model.
     
     Args: 
-        df (Dataframe): Dataframe including all needed features
-        model (Model): Trained LightGBM model
-        target_col (String): Name of the target column
-        idx_col (List): List of the names of the index columns, e.g. ["store", "brand", "week"]
-        integer_output (Boolean): It it is True, the forecast will be rounded to an integer
+        df (pandas.DataFrame): Dataframe including all needed features
+        model (lightgbm.Booster): Trained LightGBM booster model
+        target_col (str): Name of the target column
+        idx_col (list[str]): List of the names of the index columns, e.g. ["store", "brand", "week"]
+        integer_output (bool): It it is True, the forecast will be rounded to an integer
         
     Returns:
-        Dataframe including the predictions of the target variable 
+        pandas.DataFrame including the predictions of the target variable 
     """
     if target_col in df.columns:
         df = df.drop(target_col, axis=1)
