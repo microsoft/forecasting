@@ -56,7 +56,7 @@ def maybe_download(dest_dir):
         print("Data already exists at the specified location.")
 
 
-def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=160):
+def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=156):
     """Generate week splits for given parameters"""
     test_start_index = last_week - (horizon * n_splits) + 1
     train_end_index_first = test_start_index - gap
@@ -78,7 +78,7 @@ def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=1
     return test_start_week_list, test_end_week_list, train_end_week_list
 
 
-def split_train_test(data_dir, n_splits=5, horizon=3, gap=2, first_week=40, last_week=160, write_csv=False):
+def split_train_test(data_dir, n_splits=5, horizon=2, gap=2, first_week=40, last_week=160, write_csv=False):
     """Generate training, testing, and auxiliary datasets. Training data includes the historical 
     sales and external features; testing data contains the future sales and external features; 
     auxiliary data includes the future price, deal, and advertisement information which can be 
