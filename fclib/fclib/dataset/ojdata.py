@@ -78,7 +78,7 @@ def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=1
     return test_start_week_list, test_end_week_list, train_end_week_list
 
 
-def split_train_test(data_dir, n_splits=5, horizon=2, gap=2, first_week=40, last_week=160, write_csv=False):
+def split_train_test(data_dir, n_splits=5, horizon=2, gap=2, first_week=40, last_week=156, write_csv=False):
     """Generate training, testing, and auxiliary datasets. Training data includes the historical 
     sales and external features; testing data contains the future sales and external features; 
     auxiliary data includes the future price, deal, and advertisement information which can be 
@@ -412,10 +412,12 @@ def specify_retail_data_schema(
 
 if __name__ == "__main__":
     data_dir = "/home/vapaunic/forecasting/ojdata"
-    train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=2, write_csv=False)
 
-    print((test[0].week))
-    print((test[1].week))
-    print((test[2].week))
-    print((test[3].week))
-    print((test[4].week))
+    download_ojdata(data_dir)
+    # train, test, aux = split_train_test(data_dir=data_dir, n_splits=1, horizon=2, write_csv=True)
+
+    # print((test[0].week))
+    # print((test[1].week))
+    # print((test[2].week))
+    # print((test[3].week))
+    # print((test[4].week))
