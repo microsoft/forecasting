@@ -78,7 +78,7 @@ def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=1
     return test_start_week_list, test_end_week_list, train_end_week_list
 
 
-def split_train_test(data_dir, n_splits=5, horizon=3, pred_step=2, first_week=40, last_week=160, write_csv=False):
+def split_train_test(data_dir, n_splits=5, horizon=3, gap=2, first_week=40, last_week=160, write_csv=False):
     """Generate training, testing, and auxiliary datasets. Training data includes the historical 
     sales and external features; testing data contains the future sales and external features; 
     auxiliary data includes the future price, deal, and advertisement information which can be 
@@ -105,15 +105,16 @@ def split_train_test(data_dir, n_splits=5, horizon=3, pred_step=2, first_week=40
         data_dir (str): location of the download directory
         n_splits (int, optional): number of splits (folds) to generate (default: 5) 
         horizon (int, optional): forecasting horizon, number of weeks to forecast (default: 3) 
-        pred_step (int, optional): prediction step, number of weeks between last training week and first test week (default: 2) 
+        gap (int, optional): gap between training and testing, number of weeks between last training 
+            week and first test week (default: 2) 
         first_week (int, optional): first available week (default: 40) 
         last_week (int, optional): last available week (default: 160)
         write_csv (Boolean, optional): Whether to write out the data files or not (default: False)
     
     Returns:
-        list[pandas.DataFrame]: a list the length of NUM_ROUNDS containing train data frames
-        list[pandas.DataFrame]: a list the length of NUM_ROUNDS containing test data frames
-        list[pandas.DataFrame]: a list the length of NUM_ROUNDS containing aux data frames
+        list[pandas.DataFrame]: a list containing train data frames for each split
+        list[pandas.DataFrame]: a list containing test data frames for each split
+        list[pandas.DataFrame]: a list containing aux data frames for each split
         
     """
     # Read sales data into dataframe
@@ -132,7 +133,7 @@ def split_train_test(data_dir, n_splits=5, horizon=3, pred_step=2, first_week=40
     aux_df_list = list()
 
     test_start_week_list, test_end_week_list, train_end_week_list = _gen_split_indices(
-        n_splits, horizon, pred_step, first_week, last_week
+        n_splits, horizon, gap, first_week, last_week
     )
 
     for i in range(n_splits):
