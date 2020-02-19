@@ -56,11 +56,11 @@ def maybe_download(dest_dir):
         print("Data already exists at the specified location.")
 
 
-def _gen_split_indices(n_rounds=5, horizon=3, pred_step=2, first_week=40, last_week=160):
+def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=160):
     """Generate week splits for given parameters"""
-    test_start_index = last_week - (horizon + (n_rounds - 1)) + 1
-    train_end_index_first = test_start_index - pred_step
-    train_end_index_last = train_end_index_first + n_rounds - 1
+    test_start_index = last_week - (horizon * n_splits) + 1
+    train_end_index_first = test_start_index - gap
+    train_end_index_last = train_end_index_first + (n_splits - 1) * horizon
 
     assert (
         test_start_index >= first_week
@@ -72,13 +72,13 @@ def _gen_split_indices(n_rounds=5, horizon=3, pred_step=2, first_week=40, last_w
     ), f"Please adjust your parameters, so that last training data point (currently week {train_end_index_first}) \
         comes after the first available week (week {first_week})."
 
-    test_start_week_list = list(range(test_start_index, (last_week - horizon + 1) + 1))
-    test_end_week_list = list(range(test_start_index + horizon - 1, last_week + 1))
-    train_end_week_list = list(range(train_end_index_first, train_end_index_last + 1))
+    test_start_week_list = list(range(test_start_index, (last_week - horizon + 1) + 1, horizon))
+    test_end_week_list = list(range(test_start_index + horizon - 1, last_week + 1, horizon))
+    train_end_week_list = list(range(train_end_index_first, train_end_index_last + 1, horizon))
     return test_start_week_list, test_end_week_list, train_end_week_list
 
 
-def split_train_test(data_dir, n_rounds=5, horizon=3, pred_step=2, first_week=40, last_week=160, write_csv=False):
+def split_train_test(data_dir, n_splits=5, horizon=3, pred_step=2, first_week=40, last_week=160, write_csv=False):
     """Generate training, testing, and auxiliary datasets. Training data includes the historical 
     sales and external features; testing data contains the future sales and external features; 
     auxiliary data includes the future price, deal, and advertisement information which can be 
@@ -89,13 +89,13 @@ def split_train_test(data_dir, n_rounds=5, horizon=3, pred_step=2, first_week=40
     Note that train_*.csv files in /train folder contain all the features in the training period
     and aux_*.csv files in /train folder contain all the features except 'logmove', 'constant',
     'profit' up until the forecast period end week. Both train_*.csv and aux_*csv can be used for
-    generating forecasts in each round. However, test_*.csv files in /test folder can only be used
+    generating forecasts in each split. However, test_*.csv files in /test folder can only be used
     for model performance evaluation.
 
     Example:
         data_dir = "/home/vapaunic/forecasting/ojdata"
 
-        train, test, aux = split_train_test(data_dir=data_dir, n_rounds=5, horizon=3, write_csv=True)
+        train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=3, write_csv=True)
 
         print(len(train))
         print(len(test))
@@ -103,7 +103,7 @@ def split_train_test(data_dir, n_rounds=5, horizon=3, pred_step=2, first_week=40
 
     Args:
         data_dir (str): location of the download directory
-        n_rounds (int, optional): number of rounds (folds) to generate (default: 5) 
+        n_splits (int, optional): number of splits (folds) to generate (default: 5) 
         horizon (int, optional): forecasting horizon, number of weeks to forecast (default: 3) 
         pred_step (int, optional): prediction step, number of weeks between last training week and first test week (default: 2) 
         first_week (int, optional): first available week (default: 40) 
@@ -132,10 +132,10 @@ def split_train_test(data_dir, n_rounds=5, horizon=3, pred_step=2, first_week=40
     aux_df_list = list()
 
     test_start_week_list, test_end_week_list, train_end_week_list = _gen_split_indices(
-        n_rounds, horizon, pred_step, first_week, last_week
+        n_splits, horizon, pred_step, first_week, last_week
     )
 
-    for i in range(n_rounds):
+    for i in range(n_splits):
         data_mask = (sales.week >= first_week) & (sales.week <= train_end_week_list[i])
         train_df = sales[data_mask].copy()
         data_mask = (sales.week >= test_start_week_list[i]) & (sales.week <= test_end_week_list[i])
@@ -145,7 +145,7 @@ def split_train_test(data_dir, n_rounds=5, horizon=3, pred_step=2, first_week=40
         aux_df.drop(["logmove", "constant", "profit"], axis=1, inplace=True)
 
         if write_csv:
-            roundstr = "_" + str(i + 1) if n_rounds > 1 else ""
+            roundstr = "_" + str(i + 1) if n_splits > 1 else ""
             train_df.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
             test_df.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
             aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
@@ -341,7 +341,7 @@ def specify_retail_data_schema(
         print(df_config)
 
     Args:
-        sales (Pandas DataFrame): sales data in the current forecast round
+        sales (Pandas DataFrame): sales data in the current forecast split
         target_col_name (str): name of the target column that need to be forecasted
         static_feat_names (list): names of the feature columns that do not change over time
         dynamic_feat_names (list): names of the feature columns that can change over time
@@ -351,9 +351,9 @@ def specify_retail_data_schema(
         df_config (dict): configuration of the time series data 
         df (Pandas DataFrame): sales data combined with store demographic features
     """
-    # Read the 1st round training data if "sales" is not specified
+    # Read the 1st split of training data if "sales" is not specified
     if sales is None:
-        print("Sales dataframe is not given! The 1st round training data will be used.")
+        print("Sales dataframe is not given! The 1st split of training data will be used.")
         sales = pd.read_csv(os.path.join(data_dir, "train", "train_round_1.csv"), index_col=False)
         aux = pd.read_csv(os.path.join(data_dir, "train", "aux_round_1.csv"), index_col=False)
         # Merge with future price, deal, and advertisement info
@@ -410,9 +410,10 @@ def specify_retail_data_schema(
 
 
 if __name__ == "__main__":
-    data_dir = "/home/vapaunic/forecasting/ojdata"
-    train, test, aux = split_train_test(data_dir=data_dir, n_rounds=5, horizon=3, write_csv=False)
+    # data_dir = "/home/vapaunic/forecasting/ojdata"
+    # train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=3, write_csv=False)
 
-    print((train[0].week))
-    print((test[0].week))
-    print(aux[0].week)
+    # print((train[0].week))
+    # print((test[0].week))
+    # print(aux[0].week)
+    print(_gen_split_indices())
