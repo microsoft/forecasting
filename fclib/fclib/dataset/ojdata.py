@@ -410,10 +410,11 @@ def specify_retail_data_schema(
 
 
 if __name__ == "__main__":
-    # data_dir = "/home/vapaunic/forecasting/ojdata"
-    # train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=3, write_csv=False)
+    data_dir = "/home/vapaunic/forecasting/ojdata"
+    train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=2, write_csv=False)
 
-    # print((train[0].week))
-    # print((test[0].week))
-    # print(aux[0].week)
-    print(_gen_split_indices())
+    print((test[0].week))
+    print((test[1].week))
+    print((test[2].week))
+    print((test[3].week))
+    print((test[4].week))
