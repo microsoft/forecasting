@@ -20,12 +20,11 @@ A complicating factor is that the data is in a hybrid of long and wide format: w
 ```{r}
 settings <- jsonlite::fromJSON("ojdata_forecast_settings.json")
 
-train_periods <- seq(settings$TRAIN_END[1], settings$TRAIN_END[2], settings$STEP)
+train_periods <- seq(settings$TRAIN_WINDOW, 160 - settings$STEP - 1, settings$STEP)
 start_date <- as.Date(settings$START_DATE)
 
 data(orangeJuice, package="bayesm")
 
-# use complete() to force all store/brand combinations to have the same no. of weeks
 oj_data <- orangeJuice$yx %>%
     complete(store, brand, week) %>%
     group_by(store, brand) %>%
@@ -48,10 +47,10 @@ subset_oj_data <- function(start, end)
     filter(oj_data, week >= start, week <= end)
 }
 
-oj_train <- lapply(train_periods, function(i) subset_oj_data(settings$TRAIN_START_WEEK, i))
-oj_test <- lapply(train_periods, function(i) subset_oj_data(i + 1, i + settings$STEP))
+oj_train <- lapply(train_periods, function(i) subset_oj_data(40, i))
+oj_test <- lapply(train_periods, function(i) subset_oj_data(i + 2, i + settings$STEP + 1))
 
-save(oj_train, oj_test, file="oj_data.Rdata")
+save(oj_train, oj_test, file="/data/forecasting/R/orange_juice/oj_data.Rdata")
 ```
 
 Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. Note that we do _not_ fill in the missing values in the data, as (with the exception of `ETS`) the modelling functions in the fable package can handle this innately.
