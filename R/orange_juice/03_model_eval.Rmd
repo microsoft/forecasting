@@ -37,7 +37,8 @@ parallel::stopCluster(cl)
 # compute GOF statistics
 orig <- do.call(rbind, oj_test) %>%
     as_tibble() %>%
-    select(store, brand, week, logmove)
+    select(store, brand, week, logmove) %>%
+    mutate(move=exp(logmove))
 
 gof <- function(fcast_data)
 {
@@ -46,7 +47,7 @@ gof <- function(fcast_data)
         select(store, brand, week, .model, logmove) %>%
         pivot_wider(id_cols=c(store, brand, week), names_from=.model, values_from=logmove) %>%
         select(-store, -brand, -week) %>%
-        summarise_all(function(x) MAPE(x - orig$logmove, orig$logmove))
+        summarise_all(function(x) MAPE(exp(x) - orig$move, orig$move))
 }
 
 lapply(fcast_sets, gof) %>% bind_cols()
