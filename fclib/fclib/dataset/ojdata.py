@@ -78,7 +78,7 @@ def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=1
     return test_start_week_list, test_end_week_list, train_end_week_list
 
 
-def split_train_test(data_dir, n_splits=5, horizon=2, gap=2, first_week=40, last_week=156, write_csv=False):
+def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last_week=156, write_csv=False):
     """Generate training, testing, and auxiliary datasets. Training data includes the historical 
     sales and external features; testing data contains the future sales and external features; 
     auxiliary data includes the future price, deal, and advertisement information which can be 
@@ -103,12 +103,12 @@ def split_train_test(data_dir, n_splits=5, horizon=2, gap=2, first_week=40, last
 
     Args:
         data_dir (str): location of the download directory
-        n_splits (int, optional): number of splits (folds) to generate (default: 5) 
-        horizon (int, optional): forecasting horizon, number of weeks to forecast (default: 3) 
+        n_splits (int, optional): number of splits (folds) to generate (default: 1) 
+        horizon (int, optional): forecasting horizon, number of weeks to forecast (default: 2) 
         gap (int, optional): gap between training and testing, number of weeks between last training 
             week and first test week (default: 2) 
         first_week (int, optional): first available week (default: 40) 
-        last_week (int, optional): last available week (default: 160)
+        last_week (int, optional): last available week (default: 156)
         write_csv (Boolean, optional): Whether to write out the data files or not (default: False)
     
     Returns:
