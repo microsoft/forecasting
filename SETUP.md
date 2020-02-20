@@ -1,7 +1,10 @@
 ## Setting up Environment
 
-Follow the instruction bellow to read about compute requirements and install required libraries.
-
+Follow the instruction below to read about compute requirements and install required libraries. Or you can directly run 
+```
+./tools/environment_setup.sh
+```
+from the root of Forecasting repo.
 
 #### Compute environment
 
