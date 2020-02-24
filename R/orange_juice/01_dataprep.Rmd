@@ -34,7 +34,7 @@ oj_data <- orangeJuice$yx %>%
         best_other_price <- do.call(pmin, .x[setdiff(pricevars, thispricevar)])
         .x$price <- .x[[thispricevar]]
         .x$maxpricediff <- log(best_other_price/.x$price)
-        select(.x, week, logmove, deal, feat, price, maxpricediff)
+        select(.x, week, logmove, deal, feat, price, maxpricediff, profit)
     }) %>%
     ungroup() %>%
     mutate(week=yearweek(start_date + week*7)) %>%  # do this separately because of tsibble/vctrs issues
@@ -50,7 +50,7 @@ subset_oj_data <- function(start, end)
 oj_train <- lapply(train_periods, function(i) subset_oj_data(40, i))
 oj_test <- lapply(train_periods, function(i) subset_oj_data(i + 2, i + settings$STEP + 1))
 
-save(oj_train, oj_test, file="/data/forecasting/R/orange_juice/oj_data.Rdata")
+save(oj_train, oj_test, file="oj_data.Rdata")
 ```
 
 Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. Note that we do _not_ fill in the missing values in the data, as (with the exception of `ETS`) the modelling functions in the fable package can handle this innately.
