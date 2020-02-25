@@ -29,9 +29,9 @@ invisible(parallel::clusterEvalQ(cl,
 oj_modelset_reg <- parallel::parLapply(cl, oj_train, function(df)
 {
     model(df,
-        ar_reg=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + deal + feat + price + maxpricediff + profit),
+        ar_reg=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + deal + feat + price + maxpricediff),
         ar_trend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend()),
-        ar_regtrend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend() + deal + feat + price + maxpricediff + profit)
+        ar_regtrend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend() + deal + feat + price + maxpricediff)
     )
 })
 

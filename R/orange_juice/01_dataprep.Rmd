@@ -34,7 +34,7 @@ oj_data <- orangeJuice$yx %>%
         best_other_price <- do.call(pmin, .x[setdiff(pricevars, thispricevar)])
         .x$price <- .x[[thispricevar]]
         .x$maxpricediff <- log(best_other_price/.x$price)
-        select(.x, week, logmove, deal, feat, price, maxpricediff, profit)
+        select(.x, week, logmove, deal, feat, price, maxpricediff)
     }) %>%
     ungroup() %>%
     mutate(week=yearweek(start_date + week*7)) %>%  # do this separately because of tsibble/vctrs issues
