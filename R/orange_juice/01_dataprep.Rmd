@@ -64,7 +64,7 @@ Finally, we split the dataset into separate samples for training and testing. Th
 
 In this specific case study we introduce a small extra piece of complexity. We train a model on data up to month $t$, then test it on months $t+2$ to $t+3$. Then we train on data up to month $t+2$, and test it on months $t+4$ to $t+5$, and so on. Thus there is always a gap of one month between the training and test samples, a complicating factor introduced after discussions with domain experts.
 
-```
+```{r}
 subset_oj_data <- function(start, end)
 {
     start <- yearweek(start_date + start*7)
