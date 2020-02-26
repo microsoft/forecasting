@@ -20,22 +20,31 @@ We fit some simple models to the orange juice data. One model is fit for each co
 - `arima`: An ARIMA model with the parameter values estimated from the data.
 - `ets`: An exponentially weighted model, again with parameter values estimated from the data.
 
-```{r}
+Note that the model training process is embarrassingly parallel on 3 levels:
+
+- We have multiple independent training datasets;
+- For which we fit multiple independent models;
+- Within which we have independent sub-models for each store and brand.
+
+This lets us speed up the training significantly. While the `fable::model` function can fit multiple models in parallel, we will run it sequentially here and instead parallelise by dataset. This avoids contention for cores, and also results in the simplest code.
+
+```{r, results="hide"}
 load("oj_data.Rdata")
 
-# train the models in parallel
 ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
 cl <- parallel::makeCluster(ncores)
-invisible(parallel::clusterEvalQ(cl,
+parallel::clusterEvalQ(cl,
 {
     library(tidyr)
     library(feasts)
     library(fable)
     library(tsibble)
-}))
+})
+```
 
-# we have multiple training sets, so parallelise by dataset
-# first, fit models that can handle missing values
+First, we fit the models that can innately handle missing values.
+
+```{r}
 oj_modelset <- parallel::parLapply(cl, oj_train, function(df)
 {
     model(df,
@@ -45,8 +54,10 @@ oj_modelset <- parallel::parLapply(cl, oj_train, function(df)
         arima=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0))
     )
 })
+```
+Next, we fit models that require manual imputation (ETS).
 
-# next, fit models that require manual imputation (ETS)
+```{r}
 oj_modelset_ets <- parallel::parLapply(cl, oj_train, function(df)
 {
     df %>%

@@ -231,30 +231,36 @@ summary {
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Having fit the models, let’s examine their rolling goodness of fit, using the MAPE (mean absolute percentage error) metric.</p>
+<p>First, we compute the forecasts for each dataset and model, again in parallel.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImZvcihmIGluIGRpcihwYXR0ZXJuPVwiUmRhdGEkXCIpKVxuICAgIGxvYWQoZikiLCIiLCJuY29yZXMgPC0gbWF4KDIsIHBhcmFsbGVsOjpkZXRlY3RDb3Jlcyhsb2dpY2FsPUZBTFNFKSAtIDIpIiwiY2wgPC0gcGFyYWxsZWw6Om1ha2VDbHVzdGVyKG5jb3JlcykiLCJpbnZpc2libGUocGFyYWxsZWw6OmNsdXN0ZXJFdmFsUShjbCxcbntcbiAgICBsaWJyYXJ5KGZlYXN0cylcbiAgICBsaWJyYXJ5KGZhYmxlKVxuICAgIGxpYnJhcnkodHNpYmJsZSlcbn0pKSIsIiIsIiMgY29tcHV0ZSBmb3JlY2FzdHMgZm9yIGVhY2ggbW9kZWxzZXQgYW5kIGRhdGFzZXQgKHBhcmFsbGVsaXNlZCBieSB0aGUgbGF0dGVyKSIsImZjYXN0X3NldHMgPC0gbGFwcGx5KGxzKHBhdHRlcm49XCJeb2pfbW9kZWxzZXRcIiksIGZ1bmN0aW9uKG1vZClcbiAgICBwYXJhbGxlbDo6Y2x1c3Rlck1hcChjbCwgZnVuY3Rpb24obW9kLCBkZikgZm9yZWNhc3QobW9kLCBkZiksIGdldChtb2QpLCBval90ZXN0KVxuKSIsIiIsInBhcmFsbGVsOjpzdG9wQ2x1c3RlcihjbCkiLCIiLCIjIGNvbXB1dGUgR09GIHN0YXRpc3RpY3MiLCJvcmlnIDwtIGRvLmNhbGwocmJpbmQsIG9qX3Rlc3QpICU+JVxuICAgIGFzX3RpYmJsZSgpICU+JVxuICAgIHNlbGVjdChzdG9yZSwgYnJhbmQsIHdlZWssIGxvZ21vdmUpICU+JVxuICAgIG11dGF0ZShtb3ZlPWV4cChsb2dtb3ZlKSkiLCIiLCJnb2YgPC0gZnVuY3Rpb24oZmNhc3RfZGF0YSlcbntcbiAgICBmY2FzdF9kYXRhIDwtIGRvLmNhbGwocmJpbmQsIGZjYXN0X2RhdGEpICU+JVxuICAgICAgICBhc190aWJibGUoKSAlPiVcbiAgICAgICAgc2VsZWN0KHN0b3JlLCBicmFuZCwgd2VlaywgLm1vZGVsLCBsb2dtb3ZlKSAlPiVcbiAgICAgICAgcGl2b3Rfd2lkZXIoaWRfY29scz1jKHN0b3JlLCBicmFuZCwgd2VlayksIG5hbWVzX2Zyb209Lm1vZGVsLCB2YWx1ZXNfZnJvbT1sb2dtb3ZlKSAlPiVcbiAgICAgICAgc2VsZWN0KC1zdG9yZSwgLWJyYW5kLCAtd2VlaykgJT4lXG4gICAgICAgIHN1bW1hcmlzZV9hbGwoZnVuY3Rpb24oeCkgTUFQRShleHAoeCkgLSBvcmlnJG1vdmUsIG9yaWckbW92ZSkpXG59IiwiIiwibGFwcGx5KGZjYXN0X3NldHMsIGdvZikgJT4lIGJpbmRfY29scygpIl19 -->
+<!-- rnb-source-begin eyJkYXRhIjpbImZvcihmIGluIGRpcihwYXR0ZXJuPVwiUmRhdGEkXCIpKVxuICAgIGxvYWQoZikiLCIiLCJuY29yZXMgPC0gbWF4KDIsIHBhcmFsbGVsOjpkZXRlY3RDb3Jlcyhsb2dpY2FsPUZBTFNFKSAtIDIpIiwiY2wgPC0gcGFyYWxsZWw6Om1ha2VDbHVzdGVyKG5jb3JlcykiLCJwYXJhbGxlbDo6Y2x1c3RlckV2YWxRKGNsLFxue1xuICAgIGxpYnJhcnkoZmVhc3RzKVxuICAgIGxpYnJhcnkoZmFibGUpXG4gICAgbGlicmFyeSh0c2liYmxlKVxufSkiXX0= -->
 <pre class="r"><code>for(f in dir(pattern=&quot;Rdata$&quot;))
     load(f)
 
 ncores &lt;- max(2, parallel::detectCores(logical=FALSE) - 2)
 cl &lt;- parallel::makeCluster(ncores)
-invisible(parallel::clusterEvalQ(cl,
+parallel::clusterEvalQ(cl,
 {
     library(feasts)
     library(fable)
     library(tsibble)
-}))
-
-# compute forecasts for each modelset and dataset (parallelised by the latter)
-fcast_sets &lt;- lapply(ls(pattern=&quot;^oj_modelset&quot;), function(mod)
+})</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-source-begin eyJkYXRhIjpbImZjYXN0X3NldHMgPC0gbGFwcGx5KGxzKHBhdHRlcm49XCJeb2pfbW9kZWxzZXRcIiksIGZ1bmN0aW9uKG1vZClcbiAgICBwYXJhbGxlbDo6Y2x1c3Rlck1hcChjbCwgZnVuY3Rpb24obW9kLCBkZikgZm9yZWNhc3QobW9kLCBkZiksIGdldChtb2QpLCBval90ZXN0KVxuKSIsIiIsInBhcmFsbGVsOjpzdG9wQ2x1c3RlcihjbCkiXX0= -->
+<pre class="r"><code>fcast_sets &lt;- lapply(ls(pattern=&quot;^oj_modelset&quot;), function(mod)
     parallel::clusterMap(cl, function(mod, df) forecast(mod, df), get(mod), oj_test)
 )
 
-parallel::stopCluster(cl)
-
-# compute GOF statistics
-orig &lt;- do.call(rbind, oj_test) %&gt;%
+parallel::stopCluster(cl)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Next, we compute the MAPE for each model. It is apparent that adding independent variables as regressors improves the quality of the fit substantially. Adding a simple trend does <em>not</em> improve the fit, indicating that the level of sales does not appear to change over time (at least over the period included in the data).</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbIm9yaWcgPC0gZG8uY2FsbChyYmluZCwgb2pfdGVzdCkgJT4lXG4gICAgYXNfdGliYmxlKCkgJT4lXG4gICAgc2VsZWN0KHN0b3JlLCBicmFuZCwgd2VlaywgbG9nbW92ZSkgJT4lXG4gICAgbXV0YXRlKG1vdmU9ZXhwKGxvZ21vdmUpKSIsIiIsImdvZiA8LSBmdW5jdGlvbihmY2FzdF9kYXRhKVxue1xuICAgIGZjYXN0X2RhdGEgPC0gZG8uY2FsbChyYmluZCwgZmNhc3RfZGF0YSkgJT4lXG4gICAgICAgIGFzX3RpYmJsZSgpICU+JVxuICAgICAgICBzZWxlY3Qoc3RvcmUsIGJyYW5kLCB3ZWVrLCAubW9kZWwsIGxvZ21vdmUpICU+JVxuICAgICAgICBwaXZvdF93aWRlcihpZF9jb2xzPWMoc3RvcmUsIGJyYW5kLCB3ZWVrKSwgbmFtZXNfZnJvbT0ubW9kZWwsIHZhbHVlc19mcm9tPWxvZ21vdmUpICU+JVxuICAgICAgICBzZWxlY3QoLXN0b3JlLCAtYnJhbmQsIC13ZWVrKSAlPiVcbiAgICAgICAgc3VtbWFyaXNlX2FsbChmdW5jdGlvbih4KSBNQVBFKGV4cCh4KSAtIG9yaWckbW92ZSwgb3JpZyRtb3ZlKSlcbn0iLCIiLCJsYXBwbHkoZmNhc3Rfc2V0cywgZ29mKSAlPiUgYmluZF9jb2xzKCkiXX0= -->
+<pre class="r"><code>orig &lt;- do.call(rbind, oj_test) %&gt;%
     as_tibble() %&gt;%
     select(store, brand, week, logmove) %&gt;%
     mutate(move=exp(logmove))
@@ -273,12 +279,12 @@ lapply(fcast_sets, gof) %&gt;% bind_cols()</code></pre>
 <!-- rnb-source-end -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["arima"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["drift"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["naive"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["ets"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["ar_reg"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["ar_regtrend"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["ar_trend"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"68.91132","2":"111.5516","3":"70.65391","4":"109.6734","5":"74.06142","6":"47.07914","7":"58.95063","8":"76.12869"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["arima"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["drift"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["naive"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["ets"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["ar_reg"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["ar_regtrend"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["ar_trend"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"68.91132","2":"111.5516","3":"70.65391","4":"109.6734","5":"74.06142","6":"49.36406","7":"54.58665","8":"76.12869"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiBNb2RlbCBldmFsdWF0aW9uCm91dHB1dDogaHRtbF9ub3RlYm9vawplbmNvZGluZzogdXRmOAotLS0KCmBgYHtyLCBlY2hvPUZBTFNFLCByZXN1bHRzPSJoaWRlIiwgbWVzc2FnZT1GQUxTRX0KbGlicmFyeSh0aWR5cikKbGlicmFyeShkcGx5cikKbGlicmFyeSh0c2liYmxlKQpsaWJyYXJ5KGZlYXN0cykKbGlicmFyeShmYWJsZSkKYGBgCgpIYXZpbmcgZml0IHRoZSBtb2RlbHMsIGxldCdzIGV4YW1pbmUgdGhlaXIgcm9sbGluZyBnb29kbmVzcyBvZiBmaXQsIHVzaW5nIHRoZSBNQVBFIChtZWFuIGFic29sdXRlIHBlcmNlbnRhZ2UgZXJyb3IpIG1ldHJpYy4KCmBgYHtyfQpmb3IoZiBpbiBkaXIocGF0dGVybj0iUmRhdGEkIikpCiAgICBsb2FkKGYpCgpuY29yZXMgPC0gbWF4KDIsIHBhcmFsbGVsOjpkZXRlY3RDb3Jlcyhsb2dpY2FsPUZBTFNFKSAtIDIpCmNsIDwtIHBhcmFsbGVsOjptYWtlQ2x1c3RlcihuY29yZXMpCmludmlzaWJsZShwYXJhbGxlbDo6Y2x1c3RlckV2YWxRKGNsLAp7CiAgICBsaWJyYXJ5KGZlYXN0cykKICAgIGxpYnJhcnkoZmFibGUpCiAgICBsaWJyYXJ5KHRzaWJibGUpCn0pKQoKIyBjb21wdXRlIGZvcmVjYXN0cyBmb3IgZWFjaCBtb2RlbHNldCBhbmQgZGF0YXNldCAocGFyYWxsZWxpc2VkIGJ5IHRoZSBsYXR0ZXIpCmZjYXN0X3NldHMgPC0gbGFwcGx5KGxzKHBhdHRlcm49Il5val9tb2RlbHNldCIpLCBmdW5jdGlvbihtb2QpCiAgICBwYXJhbGxlbDo6Y2x1c3Rlck1hcChjbCwgZnVuY3Rpb24obW9kLCBkZikgZm9yZWNhc3QobW9kLCBkZiksIGdldChtb2QpLCBval90ZXN0KQopCgpwYXJhbGxlbDo6c3RvcENsdXN0ZXIoY2wpCgojIGNvbXB1dGUgR09GIHN0YXRpc3RpY3MKb3JpZyA8LSBkby5jYWxsKHJiaW5kLCBval90ZXN0KSAlPiUKICAgIGFzX3RpYmJsZSgpICU+JQogICAgc2VsZWN0KHN0b3JlLCBicmFuZCwgd2VlaywgbG9nbW92ZSkgJT4lCiAgICBtdXRhdGUobW92ZT1leHAobG9nbW92ZSkpCgpnb2YgPC0gZnVuY3Rpb24oZmNhc3RfZGF0YSkKewogICAgZmNhc3RfZGF0YSA8LSBkby5jYWxsKHJiaW5kLCBmY2FzdF9kYXRhKSAlPiUKICAgICAgICBhc190aWJibGUoKSAlPiUKICAgICAgICBzZWxlY3Qoc3RvcmUsIGJyYW5kLCB3ZWVrLCAubW9kZWwsIGxvZ21vdmUpICU+JQogICAgICAgIHBpdm90X3dpZGVyKGlkX2NvbHM9YyhzdG9yZSwgYnJhbmQsIHdlZWspLCBuYW1lc19mcm9tPS5tb2RlbCwgdmFsdWVzX2Zyb209bG9nbW92ZSkgJT4lCiAgICAgICAgc2VsZWN0KC1zdG9yZSwgLWJyYW5kLCAtd2VlaykgJT4lCiAgICAgICAgc3VtbWFyaXNlX2FsbChmdW5jdGlvbih4KSBNQVBFKGV4cCh4KSAtIG9yaWckbW92ZSwgb3JpZyRtb3ZlKSkKfQoKbGFwcGx5KGZjYXN0X3NldHMsIGdvZikgJT4lIGJpbmRfY29scygpCmBgYAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiBNb2RlbCBldmFsdWF0aW9uCm91dHB1dDogaHRtbF9ub3RlYm9vawplbmNvZGluZzogdXRmOAotLS0KCmBgYHtyLCBlY2hvPUZBTFNFLCByZXN1bHRzPSJoaWRlIiwgbWVzc2FnZT1GQUxTRX0KbGlicmFyeSh0aWR5cikKbGlicmFyeShkcGx5cikKbGlicmFyeSh0c2liYmxlKQpsaWJyYXJ5KGZlYXN0cykKbGlicmFyeShmYWJsZSkKYGBgCgpIYXZpbmcgZml0IHRoZSBtb2RlbHMsIGxldCdzIGV4YW1pbmUgdGhlaXIgcm9sbGluZyBnb29kbmVzcyBvZiBmaXQsIHVzaW5nIHRoZSBNQVBFIChtZWFuIGFic29sdXRlIHBlcmNlbnRhZ2UgZXJyb3IpIG1ldHJpYy4KCkZpcnN0LCB3ZSBjb21wdXRlIHRoZSBmb3JlY2FzdHMgZm9yIGVhY2ggZGF0YXNldCBhbmQgbW9kZWwsIGFnYWluIGluIHBhcmFsbGVsLgoKYGBge3IsIHJlc3VsdHM9ImhpZGUifQpmb3IoZiBpbiBkaXIocGF0dGVybj0iUmRhdGEkIikpCiAgICBsb2FkKGYpCgpuY29yZXMgPC0gbWF4KDIsIHBhcmFsbGVsOjpkZXRlY3RDb3Jlcyhsb2dpY2FsPUZBTFNFKSAtIDIpCmNsIDwtIHBhcmFsbGVsOjptYWtlQ2x1c3RlcihuY29yZXMpCnBhcmFsbGVsOjpjbHVzdGVyRXZhbFEoY2wsCnsKICAgIGxpYnJhcnkoZmVhc3RzKQogICAgbGlicmFyeShmYWJsZSkKICAgIGxpYnJhcnkodHNpYmJsZSkKfSkKCmZjYXN0X3NldHMgPC0gbGFwcGx5KGxzKHBhdHRlcm49Il5val9tb2RlbHNldCIpLCBmdW5jdGlvbihtb2QpCiAgICBwYXJhbGxlbDo6Y2x1c3Rlck1hcChjbCwgZnVuY3Rpb24obW9kLCBkZikgZm9yZWNhc3QobW9kLCBkZiksIGdldChtb2QpLCBval90ZXN0KQopCgpwYXJhbGxlbDo6c3RvcENsdXN0ZXIoY2wpCmBgYAoKTmV4dCwgd2UgY29tcHV0ZSB0aGUgTUFQRSBmb3IgZWFjaCBtb2RlbC4gSXQgaXMgYXBwYXJlbnQgdGhhdCBhZGRpbmcgaW5kZXBlbmRlbnQgdmFyaWFibGVzIGFzIHJlZ3Jlc3NvcnMgaW1wcm92ZXMgdGhlIHF1YWxpdHkgb2YgdGhlIGZpdCBzdWJzdGFudGlhbGx5LiBBZGRpbmcgYSBzaW1wbGUgdHJlbmQgZG9lcyBfbm90XyBpbXByb3ZlIHRoZSBmaXQsIGluZGljYXRpbmcgdGhhdCB0aGUgbGV2ZWwgb2Ygc2FsZXMgZG9lcyBub3QgYXBwZWFyIHRvIGNoYW5nZSBvdmVyIHRpbWUgKGF0IGxlYXN0IG92ZXIgdGhlIHBlcmlvZCBpbmNsdWRlZCBpbiB0aGUgZGF0YSkuCgpgYGB7cn0Kb3JpZyA8LSBkby5jYWxsKHJiaW5kLCBval90ZXN0KSAlPiUKICAgIGFzX3RpYmJsZSgpICU+JQogICAgc2VsZWN0KHN0b3JlLCBicmFuZCwgd2VlaywgbG9nbW92ZSkgJT4lCiAgICBtdXRhdGUobW92ZT1leHAobG9nbW92ZSkpCgpnb2YgPC0gZnVuY3Rpb24oZmNhc3RfZGF0YSkKewogICAgZmNhc3RfZGF0YSA8LSBkby5jYWxsKHJiaW5kLCBmY2FzdF9kYXRhKSAlPiUKICAgICAgICBhc190aWJibGUoKSAlPiUKICAgICAgICBzZWxlY3Qoc3RvcmUsIGJyYW5kLCB3ZWVrLCAubW9kZWwsIGxvZ21vdmUpICU+JQogICAgICAgIHBpdm90X3dpZGVyKGlkX2NvbHM9YyhzdG9yZSwgYnJhbmQsIHdlZWspLCBuYW1lc19mcm9tPS5tb2RlbCwgdmFsdWVzX2Zyb209bG9nbW92ZSkgJT4lCiAgICAgICAgc2VsZWN0KC1zdG9yZSwgLWJyYW5kLCAtd2VlaykgJT4lCiAgICAgICAgc3VtbWFyaXNlX2FsbChmdW5jdGlvbih4KSBNQVBFKGV4cCh4KSAtIG9yaWckbW92ZSwgb3JpZyRtb3ZlKSkKfQoKbGFwcGx5KGZjYXN0X3NldHMsIGdvZikgJT4lIGJpbmRfY29scygpCmBgYAo=</div>
 
 
 

@@ -11,20 +11,19 @@ library(feasts)
 library(fable)
 ```
 
-This notebook builds on the output from "Simple models" by including regressor variables in the ARIMA model.
+This notebook builds on the output from "Simple models" by including regressor variables in the ARIMA model(s).
 
-```{r}
+```{r, results="hide"}
 load("oj_data.Rdata")
 
-# train the models in parallel
 ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
 cl <- parallel::makeCluster(ncores)
-invisible(parallel::clusterEvalQ(cl,
+parallel::clusterEvalQ(cl,
 {
     library(feasts)
     library(fable)
     library(tsibble)
-}))
+})
 
 oj_modelset_reg <- parallel::parLapply(cl, oj_train, function(df)
 {
@@ -35,9 +34,6 @@ oj_modelset_reg <- parallel::parLapply(cl, oj_train, function(df)
     )
 })
 
-
 parallel::stopCluster(cl)
 save(oj_modelset_reg, file="oj_modelset_reg.Rdata")
-
-head(oj_modelset_reg[[1]])
 ```
