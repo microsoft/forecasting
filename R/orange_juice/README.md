@@ -21,7 +21,6 @@ The easiest way to install them is to run
 install.packages("bayesm")
 install.packages("tidyverse") # installs all tidyverse packages
 install.packages(c("fable", "feasts", "urca"))
-install.packages("feasts")
 ```
 
 The Rmarkdown notebooks in this directory are as follows. You should run them in sequence, as each will create output objects (datasets/models) that are used in later notebooks.
