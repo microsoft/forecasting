@@ -7,8 +7,8 @@ solve time series forecasting problems.
 """
 
 
-from keras.layers import Input, Lambda, Embedding, Conv1D, Dropout, Flatten, Dense, concatenate
-from keras.models import Model
+from tensorflow.keras.layers import Input, Lambda, Embedding, Conv1D, Dropout, Flatten, Dense, concatenate
+from tensorflow.keras.models import Model
 
 MAX_STORE_ID = 137
 MAX_BRAND_ID = 11

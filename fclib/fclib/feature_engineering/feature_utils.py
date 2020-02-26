@@ -970,15 +970,18 @@ def static_feature_array(df_all, total_timesteps, seq_cols, grain1_name, grain2_
     
     Args:
         df_all (np.Dataframe): Time series data of all the grains for multi-granular data
-        total_timesteps (int): Total number of training samples for each store and brand
-        seq_cols (list[str]): A list of names of the static feature columns (e.g., store index)
+        total_timesteps (int): Total number of training samples for modeling
+        seq_cols (list[str]): A list of names of the static feature columns, e.g. store ID
         grain1_name (str): Name of the 1st column indicating the time series graunularity
         grain2_name (str): Name of the 2nd column indicating the time series graunularity
         
     Return:
-        fea_array (np.array): An array of static features of all stores and brands
+        fea_array (np.array): An array of static features of all the grains, e.g. all the
+        combinations of stores and brands in retail sale forecasting
     """
-    fea_df = df_all.groupby(["store", "brand"]).apply(lambda x: x.iloc[:total_timesteps, :]).reset_index(drop=True)
+    fea_df = (
+        df_all.groupby([grain1_name, grain2_name]).apply(lambda x: x.iloc[:total_timesteps, :]).reset_index(drop=True)
+    )
     fea_array = fea_df[seq_cols].values
     return fea_array
 
