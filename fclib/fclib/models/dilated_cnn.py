@@ -40,7 +40,6 @@ def create_dcnn_model(
 
     # Categorical input
     n_cat_fea = len(max_cat_id)
-    print(n_cat_fea)
     cat_fea_in = Input(shape=(n_cat_fea,), dtype="uint8")
     cat_flatten = []
     for i, m in enumerate(max_cat_id):
