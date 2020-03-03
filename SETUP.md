@@ -64,5 +64,5 @@ We provide example notebooks under `examples/` to demonstrate how to train and e
 Make sure to run the notebooks in the conda environment we previously set up (`forecasting_env`). To register the conda environment in Jupyter, please run:
 
 ```
-python -m ipykernel install --user --name forecasting_env
+python -m ipykernel install --user --name forecase_cpu
 ```
