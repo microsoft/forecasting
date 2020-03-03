@@ -33,10 +33,10 @@ def download_ojdata(dest_dir):
 
 def maybe_download(dest_dir):
     """Download a file if it is not already downloaded.
-    
+
     Args:
         dest_dir (str): Destination directory
-        
+
     Returns:
         str: File path of the file downloaded.
     """
@@ -60,16 +60,16 @@ def maybe_download(dest_dir):
 
 def complete_and_fill_df(df, stores, brands, weeks):
     """Completes missing rows in Orange Juice datasets and fills in the missing values.
-    
+
     Args:
         df (pd.DataFrame): data frame to fill in the rows and missing values in
         stores (list[int]): list of stores to include
         brands (list[int]): list of brands to include
         weeks (list[int]): list of weeks to include
-        
+
     Returns:
         pd.DataFrame: data frame with completed rows and missing values filled in
-    
+
     """
     d = {"store": stores, "brand": brands, "week": weeks}
     data_grid = df_from_cartesian_product(d)
@@ -104,10 +104,10 @@ def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=1
 
 
 def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last_week=156, write_csv=False):
-    """Generate training, testing, and auxiliary datasets. Training data includes the historical 
-    sales and external features; testing data contains the future sales and external features; 
-    auxiliary data includes the future price, deal, and advertisement information which can be 
-    used for making predictions (we assume such auxiliary information is available at the time 
+    """Generate training, testing, and auxiliary datasets. Training data includes the historical
+    sales and external features; testing data contains the future sales and external features;
+    auxiliary data includes the future price, deal, and advertisement information which can be
+    used for making predictions (we assume such auxiliary information is available at the time
     when we generate the forecasts). Use this function to generate the train, test, aux data for
     each forecast period on the fly, or use write_csv flag to write data to files.
 
@@ -128,19 +128,19 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
 
     Args:
         data_dir (str): location of the download directory
-        n_splits (int, optional): number of splits (folds) to generate (default: 1) 
-        horizon (int, optional): forecasting horizon, number of weeks to forecast (default: 2) 
-        gap (int, optional): gap between training and testing, number of weeks between last training 
-            week and first test week (default: 2) 
-        first_week (int, optional): first available week (default: 40) 
+        n_splits (int, optional): number of splits (folds) to generate (default: 1)
+        horizon (int, optional): forecasting horizon, number of weeks to forecast (default: 2)
+        gap (int, optional): gap between training and testing, number of weeks between last training
+            week and first test week (default: 2)
+        first_week (int, optional): first available week (default: 40)
         last_week (int, optional): last available week (default: 156)
         write_csv (Boolean, optional): Whether to write out the data files or not (default: False)
-    
+
     Returns:
         list[pandas.DataFrame]: a list containing train data frames for each split
         list[pandas.DataFrame]: a list containing test data frames for each split
         list[pandas.DataFrame]: a list containing aux data frames for each split
-        
+
     """
     # Read sales data into dataframe
     sales = pd.read_csv(os.path.join(data_dir, "yx.csv"), index_col=0)
@@ -174,7 +174,7 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
             roundstr = "_" + str(i + 1) if n_splits > 1 else ""
             train_df.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
             test_df.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
-            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
+            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux_data" + roundstr + ".csv"))
 
         train_df_list.append(train_df)
         test_df_list.append(test_df)
@@ -202,7 +202,7 @@ def specify_data_schema(
             target_col_name (str): name of the target column that need to be forecasted
             frequency (str): frequency of the timestamps represented by the time series offset
                              aliases used in Pandas (e.g. "W" for weekly frequency). Please see
-                             https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases 
+                             https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases
                              for details.
             time_format (str): format of the timestamps (e.g., "%d.%m.%Y %H:%M:%S")
             ts_id_col_names (list): names of the columns for identifying a unique time series of
@@ -211,22 +211,22 @@ def specify_data_schema(
             dynamic_feat_names (list): names of the feature columns that can change over time
             description (str): description of the data (e.g., "training set", "testing set")
 
-            Note that static_feat_names should include column names of the static features 
-            other than those in ts_id_col_names. In addition, dynamic_feat_names should not 
-            include the timestamp column and the target column. 
+            Note that static_feat_names should include column names of the static features
+            other than those in ts_id_col_names. In addition, dynamic_feat_names should not
+            include the timestamp column and the target column.
 
         Returns:
-            df_config (dict): configuration of the time series data 
-        
+            df_config (dict): configuration of the time series data
+
         TODO: Check if this is used before release.
-        
+
         Examples:
             >>> # Case 1
-            >>> sales = {"timestamp": ["01/01/2001", "03/01/2001", "02/01/2001"], 
-            >>>          "sales": [1234, 2345, 1324],  
-            >>>          "store": ["1001", "1002", "1001"], 
-            >>>          "brand": ["1", "2", "1"], 
-            >>>          "income": [53000, 65000, 53000], 
+            >>> sales = {"timestamp": ["01/01/2001", "03/01/2001", "02/01/2001"],
+            >>>          "sales": [1234, 2345, 1324],
+            >>>          "store": ["1001", "1002", "1001"],
+            >>>          "brand": ["1", "2", "1"],
+            >>>          "income": [53000, 65000, 53000],
             >>>          "price": [10, 12, 11]}
             >>> df = pd.DataFrame(sales)
             >>> time_col_name = "timestamp"
@@ -244,11 +244,11 @@ def specify_data_schema(
             {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y', 'ts_id_col_names': ['store', 'brand'], 'static_feat_names': ['income'], 'dynamic_feat_names': ['price'], 'description': None}
 
             >>> # Case 2
-            >>> sales = {"timestamp": ["01/01/2001", "02/01/2001", "03/01/2001"], 
-            >>>          "sales": [1234, 2345, 1324],  
-            >>>          "store": ["1001", "1001", "1001"], 
-            >>>          "brand": ["1", "1", "1"], 
-            >>>          "income": [53000, 53000, 53000], 
+            >>> sales = {"timestamp": ["01/01/2001", "02/01/2001", "03/01/2001"],
+            >>>          "sales": [1234, 2345, 1324],
+            >>>          "store": ["1001", "1001", "1001"],
+            >>>          "brand": ["1", "1", "1"],
+            >>>          "income": [53000, 53000, 53000],
             >>>          "price": [10, 12, 11]}
             >>> df = pd.DataFrame(sales)
             >>> time_col_name = "timestamp"
@@ -263,7 +263,7 @@ def specify_data_schema(
             >>>                                 time_format, ts_id_col_names,
             >>>                                 static_feat_names, dynamic_feat_names)
             >>> print(df_config)
-            {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y', 'ts_id_col_names': None, 'static_feat_names': ['store', 'brand', 'income'], 'dynamic_feat_names': ['price'], 'description': None}          
+            {'time_col_name': 'timestamp', 'target_col_name': 'sales', 'frequency': 'MS', 'time_format': '%m/%d/%Y', 'ts_id_col_names': None, 'static_feat_names': ['store', 'brand', 'income'], 'dynamic_feat_names': ['price'], 'description': None}
         """
     if len(df) == 0:
         raise ValueError("Input time series dataframe should not be empty.")
@@ -374,14 +374,14 @@ def specify_retail_data_schema(
         description (str): description of the data (e.g., "training set", "testing set")
 
     Returns:
-        df_config (dict): configuration of the time series data 
+        df_config (dict): configuration of the time series data
         df (Pandas DataFrame): sales data combined with store demographic features
     """
     # Read the 1st split of training data if "sales" is not specified
     if sales is None:
         print("Sales dataframe is not given! The 1st split of training data will be used.")
         sales = pd.read_csv(os.path.join(data_dir, "train", "train_round_1.csv"), index_col=False)
-        aux = pd.read_csv(os.path.join(data_dir, "train", "aux_round_1.csv"), index_col=False)
+        aux = pd.read_csv(os.path.join(data_dir, "train", "aux_data_round_1.csv"), index_col=False)
         # Merge with future price, deal, and advertisement info
         aux_features = [
             "price1",
