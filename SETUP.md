@@ -23,7 +23,9 @@ We provide a script to install all dependencies automatically on a Linux machine
 ```
 ./tools/environment_setup.sh
 ```
-from the root of Forecasting repo. Once you've executed the setup script, you can run example notebooks under [examples/](./examples) directory.
+from the root of Forecasting repo. If you have issues with running the setup script, please follow the [Manual environment setup](#manual-environment-setup) instructions below. 
+
+Once you've executed the setup script, you can run example notebooks under [examples/](./examples) directory.
 
 
 ### Manual environment setup
@@ -55,7 +57,7 @@ pip install -e fclib
 The library is installed in developer mode with the `-e` flag. This means that all changes made to the library locally, are immediately available.
 
 #### Jupyter kernel
-In order to run the example notebooks, make sure to run the notebooks in the conda environment we previously set up (`forecasting_env`). To register the conda environment in Jupyter, please run:
+In order to run the example notebooks, make sure to run the notebooks in the conda environment we previously set up, `forecasting_env`. To register the conda environment in Jupyter, please run:
 
 ```
 python -m ipykernel install --user --name forecasting_env
