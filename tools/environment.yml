@@ -20,6 +20,7 @@ dependencies:
   - pip>=19.0.3
   - jupyter>=1.0.0
   - ipykernel>=4.6.1
+  - jupyter_nbextensions_configurator=0.4.1
   - scipy=1.1.0
   - numpy=1.16.2
   - pandas=0.23.4
