@@ -7,10 +7,12 @@ series forecasting applications. All functions defined assume that
 there is no missing data.
 """
 
-from datetime import timedelta
 import calendar
+import itertools
 import pandas as pd
 import numpy as np
+from datetime import timedelta
+from sklearn.preprocessing import MinMaxScaler
 
 from fclib.feature_engineering.utils import is_datetime_like
 
@@ -432,7 +434,7 @@ def same_week_day_hour_lag(
             Default value 'SameWeekHourLag'.
     
     Returns:
-         pandas.DataFrame: data frame containing the newly created lag
+         pd.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -494,7 +496,7 @@ def same_day_hour_lag(
             Default value 'SameDayHourLag'.
     
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag
+        pd.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -562,7 +564,7 @@ def same_day_hour_moving_average(
             moving average feature is added at the end. Default value 'moving_average_lag_'.
 
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
     
     For example, start_week = 9, window_size=4, and average_count = 3 will
@@ -634,7 +636,7 @@ def same_day_hour_moving_quantile(
             moving average feature is added at the end. Default value 'moving_quatile_lag_'.
 
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and quantile_count = 3 will
@@ -705,7 +707,7 @@ def same_day_hour_moving_std(
             moving average feature is added at the end. Default value 'moving_std_lag_'.
     
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and std_count = 3 will
@@ -781,7 +783,7 @@ def same_day_hour_moving_agg(
             moving average feature is added at the end. Default value 'moving_agg_lag_'.
 
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and count = 3 will
@@ -903,3 +905,100 @@ def combine_features(df, lag_fea, lags, window_size, used_columns):
     moving_avg = moving_averages(df[lag_fea], 2, window_size)
     fea_all = pd.concat([df[used_columns], lagged_fea, moving_avg], axis=1)
     return fea_all
+
+
+def gen_sequence(df, seq_len, seq_cols, start_timestep=0, end_timestep=None):
+    """Reshape time series features into an array of dimension (# of time steps, # of 
+    features).  
+    
+    Args:
+        df (pd.Dataframe): Dataframe including time series data for a specific grain of a 
+            multi-granular time series, e.g., data of a specific store-brand combination for 
+            time series data involving multiple stores and brands
+        seq_len (int): Number of previous time series values to be used to form feature
+        sequences which can be used for model training
+        seq_cols (list[str]): A list of names of the feature columns 
+        start_timestep (int): First time step you can use to create feature sequences
+        end_timestep (int): Last time step you can use to create feature sequences
+        
+    Returns:
+        object: A generator object for iterating all the feature sequences
+    """
+    data_array = df[seq_cols].values
+    if end_timestep is None:
+        end_timestep = df.shape[0]
+    for start, stop in zip(
+        range(start_timestep, end_timestep - seq_len + 2), range(start_timestep + seq_len, end_timestep + 2)
+    ):
+        yield data_array[start:stop, :]
+
+
+def gen_sequence_array(df_all, seq_len, seq_cols, grain1_name, grain2_name, start_timestep=0, end_timestep=None):
+    """Combine feature sequences for all the combinations of (grain1_name, grain2_name) into a 
+    3-dimensional array.
+    
+    Args:
+        df_all (pd.Dataframe): Time series data of all the grains for multi-granular data
+        seq_len (int): Number of previous time series values to be used to form sequences
+        seq_cols (list[str]): A list of names of the feature columns 
+        grain1_name (str): Name of the 1st column indicating the time series graunularity
+        grain2_name (str): Name of the 2nd column indicating the time series graunularity
+        start_timestep (int): First time step you can use to create feature sequences
+        end_timestep (int): Last time step you can use to create feature sequences
+        
+    Returns:
+        seq_array (np.array): An array of feature sequences for all combinations of granularities
+    """
+    seq_gen = (
+        list(
+            gen_sequence(
+                df_all[(df_all[grain1_name] == grain1) & (df_all[grain2_name] == grain2)],
+                seq_len,
+                seq_cols,
+                start_timestep,
+                end_timestep,
+            )
+        )
+        for grain1, grain2 in itertools.product(df_all[grain1_name].unique(), df_all[grain2_name].unique())
+    )
+    seq_array = np.concatenate(list(seq_gen)).astype(np.float32)
+    return seq_array
+
+
+def static_feature_array(df_all, total_timesteps, seq_cols, grain1_name, grain2_name):
+    """Generate an arary which encodes all the static features.
+    
+    Args:
+        df_all (pd.DataFrame): Time series data of all the grains for multi-granular data
+        total_timesteps (int): Total number of training samples for modeling
+        seq_cols (list[str]): A list of names of the static feature columns, e.g. store ID
+        grain1_name (str): Name of the 1st column indicating the time series graunularity
+        grain2_name (str): Name of the 2nd column indicating the time series graunularity
+        
+    Return:
+        fea_array (np.array): An array of static features of all the grains, e.g. all the
+            combinations of stores and brands in retail sale forecasting
+    """
+    fea_df = (
+        df_all.groupby([grain1_name, grain2_name]).apply(lambda x: x.iloc[:total_timesteps, :]).reset_index(drop=True)
+    )
+    fea_array = fea_df[seq_cols].values
+    return fea_array
+
+
+def normalize_columns(df, seq_cols, scaler=MinMaxScaler()):
+    """Normalize a subset of columns of a dataframe.
+    
+    Args:
+        df (pd.DataFrame): Input dataframe 
+        seq_cols (list[str]): A list of names of columns to be normalized
+        scaler (object): A scikit learn scaler object
+    
+    Returns:
+        pd.DataFrame: Normalized dataframe
+        object: Scaler object
+    """
+    cols_fixed = df.columns.difference(seq_cols)
+    df_scaled = pd.DataFrame(scaler.fit_transform(df[seq_cols]), columns=seq_cols, index=df.index)
+    df_scaled = pd.concat([df[cols_fixed], df_scaled], axis=1)
+    return df_scaled, scaler
