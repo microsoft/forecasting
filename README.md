@@ -4,10 +4,10 @@ This repository contains examples and best practices for building Forecasting so
 
 ## Getting Started
 
-To get started, navigate to the [Setup Guide](./SETUP.md), which lists instructions on how to set up your environment and dependencies, download the data and run examples provided in the repository.
+To get started, navigate to the [Setup Guide](./docs/SETUP.md), which lists instructions on how to set up your environment and dependencies, download the data and run examples provided in the repository.
 
 ## Contributing
-We hope that the open source community would contribute to the content and bring in the latest SOTA algorithm. This project welcomes contributions and suggestions. Before contributing, please see our [Contributing Guide](./CONTRIBUTING.md).
+We hope that the open source community would contribute to the content and bring in the latest SOTA algorithm. This project welcomes contributions and suggestions. Before contributing, please see our [Contributing Guide](./docs/CONTRIBUTING.md).
 
 ## Build Status
 | Build | Branch | Status |
