@@ -434,7 +434,7 @@ def same_week_day_hour_lag(
             Default value 'SameWeekHourLag'.
     
     Returns:
-         pandas.DataFrame: data frame containing the newly created lag
+         pd.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -496,7 +496,7 @@ def same_day_hour_lag(
             Default value 'SameDayHourLag'.
     
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag
+        pd.DataFrame: data frame containing the newly created lag
             feature as a column.
     """
 
@@ -564,7 +564,7 @@ def same_day_hour_moving_average(
             moving average feature is added at the end. Default value 'moving_average_lag_'.
 
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
     
     For example, start_week = 9, window_size=4, and average_count = 3 will
@@ -636,7 +636,7 @@ def same_day_hour_moving_quantile(
             moving average feature is added at the end. Default value 'moving_quatile_lag_'.
 
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and quantile_count = 3 will
@@ -707,7 +707,7 @@ def same_day_hour_moving_std(
             moving average feature is added at the end. Default value 'moving_std_lag_'.
     
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and std_count = 3 will
@@ -783,7 +783,7 @@ def same_day_hour_moving_agg(
             moving average feature is added at the end. Default value 'moving_agg_lag_'.
 
     Returns:
-        pandas.DataFrame: data frame containing the newly created lag features as
+        pd.DataFrame: data frame containing the newly created lag features as
             columns.
 
     For example, start_week = 9, window_size=4, and count = 3 will
@@ -913,8 +913,8 @@ def gen_sequence(df, seq_len, seq_cols, start_timestep=0, end_timestep=None):
     
     Args:
         df (pd.Dataframe): Dataframe including time series data for a specific grain of a 
-        multi-granular time series, e.g., data of a specific store-brand combination for 
-        time series data involving multiple stores and brands
+            multi-granular time series, e.g., data of a specific store-brand combination for 
+            time series data involving multiple stores and brands
         seq_len (int): Number of previous time series values to be used to form feature
         sequences which can be used for model training
         seq_cols (list[str]): A list of names of the feature columns 
@@ -969,7 +969,7 @@ def static_feature_array(df_all, total_timesteps, seq_cols, grain1_name, grain2_
     """Generate an arary which encodes all the static features.
     
     Args:
-        df_all (np.Dataframe): Time series data of all the grains for multi-granular data
+        df_all (pd.DataFrame): Time series data of all the grains for multi-granular data
         total_timesteps (int): Total number of training samples for modeling
         seq_cols (list[str]): A list of names of the static feature columns, e.g. store ID
         grain1_name (str): Name of the 1st column indicating the time series graunularity
@@ -977,7 +977,7 @@ def static_feature_array(df_all, total_timesteps, seq_cols, grain1_name, grain2_
         
     Return:
         fea_array (np.array): An array of static features of all the grains, e.g. all the
-        combinations of stores and brands in retail sale forecasting
+            combinations of stores and brands in retail sale forecasting
     """
     fea_df = (
         df_all.groupby([grain1_name, grain2_name]).apply(lambda x: x.iloc[:total_timesteps, :]).reset_index(drop=True)
@@ -986,16 +986,16 @@ def static_feature_array(df_all, total_timesteps, seq_cols, grain1_name, grain2_
     return fea_array
 
 
-def normalize_dataframe(df, seq_cols, scaler=MinMaxScaler()):
+def normalize_columns(df, seq_cols, scaler=MinMaxScaler()):
     """Normalize a subset of columns of a dataframe.
     
     Args:
-        df (pd.Dataframe): Input dataframe 
+        df (pd.DataFrame): Input dataframe 
         seq_cols (list[str]): A list of names of columns to be normalized
         scaler (object): A scikit learn scaler object
     
     Returns:
-        pd.Dataframe: Normalized dataframe
+        pd.DataFrame: Normalized dataframe
         object: Scaler object
     """
     cols_fixed = df.columns.difference(seq_cols)
