@@ -25,7 +25,7 @@ We provide a script to install all dependencies automatically on a Linux machine
 ```
 from the root of Forecasting repo. If you have issues with running the setup script, please follow the [Manual environment setup](#manual-environment-setup) instructions below. 
 
-Once you've executed the setup script, you can run example notebooks under [examples/](./examples) directory.
+Once you've executed the setup script, you can run example notebooks under [examples/](../examples) directory.
 
 
 ### Manual environment setup
@@ -63,6 +63,6 @@ In order to run the example notebooks, make sure to run the notebooks in the con
 python -m ipykernel install --user --name forecasting_env
 ```
 
-Once you've set up the environment, you can run example notebooks under [examples/](./examples) directory.
+Once you've set up the environment, you can run example notebooks under [examples/](../examples) directory.
 
 
