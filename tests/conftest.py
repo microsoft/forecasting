@@ -10,5 +10,5 @@ def notebooks():
     quick_start_path = os.path.join(examples_path, "00_quick_start")
 
     # Path for the notebooks
-    paths = {"lightgbm_quick_start": os.path.join(quick_start_path, "lightgbm_point_forecast.ipynb")}
+    paths = {"lightgbm_quick_start": os.path.join(quick_start_path, "lightgbm_single_round.ipynb")}
     return paths

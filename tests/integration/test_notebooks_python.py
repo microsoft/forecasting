@@ -2,10 +2,6 @@
 # Licensed under the MIT License.
 
 import os
-
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
-
 import pytest
 import papermill as pm
 import scrapbook as sb
