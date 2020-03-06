@@ -9,7 +9,7 @@ The following summarizes each directory of the best practice notebooks.
 
 | Directory | Content | Description |
 | --- | --- | --- |
-| [00_quick_start](./00_quick_start)| [autoarima_single_round.ipynb](./00_quick_start/autoarima_single_round.ipynb) <br>[azure_automl_single_round.ipynb](./00_quick_start/azure_automl_single_round.ipynb) <br> [lightgbm_point_single_round.ipynb](./00_quick_start/lightgbm_single_round.ipynb) | Quick start notebooks that demonstrate workflow of developing a forecasting model using one-round training and testing data|
+| [00_quick_start](./00_quick_start)| [autoarima_single_round.ipynb](./00_quick_start/autoarima_single_round.ipynb) <br>[azure_automl_single_round.ipynb](./00_quick_start/azure_automl_single_round.ipynb) <br> [lightgbm_single_round.ipynb](./00_quick_start/lightgbm_single_round.ipynb) | Quick start notebooks that demonstrate workflow of developing a forecasting model using one-round training and testing data|
 | [01_prepare_data](./01_prepare_data) | [ojdata_exploration.ipynb](./01_prepare_data/ojdata_exploration.ipynb) <br> [ojdata_preparation.ipynb](./01_prepare_data/ojdata_preparation.ipynb) | Data exploration and preparation notebooks|
 | [02_model](./02_model) | [dilatedcnn_multi_round.ipynb](./02_model/dilatedcnn_multi_round.ipynb) <br> [lightgbm_multi_round.ipynb](./02_model/lightgbm_multi_round.ipynb) | Deep dive notebooks that perform multi-round training and testing of various classical and deep learning forecast algorithms|
 | [03_model_select_deploy](03_model_select_deploy) | Example notebook to be added soon | Best practice notebook for model selecting by using Azure Machine Learning Service and deploying the best model on Azure|
