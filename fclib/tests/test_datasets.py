@@ -5,7 +5,7 @@ import os
 import pandas as pd
 from tempfile import TemporaryDirectory
 
-from forecasting_lib.dataset.ojdata import download_ojdata
+from fclib.dataset.ojdata import download_ojdata
 
 
 def test_download_retail_data():

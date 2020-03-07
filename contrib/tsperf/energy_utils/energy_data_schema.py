@@ -3,7 +3,7 @@
 
 import os
 import pandas as pd
-from forecasting_lib.data_schema import specify_data_schema
+from fclib.data_schema import specify_data_schema
 
 DEFAULT_TARGET_COL = "DEMAND"
 DEFAULT_STATIC_FEA = None

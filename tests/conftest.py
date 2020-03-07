@@ -1,6 +1,6 @@
 import os
 import pytest
-from forecasting_lib.common.utils import git_repo_path
+from fclib.common.utils import git_repo_path
 
 
 @pytest.fixture(scope="module")

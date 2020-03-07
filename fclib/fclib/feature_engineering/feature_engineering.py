@@ -6,8 +6,8 @@ import math
 import itertools
 import pandas as pd
 import datetime
-from forecasting_lib.dataset.retail.benchmark_paths import DATA_DIR
-import forecasting_lib.dataset.retail.benchmark_settings as bs
+from fclib.dataset.retail.benchmark_paths import DATA_DIR
+import fclib.dataset.retail.benchmark_settings as bs
 
 
 # Utility functions

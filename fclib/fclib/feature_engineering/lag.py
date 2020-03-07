@@ -6,8 +6,8 @@ import pandas as pd
 import numpy as np
 from collections import Iterable
 
-from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
-from forecasting_lib.feature_engineering.utils import convert_to_tsdf, is_iterable_but_not_string
+from fclib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from fclib.feature_engineering.utils import convert_to_tsdf, is_iterable_but_not_string
 
 
 class BaseLagFeaturizer(BaseTSFeaturizer):

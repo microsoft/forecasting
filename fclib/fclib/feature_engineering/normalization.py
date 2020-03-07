@@ -8,8 +8,8 @@ features are useful for capturing trend in time series data.
 from abc import abstractmethod
 import warnings
 import pandas as pd
-from forecasting_lib.feature_engineering.utils import is_datetime_like
-from forecasting_lib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
+from fclib.feature_engineering.utils import is_datetime_like
+from fclib.feature_engineering.base_ts_estimators import BaseTSFeaturizer
 
 
 class BaseTemporalNormalizer(BaseTSFeaturizer):

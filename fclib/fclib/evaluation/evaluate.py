@@ -22,8 +22,8 @@ import sys
 import pandas as pd
 import numpy as np
 
-from forecasting_lib.evaluation.evaluation_utils import MAPE
-from forecasting_lib.dataset.retail.benchmark_settings import NUM_ROUNDS
+from fclib.evaluation.evaluation_utils import MAPE
+from fclib.dataset.retail.benchmark_settings import NUM_ROUNDS
 
 
 def read_test_files(benchmark_dir):

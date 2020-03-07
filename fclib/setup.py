@@ -10,7 +10,7 @@ except ImportError:
 
 
 # Package meta-data.
-NAME = "forecasting_lib"
+NAME = "fclib"
 DESCRIPTION = "A library for forecasting"
 URL = ""
 EMAIL = "vapaunic@users.noreply.github.com"
