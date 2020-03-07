@@ -24,13 +24,24 @@ ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
 cl <- parallel::makeCluster(ncores)
 parallel::clusterEvalQ(cl,
 {
+    library(tidyr)
+    library(dplyr)
     library(feasts)
     library(fable)
     library(tsibble)
+    library(prophet)
+    library(fable.prophet)
 })
 
 fcast_sets <- lapply(ls(pattern="^oj_modelset"), function(mod)
-    parallel::clusterMap(cl, function(mod, df) forecast(mod, df), get(mod), oj_test)
+    parallel::clusterMap(cl, function(mod, df)
+    {
+        df <- df %>%
+            group_by(store, brand) %>%
+            fill(logmove:maxpricediff) %>%
+            filter(!is.na(logmove))
+        forecast(mod, df)
+    }, get(mod), oj_test)
 )
 
 parallel::stopCluster(cl)
@@ -42,6 +53,7 @@ Next, we compute the MAPE for each model. It is apparent that adding independent
 orig <- do.call(rbind, oj_test) %>%
     as_tibble() %>%
     select(store, brand, week, logmove) %>%
+    filter(!is.na(logmove)) %>%
     mutate(move=exp(logmove))
 
 gof <- function(fcast_data)

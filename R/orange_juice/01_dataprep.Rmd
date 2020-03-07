@@ -41,7 +41,7 @@ oj_data <- orangeJuice$yx %>%
     as_tsibble(index=week, key=c(store, brand))
 ```
 
-Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. Note that we do _not_ fill in the missing values in the data, as (with the exception of `ETS`) the modelling functions in the fable package can handle this innately.
+Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. Note that we do _not_ fill in the missing values in the data, as many of the modelling functions in the fable package can handle this innately.
 
 ```{r}
 head(oj_data)
