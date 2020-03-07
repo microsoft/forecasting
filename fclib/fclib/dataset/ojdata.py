@@ -9,12 +9,17 @@ import math
 import datetime
 import itertools
 
+from fclib.feature_engineering.feature_utils import df_from_cartesian_product
+
 DATA_FILE_LIST = ["yx.csv", "storedemo.csv"]
 SCRIPT_NAME = "download_oj_data.R"
 
 DEFAULT_TARGET_COL = "move"
 DEFAULT_STATIC_FEA = None
 DEFAULT_DYNAMIC_FEA = ["deal", "feat"]
+
+# The start datetime of the first week in the record
+FIRST_WEEK_START = pd.to_datetime("1989-09-14 00:00:00")
 
 
 def download_ojdata(dest_dir):
@@ -53,7 +58,52 @@ def maybe_download(dest_dir):
         print("Data already exists at the specified location.")
 
 
-def split_train_test(data_dir, forecast_settings, write_csv=False):
+def complete_and_fill_df(df, stores, brands, weeks):
+    """Completes missing rows in Orange Juice datasets and fills in the missing values.
+    
+    Args:
+        df (pd.DataFrame): data frame to fill in the rows and missing values in
+        stores (list[int]): list of stores to include
+        brands (list[int]): list of brands to include
+        weeks (list[int]): list of weeks to include
+        
+    Returns:
+        pd.DataFrame: data frame with completed rows and missing values filled in
+    
+    """
+    d = {"store": stores, "brand": brands, "week": weeks}
+    data_grid = df_from_cartesian_product(d)
+    # Complete all rows
+    df_filled = pd.merge(data_grid, df, how="left", on=["store", "brand", "week"])
+    # Fill in missing values
+    df_filled = df_filled.groupby(["store", "brand"]).apply(lambda x: x.fillna(method="ffill").fillna(method="bfill"))
+
+    return df_filled
+
+
+def _gen_split_indices(n_splits=12, horizon=2, gap=2, first_week=40, last_week=156):
+    """Generate week splits for given parameters"""
+    test_start_index = last_week - (horizon * n_splits) + 1
+    train_end_index_first = test_start_index - gap
+    train_end_index_last = train_end_index_first + (n_splits - 1) * horizon
+
+    assert (
+        test_start_index >= first_week
+    ), f"Please adjust your parameters, so that testing data (currently week {test_start_index}), \
+         starts after the first available week (week {first_week})."
+
+    assert (
+        train_end_index_first >= first_week
+    ), f"Please adjust your parameters, so that last training data point (currently week {train_end_index_first}) \
+        comes after the first available week (week {first_week})."
+
+    test_start_week_list = list(range(test_start_index, (last_week - horizon + 1) + 1, horizon))
+    test_end_week_list = list(range(test_start_index + horizon - 1, last_week + 1, horizon))
+    train_end_week_list = list(range(train_end_index_first, train_end_index_last + 1, horizon))
+    return test_start_week_list, test_end_week_list, train_end_week_list
+
+
+def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last_week=156, write_csv=False):
     """Generate training, testing, and auxiliary datasets. Training data includes the historical 
     sales and external features; testing data contains the future sales and external features; 
     auxiliary data includes the future price, deal, and advertisement information which can be 
@@ -64,30 +114,32 @@ def split_train_test(data_dir, forecast_settings, write_csv=False):
     Note that train_*.csv files in /train folder contain all the features in the training period
     and aux_*.csv files in /train folder contain all the features except 'logmove', 'constant',
     'profit' up until the forecast period end week. Both train_*.csv and aux_*csv can be used for
-    generating forecasts in each round. However, test_*.csv files in /test folder can only be used
+    generating forecasts in each split. However, test_*.csv files in /test folder can only be used
     for model performance evaluation.
 
     Example:
-        from fclib.common.utils import forecast_settings
+        data_dir = "/home/vapaunic/forecasting/ojdata"
 
-        data_dir = "/home/forecasting/ojdata"
+        train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=3, write_csv=True)
 
-        for train, test, aux in split_train_test(data_dir=data_dir, forecast_settings=forecast_settings):
-            print("Training data size: {}".format(train.shape))
-            print("Testing data size: {}".format(test.shape))
-            print("Auxiliary data size: {}".format(aux.shape))
-            print("Minimum training week number: {}".format(min(train["week"])))
-            print("Maximum training week number: {}".format(max(train["week"])))
-            print("Minimum testing week number: {}".format(min(test["week"])))
-            print("Maximum testing week number: {}".format(max(test["week"])))
-            print("Minimum auxiliary week number: {}".format(min(aux["week"])))
-            print("Maximum auxiliary week number: {}".format(max(aux["week"])))
-            print("")
+        print(len(train))
+        print(len(test))
+        print(len(aux))
 
     Args:
         data_dir (str): location of the download directory
-        forecast_settings (dict): dictionary containing forecast experiment parameters
-        write_csv (Boolean): Whether to write out the data files or not
+        n_splits (int, optional): number of splits (folds) to generate (default: 1) 
+        horizon (int, optional): forecasting horizon, number of weeks to forecast (default: 2) 
+        gap (int, optional): gap between training and testing, number of weeks between last training 
+            week and first test week (default: 2) 
+        first_week (int, optional): first available week (default: 40) 
+        last_week (int, optional): last available week (default: 156)
+        write_csv (Boolean, optional): Whether to write out the data files or not (default: False)
+    
+    Returns:
+        list[pandas.DataFrame]: a list containing train data frames for each split
+        list[pandas.DataFrame]: a list containing test data frames for each split
+        list[pandas.DataFrame]: a list containing aux data frames for each split
         
     """
     # Read sales data into dataframe
@@ -101,27 +153,34 @@ def split_train_test(data_dir, forecast_settings, write_csv=False):
         if not os.path.isdir(TEST_DATA_DIR):
             os.mkdir(TEST_DATA_DIR)
 
-    for i in range(forecast_settings.NUM_ROUNDS):
-        data_mask = (sales.week >= forecast_settings.TRAIN_START_WEEK) & (
-            sales.week <= forecast_settings.TRAIN_END_WEEK_LIST[i]
-        )
-        train = sales[data_mask].copy()
-        data_mask = (sales.week >= forecast_settings.TEST_START_WEEK_LIST[i]) & (
-            sales.week <= forecast_settings.TEST_END_WEEK_LIST[i]
-        )
-        test = sales[data_mask].copy()
-        data_mask = (sales.week >= forecast_settings.TRAIN_START_WEEK) & (
-            sales.week <= forecast_settings.TEST_END_WEEK_LIST[i]
-        )
-        aux = sales[data_mask].copy()
-        aux.drop(["logmove", "constant", "profit"], axis=1, inplace=True)
+    train_df_list = list()
+    test_df_list = list()
+    aux_df_list = list()
+
+    test_start_week_list, test_end_week_list, train_end_week_list = _gen_split_indices(
+        n_splits, horizon, gap, first_week, last_week
+    )
+
+    for i in range(n_splits):
+        data_mask = (sales.week >= first_week) & (sales.week <= train_end_week_list[i])
+        train_df = sales[data_mask].copy()
+        data_mask = (sales.week >= test_start_week_list[i]) & (sales.week <= test_end_week_list[i])
+        test_df = sales[data_mask].copy()
+        data_mask = (sales.week >= first_week) & (sales.week <= test_end_week_list[i])
+        aux_df = sales[data_mask].copy()
+        aux_df.drop(["logmove", "constant", "profit"], axis=1, inplace=True)
 
         if write_csv:
-            roundstr = "_" + str(i + 1) if forecast_settings.NUM_ROUNDS > 1 else ""
-            train.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
-            test.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
-            aux.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
-        yield train, test, aux
+            roundstr = "_" + str(i + 1) if n_splits > 1 else ""
+            train_df.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
+            test_df.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
+            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
+
+        train_df_list.append(train_df)
+        test_df_list.append(test_df)
+        aux_df_list.append(aux_df)
+
+    return train_df_list, test_df_list, aux_df_list
 
 
 def specify_data_schema(
@@ -294,7 +353,6 @@ def _check_static_feat(df, ts_id_col_names, static_feat_names):
 
 def specify_retail_data_schema(
     data_dir,
-    forecast_settings,
     sales=None,
     target_col_name=DEFAULT_TARGET_COL,
     static_feat_names=DEFAULT_STATIC_FEA,
@@ -309,7 +367,7 @@ def specify_retail_data_schema(
         print(df_config)
 
     Args:
-        sales (Pandas DataFrame): sales data in the current forecast round
+        sales (Pandas DataFrame): sales data in the current forecast split
         target_col_name (str): name of the target column that need to be forecasted
         static_feat_names (list): names of the feature columns that do not change over time
         dynamic_feat_names (list): names of the feature columns that can change over time
@@ -319,9 +377,9 @@ def specify_retail_data_schema(
         df_config (dict): configuration of the time series data 
         df (Pandas DataFrame): sales data combined with store demographic features
     """
-    # Read the 1st round training data if "sales" is not specified
+    # Read the 1st split of training data if "sales" is not specified
     if sales is None:
-        print("Sales dataframe is not given! The 1st round training data will be used.")
+        print("Sales dataframe is not given! The 1st split of training data will be used.")
         sales = pd.read_csv(os.path.join(data_dir, "train", "train_round_1.csv"), index_col=False)
         aux = pd.read_csv(os.path.join(data_dir, "train", "aux_round_1.csv"), index_col=False)
         # Merge with future price, deal, and advertisement info
@@ -361,9 +419,7 @@ def specify_retail_data_schema(
     df.drop("STORE", axis=1, inplace=True)
 
     # Create timestamp
-    df["timestamp"] = df["week"].apply(
-        lambda x: forecast_settings.FIRST_WEEK_START + datetime.timedelta(days=(x - 1) * 7)
-    )
+    df["timestamp"] = df["week"].apply(lambda x: FIRST_WEEK_START + datetime.timedelta(days=(x - 1) * 7))
 
     df_config = specify_data_schema(
         df,
@@ -380,19 +436,13 @@ def specify_retail_data_schema(
 
 
 if __name__ == "__main__":
-    from fclib.common import forecast_settings
-
-    forecast_settings.NUM_ROUNDS = 3
     data_dir = "/home/vapaunic/forecasting/ojdata"
 
-    for train, test, aux in split_train_test(data_dir=data_dir, forecast_settings=forecast_settings, write_csv=True):
-        print("Training data size: {}".format(train.shape))
-        print("Testing data size: {}".format(test.shape))
-        print("Auxiliary data size: {}".format(aux.shape))
-        print("Minimum training week number: {}".format(min(train["week"])))
-        print("Maximum training week number: {}".format(max(train["week"])))
-        print("Minimum testing week number: {}".format(min(test["week"])))
-        print("Maximum testing week number: {}".format(max(test["week"])))
-        print("Minimum auxiliary week number: {}".format(min(aux["week"])))
-        print("Maximum auxiliary week number: {}".format(max(aux["week"])))
-        print("")
+    download_ojdata(data_dir)
+    # train, test, aux = split_train_test(data_dir=data_dir, n_splits=1, horizon=2, write_csv=True)
+
+    # print((test[0].week))
+    # print((test[1].week))
+    # print((test[2].week))
+    # print((test[3].week))
+    # print((test[4].week))
