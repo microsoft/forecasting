@@ -34,7 +34,7 @@ Once you've executed the setup script, you can run example notebooks under [exam
 To install the package contained in this repository, navigate to the directory where you pulled the Forecasting repo to run:
 ```bash
 conda update conda
-conda env create -f tools/environment.yaml
+conda env create -f tools/environment.yml
 ```
 This will create the appropriate conda environment to run experiments. Next activate the installed environment:
 ```bash

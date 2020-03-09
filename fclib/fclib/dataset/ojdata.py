@@ -57,7 +57,11 @@ def maybe_download(dest_dir):
         script_path = os.path.join(repo_path, module_path, SCRIPT_NAME)
         try:
             print(f"Destination directory: {dest_dir}")
-            subprocess.call(["Rscript", script_path, dest_dir])
+            output = subprocess.run(["Rscript", script_path, dest_dir], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            print(output.stdout)
+            if output.returncode != 0:
+                raise Exception(f"Subprocess failed - {output.stderr}")
+
         except subprocess.CalledProcessError as e:
             raise e
     else:
