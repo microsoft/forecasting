@@ -56,6 +56,7 @@ def maybe_download(dest_dir):
 
         script_path = os.path.join(repo_path, module_path, SCRIPT_NAME)
         try:
+            print(f"Destination directory: {dest_dir}")
             subprocess.call(["Rscript", script_path, dest_dir])
         except subprocess.CalledProcessError as e:
             raise e
@@ -118,7 +119,7 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
 
     Note that train_*.csv files in /train folder contain all the features in the training period
     and aux_*.csv files in /train folder contain all the features except 'logmove', 'constant',
-    'profit' up until the forecast period end week. Both train_*.csv and aux_*csv can be used for
+    'profit' up until the forecast period end week. Both train_*.csv and auxdata_*csv can be used for
     generating forecasts in each split. However, test_*.csv files in /test folder can only be used
     for model performance evaluation.
 
@@ -179,7 +180,7 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
             roundstr = "_" + str(i + 1) if n_splits > 1 else ""
             train_df.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
             test_df.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
-            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
+            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "auxdata" + roundstr + ".csv"))
 
         train_df_list.append(train_df)
         test_df_list.append(test_df)
