@@ -8,7 +8,9 @@ import pandas as pd
 import math
 import datetime
 import itertools
+import argparse
 
+from fclib.common.utils import git_repo_path
 from fclib.feature_engineering.feature_utils import df_from_cartesian_product
 
 DATA_FILE_LIST = ["yx.csv", "storedemo.csv"]
@@ -49,11 +51,14 @@ def maybe_download(dest_dir):
     if not data_exists:
         # Call data download script
         print("Starting data download ...")
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), SCRIPT_NAME)
+        repo_path = git_repo_path()
+        module_path = "fclib/fclib/dataset"
+
+        script_path = os.path.join(repo_path, module_path, SCRIPT_NAME)
         try:
             subprocess.call(["Rscript", script_path, dest_dir])
         except subprocess.CalledProcessError as e:
-            print(e.output)
+            raise e
     else:
         print("Data already exists at the specified location.")
 
@@ -118,7 +123,7 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
     for model performance evaluation.
 
     Example:
-        data_dir = "/home/vapaunic/forecasting/ojdata"
+        data_dir = "/home/ojdata"
 
         train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=3, write_csv=True)
 
@@ -436,9 +441,12 @@ def specify_retail_data_schema(
 
 
 if __name__ == "__main__":
-    data_dir = "/home/vapaunic/forecasting/ojdata"
 
-    download_ojdata(data_dir)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", help="Data download directory")
+    args = parser.parse_args()
+
+    download_ojdata(args.data_dir)
     # train, test, aux = split_train_test(data_dir=data_dir, n_splits=1, horizon=2, write_csv=True)
 
     # print((test[0].week))
