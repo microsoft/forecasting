@@ -20,57 +20,55 @@ We fit some simple models to the orange juice data. One model is fit for each co
 - `arima`: An ARIMA model with the parameter values estimated from the data.
 - `ets`: An exponentially weighted model, again with parameter values estimated from the data.
 
-```{r}
+Note that the model training process is embarrassingly parallel on 3 levels:
+
+- We have multiple independent training datasets;
+- For which we fit multiple independent models;
+- Within which we have independent sub-models for each store and brand.
+
+This lets us speed up the training significantly. While the `fable::model` function can fit multiple models in parallel, we will run it sequentially here and instead parallelise by dataset. This avoids contention for cores, and also results in the simplest code.
+
+```{r, results="hide"}
 load("oj_data.Rdata")
 
-# train the models in parallel
 ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
 cl <- parallel::makeCluster(ncores)
-invisible(parallel::clusterEvalQ(cl,
+parallel::clusterEvalQ(cl,
 {
+    library(tidyr)
     library(feasts)
     library(fable)
     library(tsibble)
-}))
+})
+```
 
-# we have multiple training sets, so parallelise by dataset
+First, we fit the models that can innately handle missing values.
+
+```{r}
 oj_modelset <- parallel::parLapply(cl, oj_train, function(df)
 {
     model(df,
         mean=MEAN(logmove),
         naive=NAIVE(logmove),
         drift=RW(logmove ~ drift()),
-        arima=ARIMA(logmove),
-        ets=ETS(logmove ~ error("A") + trend("A") + season("N"))
+        arima=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0))
     )
 })
-
-head(oj_modelset[[1]])
 ```
-
-Having fit the models, let's examine their goodness of fit, using the MAPE (mean absolute percentage error) metric.
+Next, we fit models that require manual imputation (ETS).
 
 ```{r}
-# compute forecasts, again parallelised by dataset
-oj_fcast <- parallel::clusterMap(cl, function(mod, df) forecast(mod, df), oj_modelset, oj_test)
+oj_modelset_ets <- parallel::parLapply(cl, oj_train, function(df)
+{
+    df %>%
+        fill(everything()) %>%
+        model(ets=ETS(logmove ~ error("A") + trend("A") + season("N")))
+})
 
 parallel::stopCluster(cl)
+save(oj_modelset, oj_modelset_ets, file="oj_modelset.Rdata")
 
-# compute GOF statistics
-orig <- do.call(rbind, oj_test) %>%
-    select(store, brand, week, logmove)
-
-fcast <- do.call(rbind, oj_fcast) %>%
-    as_tibble() %>%
-    select(store, brand, week, .model, logmove) %>%
-    pivot_wider(id_cols=c(store, brand, week), names_from=.model, values_from=logmove)
-
-full_join(fcast, orig) %>%
-    summarise(
-        mean=MAPE(mean - logmove, logmove),
-        naive=MAPE(naive - logmove, logmove),
-        drift=MAPE(drift - logmove, logmove),
-        arima=MAPE(arima - logmove, logmove),
-        ets=MAPE(ets - logmove, logmove)
-    )
+head(oj_modelset[[1]])
+head(oj_modelset_ets[[1]])
 ```
+

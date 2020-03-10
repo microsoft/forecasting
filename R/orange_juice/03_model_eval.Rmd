@@ -1,0 +1,58 @@
+---
+title: Model evaluation
+output: html_notebook
+encoding: utf8
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+Having fit the models, let's examine their rolling goodness of fit, using the MAPE (mean absolute percentage error) metric.
+
+First, we compute the forecasts for each dataset and model, again in parallel.
+
+```{r, results="hide"}
+for(f in dir(pattern="Rdata$"))
+    load(f)
+
+ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
+cl <- parallel::makeCluster(ncores)
+parallel::clusterEvalQ(cl,
+{
+    library(feasts)
+    library(fable)
+    library(tsibble)
+})
+
+fcast_sets <- lapply(ls(pattern="^oj_modelset"), function(mod)
+    parallel::clusterMap(cl, function(mod, df) forecast(mod, df), get(mod), oj_test)
+)
+
+parallel::stopCluster(cl)
+```
+
+Next, we compute the MAPE for each model. It is apparent that adding independent variables as regressors improves the quality of the fit substantially. Adding a simple trend does _not_ improve the fit, indicating that the level of sales does not appear to change over time (at least over the period included in the data).
+
+```{r}
+orig <- do.call(rbind, oj_test) %>%
+    as_tibble() %>%
+    select(store, brand, week, logmove) %>%
+    mutate(move=exp(logmove))
+
+gof <- function(fcast_data)
+{
+    fcast_data <- do.call(rbind, fcast_data) %>%
+        as_tibble() %>%
+        select(store, brand, week, .model, logmove) %>%
+        pivot_wider(id_cols=c(store, brand, week), names_from=.model, values_from=logmove) %>%
+        select(-store, -brand, -week) %>%
+        summarise_all(function(x) MAPE(exp(x) - orig$move, orig$move))
+}
+
+lapply(fcast_sets, gof) %>% bind_cols()
+```

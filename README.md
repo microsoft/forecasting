@@ -35,7 +35,7 @@ To quickly get started with the repository on your local machine, use the follow
 For detailed instructions on how to set up your environment and run examples provided in the repository, on local or a remote machine, please navigate to the [Setup Guide](./SETUP.md).
 
 ## Contributing
-We hope that the open source community would contribute to the content and bring in the latest SOTA algorithm. This project welcomes contributions and suggestions. Before contributing, please see our [Contributing Guide](./CONTRIBUTING.md).
+We hope that the open source community would contribute to the content and bring in the latest SOTA algorithm. This project welcomes contributions and suggestions. Before contributing, please see our [Contributing Guide](./docs/CONTRIBUTING.md).
 
 ## Build Status
 | Build | Branch | Status |
