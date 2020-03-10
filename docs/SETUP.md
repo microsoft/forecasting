@@ -34,9 +34,8 @@ conda activate forecasting_env
 Next, navigate to [Starting the Jupyter Notebook Server](#starting-the-jupyter-notebook-server) section below to start the Jupyter server necessary for running the examples.
 
 
+### Manual environment setup
 
-
-### (Optional) Manual environment setup
 #### Conda environment
 
 To install the package contained in this repository, navigate to the directory where you pulled the Forecasting repo to run:
@@ -70,7 +69,6 @@ In order to run the example notebooks, make sure to run the notebooks in the con
 ```
 python -m ipykernel install --user --name forecasting_env
 ```
-
 
 ### Starting the Jupyter Notebook Server
 In order to run the example notebooks provided in this repository, you will have to start a Jupyter notebook server. 
