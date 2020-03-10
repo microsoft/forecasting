@@ -90,4 +90,4 @@ ssh -L localhost:8889:localhost:8889 <user-name>@<ip-address-of-the-vm>
 
 To access the notebooks, type `localhost:8898/` in the browser on your local machine.
 
-Now you're ready to run the examples provided in the repository. Please navigate to the [examples README file](../examples/README.md) and follow instructions to run the available notebooks.
+Now you're ready to run the examples provided in the `examples/`, by simply opening and executing the notebooks in the Jupyter server. Please also navigate to the [examples README file](../examples/README.md) to read about the available notebooks. 
