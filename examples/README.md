@@ -1,6 +1,6 @@
 # Forecasting examples
 
-This folder contains Python examples for building forecasting solutions. To run the notebooks, please execute `jupyter notebook` and select the Jupyter kernel `forecasting_env` if you are using a local machine. Otherwise, if you use a remote VM, you can start the notebooks via `jupyter notebook --no-browser` and forward the port where the notebooks are running (e.g., 8888) to the local machine via `ssh <user-name>@<ip-address-of-the-vm> -L 8888:localhost:8888`.
+This folder contains Jupyter notebooks with Python examples for building forecasting solutions. To run the notebooks, please ensure your environment is set up with required dependencies by following instructions in the [Setup guide](../docs/SETUP.md). 
 
 
 ## Summary

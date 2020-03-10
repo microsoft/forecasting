@@ -23,12 +23,19 @@ We provide a script to install all dependencies automatically on a Linux machine
 ```
 ./tools/environment_setup.sh
 ```
-from the root of Forecasting repo. If you have issues with running the setup script, please follow the [Manual environment setup](#manual-environment-setup) instructions below. 
+from the root of Forecasting repo. Once you've executed the setup script, please activate the newly created conda environment:
 
-Once you've executed the setup script, you can run example notebooks under [examples/](../examples) directory.
+```
+conda activate forecasting_env
+```
+
+>!NOTE: If you have issues with running the setup script, please follow the [Manual environment setup](#manual-environment-setup) instructions below. 
+
+Next, navigate to [Starting the Jupyter Notebook Server](#starting-the-jupyter-notebook-server) section below to start the Jupyter server necessary for running the examples.
 
 
 ### Manual environment setup
+
 #### Conda environment
 
 To install the package contained in this repository, navigate to the directory where you pulled the Forecasting repo to run:
@@ -63,6 +70,24 @@ In order to run the example notebooks, make sure to run the notebooks in the con
 python -m ipykernel install --user --name forecasting_env
 ```
 
-Once you've set up the environment, you can run example notebooks under [examples/](../examples) directory.
+### Starting the Jupyter Notebook Server
+In order to run the example notebooks provided in this repository, you will have to start a Jupyter notebook server. 
 
+For running examples on your **local machine**, please open your terminal application and run the following command:
 
+```
+jupyter notebook
+```
+
+If you are working on a remote VM, you can start the notebook server with the following command:
+```
+jupyter notebook --no-browser --port=8889
+``` 
+and forward the port where the notebooks are running (e.g., 8889) to the local machine via running the following command from the local machine:
+```
+ssh -L localhost:8889:localhost:8889 <user-name>@<ip-address-of-the-vm>
+```
+
+To access the notebooks, type `localhost:8889/` in the browser on your local machine.
+
+Now you're ready to run the examples provided in the `examples/`, by simply opening and executing the notebooks in the Jupyter server. Please also navigate to the [examples README file](../examples/README.md) to read about the available notebooks. 
