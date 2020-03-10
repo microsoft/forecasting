@@ -23,9 +23,15 @@ We provide a script to install all dependencies automatically on a Linux machine
 ```
 ./tools/environment_setup.sh
 ```
-from the root of Forecasting repo. If you have issues with running the setup script, please follow the [Manual environment setup](#manual-environment-setup) instructions below. 
+from the root of Forecasting repo. Once you've executed the setup script, please activate the newly created conda environment:
 
-Once you've executed the setup script, you can run example notebooks under [examples/](../examples) directory.
+```
+conda activate forecasting_env
+```
+
+Now you're ready to run the examples provided in the repository. Please navigate to the [examples README file](../examples/README.md) and follow instructions to run the available notebooks.
+
+>!NOTE: If you have issues with running the setup script, please follow the [Manual environment setup](#manual-environment-setup) instructions below. 
 
 
 ### Manual environment setup
@@ -63,6 +69,6 @@ In order to run the example notebooks, make sure to run the notebooks in the con
 python -m ipykernel install --user --name forecasting_env
 ```
 
-Once you've set up the environment, you can run example notebooks under [examples/](../examples) directory.
+Now you're ready to run the examples provided in the repository. Please navigate to the [examples README file](../examples/README.md) and follow instructions to run the available notebooks.
 
 
