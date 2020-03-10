@@ -52,9 +52,8 @@ def maybe_download(dest_dir):
         # Call data download script
         print("Starting data download ...")
         repo_path = git_repo_path()
-        module_path = "fclib/fclib/dataset"
+        script_path = os.path.join(repo_path, "fclib", "fclib", "dataset", SCRIPT_NAME)
 
-        script_path = os.path.join(repo_path, module_path, SCRIPT_NAME)
         try:
             print(f"Destination directory: {dest_dir}")
             output = subprocess.run(["Rscript", script_path, dest_dir], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
