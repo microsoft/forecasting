@@ -83,11 +83,11 @@ If you are working on a remote VM, you can start the notebook server with the fo
 ```
 jupyter notebook --no-browser --port=8889
 ``` 
-and forward the port where the notebooks are running (e.g., 8889) to the local machine via 
+and forward the port where the notebooks are running (e.g., 8889) to the local machine via running the following command from the local machine:
 ```
 ssh -L localhost:8889:localhost:8889 <user-name>@<ip-address-of-the-vm>
 ```
 
-To access the notebooks, type `localhost:8898/` in the browser on your local machine.
+To access the notebooks, type `localhost:8889/` in the browser on your local machine.
 
 Now you're ready to run the examples provided in the `examples/`, by simply opening and executing the notebooks in the Jupyter server. Please also navigate to the [examples README file](../examples/README.md) to read about the available notebooks. 
