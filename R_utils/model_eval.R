@@ -1,5 +1,14 @@
-# returns tibble of response and predicted values
-get_forecasts <- function(mable, newdata=NULL, h=NULL, ...)
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+#' Computes forecast values on a dataset
+#'
+#' @param mable A mable (model table) as returned by `fabletools::model`.
+#' @param newdata The dataset for which to compute forecasts.
+#' @param ... Further arguments to `fabletools::forecast`.
+#' @return
+#' A tsibble, with one column per model type in `mable`, and one column named `.response` containing the response variable from `newdata`.
+get_forecasts <- function(mable, newdata, ...)
 {
     fcast <- forecast(mable, new_data=newdata, h=h, ...)
     keyvars <- key_vars(fcast)
@@ -17,6 +26,13 @@ get_forecasts <- function(mable, newdata=NULL, h=NULL, ...)
         inner_join(fcast)
 }
 
+
+#' Evaluate quality of forecasts given a criterion
+#'
+#' @param fcast_df A tsibble as returned from `get_forecasts`.
+#' @param gof A goodness-of-fit function. The default is to use `fabletools::MAPE`, which computes the mean absolute percentage error.
+#' @return
+#' A single-row data frame with the computed goodness-of-fit statistic for each model.
 eval_forecasts <- function(fcast_df, gof=fabletools::MAPE)
 {
     if(!is.function(gof))
