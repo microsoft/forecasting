@@ -16,11 +16,11 @@ library(fable.prophet)
 This notebook builds a forecasting model using the Prophet algorithm.
 
 ```{r}
-source("../../../fclib_R/cluster.R")
-source("../../../fclib_R/model_eval.R")
+srcdir <- here::here("R_utils")
+for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load("oj_data.Rdata")
-load("oj_model_basic.Rdata")
+load_objects("oj_retail", "oj_data.Rdata")
+load_objects("oj_retail", "oj_model_basic.Rdata")
 
 cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts", "prophet", "fable.prophet"))
 
@@ -46,7 +46,8 @@ oj_fcast_pr <- parallel::clusterMap(cl, function(mable, newdata, fcast_func)
 
 destroy_cluster(cl)
 
-save(oj_modelset_pr, oj_fcast_pr, file="oj_model_pr.Rdata")
+save_objects(oj_modelset_pr, oj_fcast_pr,
+             example="oj_retail", file="oj_model_pr.Rdata")
 
 do.call(rbind, oj_fcast_pr) %>%
     mutate_at(-(1:3), exp) %>%

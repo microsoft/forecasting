@@ -31,10 +31,10 @@ This lets us speed up the training significantly. While the `fable::model` funct
 First, we fit the models that can innately handle missing values.
 
 ```{r}
-source("../../../fclib_R/cluster.R")
-source("../../../fclib_R/model_eval.R")
+srcdir <- here::here("R_utils")
+for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load("oj_data.Rdata")
+load_objects("oj_retail", "oj_data.Rdata")
 
 cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts"))
 
@@ -50,7 +50,8 @@ oj_modelset_basic <- parallel::parLapply(cl, oj_train, function(df)
 })
 oj_fcast_basic <- parallel::clusterMap(cl, get_forecasts, oj_modelset_basic, oj_test)
 
-save(oj_modelset_basic, oj_fcast_basic, file="oj_model_basic.Rdata")
+save_objects(oj_modelset_basic, oj_fcast_basic,
+             example="oj_retail", file="oj_model_basic.Rdata")
 
 destroy_cluster(cl)
 

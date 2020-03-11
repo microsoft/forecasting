@@ -14,10 +14,10 @@ library(fable)
 This notebook builds on the output from "Basic models" by including regressor variables in the ARIMA model(s).
 
 ```{r}
-source("../../../fclib_R/cluster.R")
-source("../../../fclib_R/model_eval.R")
+srcdir <- here::here("R_utils")
+for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load("oj_data.Rdata")
+load_objects("oj_retail", "oj_data.Rdata")
 
 cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts"))
 
@@ -35,7 +35,8 @@ oj_fcast_reg <- parallel::clusterMap(cl, get_forecasts, oj_modelset_reg, oj_test
 
 destroy_cluster(cl)
 
-save(oj_modelset_reg, oj_fcast_reg, file="oj_model_reg.Rdata")
+save_objects(oj_modelset_reg, oj_fcast_reg,
+             example="oj_retail", file="oj_model_reg.Rdata")
 
 do.call(rbind, oj_fcast_reg) %>%
     mutate_at(-(1:3), exp) %>%

@@ -18,7 +18,7 @@ The orange juice dataset comes from the bayesm package, and gives pricing and sa
 A complicating factor is that the data is in a hybrid of long and wide format: while the sales figures are long (one column of sales data for every store and brand), the prices are wide (one price column for each brand). Therefore we need to reshape the data if we want to use prices for modelling. As part of this, we also compute a new column `maxpricediff`: this represents the log-ratio of the price of this brand compared to the best competing price. A positive `maxpricediff` means this brand is cheaper than all the other brands, and a negative `maxpricediff` means it is more expensive.
 
 ```{r}
-settings <- jsonlite::fromJSON("ojdata_forecast_settings.json")
+settings <- yaml::read_yaml("forecast_settings.yaml")
 
 train_periods <- seq(settings$TRAIN_WINDOW, 160 - settings$STEP - 1, settings$STEP)
 start_date <- as.Date(settings$START_DATE)
@@ -75,7 +75,7 @@ subset_oj_data <- function(start, end)
 oj_train <- lapply(train_periods, function(i) subset_oj_data(40, i))
 oj_test <- lapply(train_periods, function(i) subset_oj_data(i + 2, i + settings$STEP + 1))
 
-save(oj_train, oj_test, file="oj_data.Rdata")
+save(oj_train, oj_test, file=here::here("examples/oj_retail/R/oj_data.Rdata"))
 
 head(oj_train[[1]])
 
