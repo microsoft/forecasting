@@ -1,0 +1,43 @@
+---
+title: ARIMA-Regression models
+output: html_notebook
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+This notebook builds on the output from "Basic models" by including regressor variables in the ARIMA model(s).
+
+```{r}
+source("../common/cluster.R")
+source("../common/model_eval.R")
+
+load("oj_data.Rdata")
+
+cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts"))
+
+oj_modelset_reg <- parallel::parLapply(cl, oj_train, function(df)
+{
+    model(df,
+        ar_reg=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + deal + feat + price + maxpricediff),
+        ar_trend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend()),
+        ar_regtrend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend() + deal + feat + price + maxpricediff),
+        .safely=FALSE
+    )
+})
+
+oj_fcast_reg <- parallel::clusterMap(cl, get_forecasts, oj_modelset_reg, oj_test)
+
+destroy_cluster(cl)
+
+save(oj_modelset_reg, oj_fcast_reg, file="oj_model_reg.Rdata")
+
+do.call(rbind, oj_fcast_reg) %>%
+    mutate_at(-(1:3), exp) %>%
+    eval_forecasts()
+```
