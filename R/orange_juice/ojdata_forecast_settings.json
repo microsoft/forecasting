@@ -1,6 +1,5 @@
 {
     "STEP": 2,
-    "TRAIN_START_WEEK": 40,
-    "TRAIN_END_WEEK": [134, 158],
+    "TRAIN_WINDOW": 135,
     "START_DATE": "1989-09-14"
 }

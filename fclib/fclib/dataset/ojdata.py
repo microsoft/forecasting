@@ -8,7 +8,9 @@ import pandas as pd
 import math
 import datetime
 import itertools
+import argparse
 
+from fclib.common.utils import git_repo_path
 from fclib.feature_engineering.feature_utils import df_from_cartesian_product
 
 DATA_FILE_LIST = ["yx.csv", "storedemo.csv"]
@@ -49,11 +51,18 @@ def maybe_download(dest_dir):
     if not data_exists:
         # Call data download script
         print("Starting data download ...")
-        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), SCRIPT_NAME)
+        repo_path = git_repo_path()
+        script_path = os.path.join(repo_path, "fclib", "fclib", "dataset", SCRIPT_NAME)
+
         try:
-            subprocess.call(["Rscript", script_path, dest_dir])
+            print(f"Destination directory: {dest_dir}")
+            output = subprocess.run(["Rscript", script_path, dest_dir], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            print(output.stdout)
+            if output.returncode != 0:
+                raise Exception(f"Subprocess failed - {output.stderr}")
+
         except subprocess.CalledProcessError as e:
-            print(e.output)
+            raise e
     else:
         print("Data already exists at the specified location.")
 
@@ -113,12 +122,12 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
 
     Note that train_*.csv files in /train folder contain all the features in the training period
     and aux_*.csv files in /train folder contain all the features except 'logmove', 'constant',
-    'profit' up until the forecast period end week. Both train_*.csv and aux_*csv can be used for
+    'profit' up until the forecast period end week. Both train_*.csv and auxi_*csv can be used for
     generating forecasts in each split. However, test_*.csv files in /test folder can only be used
     for model performance evaluation.
 
     Example:
-        data_dir = "/home/vapaunic/forecasting/ojdata"
+        data_dir = "/home/ojdata"
 
         train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=3, write_csv=True)
 
@@ -174,7 +183,7 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
             roundstr = "_" + str(i + 1) if n_splits > 1 else ""
             train_df.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
             test_df.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
-            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
+            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "auxi" + roundstr + ".csv"))
 
         train_df_list.append(train_df)
         test_df_list.append(test_df)
@@ -436,9 +445,12 @@ def specify_retail_data_schema(
 
 
 if __name__ == "__main__":
-    data_dir = "/home/vapaunic/forecasting/ojdata"
 
-    download_ojdata(data_dir)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", help="Data download directory")
+    args = parser.parse_args()
+
+    download_ojdata(args.data_dir)
     # train, test, aux = split_train_test(data_dir=data_dir, n_splits=1, horizon=2, write_csv=True)
 
     # print((test[0].week))
