@@ -9,6 +9,6 @@ The following summarizes each directory of the forecasting examples.
 
 | Directory | Content | Description |
 | --- | --- | --- |
-| [oj_retail](./oj_data) | [python/](./oj_retail/python) <br> [R/](./oj_retail/R) | Python and R examples for forecasting sales of orange juice |
+| [oj_retail](./oj_retail) | [python/](./oj_retail/python) <br> [R/](./oj_retail/R) | Python and R examples for forecasting sales of orange juice |
 
 
