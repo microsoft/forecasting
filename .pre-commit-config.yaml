@@ -7,10 +7,6 @@ repos:
     rev: v1.2.3
     hooks:
     - id: flake8
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v1.2.3
-    hooks:
-    - id: pylint .\fclib\fclib\
 -   repo: local
     hooks:
     - id: jupytext

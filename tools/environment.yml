@@ -35,7 +35,6 @@ dependencies:
   - pip:
     - black
     - flake8
-    - pylint_junit
     - jupytext==1.3.0
     - lightgbm==2.3.0
     - nteract-scrapbook==0.3.1
