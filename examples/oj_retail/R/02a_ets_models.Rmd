@@ -13,8 +13,8 @@ library(fable)
 ```
 
 ```{r}
-source("../common/cluster.R")
-source("../common/model_eval.R")
+source("../../../fclib_R/cluster.R")
+source("../../../fclib_R/model_eval.R")
 
 load("oj_data.Rdata")
 load("oj_model_basic.Rdata")

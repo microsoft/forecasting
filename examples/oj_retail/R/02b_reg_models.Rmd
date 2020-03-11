@@ -14,8 +14,8 @@ library(fable)
 This notebook builds on the output from "Basic models" by including regressor variables in the ARIMA model(s).
 
 ```{r}
-source("../common/cluster.R")
-source("../common/model_eval.R")
+source("../../../fclib_R/cluster.R")
+source("../../../fclib_R/model_eval.R")
 
 load("oj_data.Rdata")
 

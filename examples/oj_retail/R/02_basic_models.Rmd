@@ -31,8 +31,8 @@ This lets us speed up the training significantly. While the `fable::model` funct
 First, we fit the models that can innately handle missing values.
 
 ```{r}
-source("../common/cluster.R")
-source("../common/model_eval.R")
+source("../../../fclib_R/cluster.R")
+source("../../../fclib_R/model_eval.R")
 
 load("oj_data.Rdata")
 
