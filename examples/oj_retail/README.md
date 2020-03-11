@@ -9,6 +9,6 @@ The following summarizes each directory of the forecasting examples.
 
 | Directory | Content | Description |
 | --- | --- | --- |
-| [python](./python)| [00_quick_start/](./python/00_quick_start) <br>[01_prepare_data/](./python/01_prepare_data) <br> [02_model/](./python/02_model) <br> [03_model_tune_deploy](./python/03_model_tune_deploy/) | <ul> <li> Quick start examples for single-round training </li> </ul> <ul> <li> Data exploration and preparation notebooks </li> </ul>  <ul> <li> Multi-round training examples </li> </ul> <ul> <li> Model tuning and deployment example </li> </ul> |
+| [python](./python)| [00_quick_start/](./python/00_quick_start) <br>[01_prepare_data/](./python/01_prepare_data) <br> [02_model/](./python/02_model) <br> [03_model_tune_deploy/](./python/03_model_tune_deploy/) | <ul> <li> Quick start examples for single-round training </li> </ul> <ul> <li> Data exploration and preparation notebooks </li> </ul>  <ul> <li> Multi-round training examples </li> </ul> <ul> <li> Model tuning and deployment example </li> </ul> |
 | [R](./R) | TBD | Examples and utility functions in R|
 
