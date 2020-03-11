@@ -3,7 +3,7 @@
 
 # To create the conda environment:
 # $ conda env create -f environment.yaml
-# 
+#
 # To update the conda environment:
 # $ conda env update -f environment.yaml
 #
@@ -28,11 +28,12 @@ dependencies:
   - urllib3=1.21.1
   - scikit-learn=0.20.3
   - pytest>=3.6.4
+  - tqdm>=4.43.0
+  - pylint
   - papermill>=1.0.1
   - matplotlib=3.1.2
   - r-base>=3.3.0
   - r-bayesm>=3.1_0
-  - tqdm>=4.43.0
   - pip:
     - black>=18.6b4
     - flake8>=3.3.0
