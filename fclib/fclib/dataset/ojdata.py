@@ -9,12 +9,15 @@ import math
 import datetime
 import itertools
 import argparse
+import logging
+import requests
+from tqdm import tqdm
 
 from fclib.common.utils import git_repo_path
 from fclib.feature_engineering.feature_utils import df_from_cartesian_product
 
 DATA_FILE_LIST = ["yx.csv", "storedemo.csv"]
-SCRIPT_NAME = "download_oj_data.R"
+SCRIPT_NAME = "load_oj_data.R"
 
 DEFAULT_TARGET_COL = "move"
 DEFAULT_STATIC_FEA = None
@@ -23,25 +26,55 @@ DEFAULT_DYNAMIC_FEA = ["deal", "feat"]
 # The start datetime of the first week in the record
 FIRST_WEEK_START = pd.to_datetime("1989-09-14 00:00:00")
 
-
-def download_ojdata(dest_dir):
-    """Downloads Orange Juice dataset.
-
-    Args:
-        dest_dir (str): Directory path for the downloaded file
-    """
-    maybe_download(dest_dir=dest_dir)
+# Original data source
+OJ_URL = "https://github.com/cran/bayesm/raw/master/data/orangeJuice.rda"
 
 
-def maybe_download(dest_dir):
+log = logging.getLogger(__name__)
+
+
+def maybe_download(url, dest_directory, filename=None):
     """Download a file if it is not already downloaded.
-    
     Args:
-        dest_dir (str): Destination directory
+        dest_directory (str): Destination directory.
+        url (str): URL of the file to download.
+        filename (str): File name.
         
     Returns:
         str: File path of the file downloaded.
     """
+    if filename is None:
+        filename = url.split("/")[-1]
+    os.makedirs(dest_directory, exist_ok=True)
+    filepath = os.path.join(dest_directory, filename)
+    if not os.path.exists(filepath):
+
+        r = requests.get(url, stream=True)
+        total_size = int(r.headers.get("content-length", 0))
+        block_size = 1024
+        num_iterables = math.ceil(total_size / block_size)
+
+        with open(filepath, "wb") as file:
+            for data in tqdm(r.iter_content(block_size), total=num_iterables, unit="KB", unit_scale=True,):
+                file.write(data)
+    else:
+        log.debug("File {} already downloaded".format(filepath))
+
+    return filepath
+
+
+def download_ojdata(dest_dir="."):
+    """Download orange juice dataset from the original source.
+
+     Args:
+        dest_dir (str): Directory path for the downloaded file
+    
+    Returns:
+        str: Path of the downloaded file.
+    """
+    url = OJ_URL
+    rda_path = maybe_download(url, dest_directory=dest_dir)
+
     # Check if data files exist
     data_exists = True
     for f in DATA_FILE_LIST:
@@ -56,7 +89,9 @@ def maybe_download(dest_dir):
 
         try:
             print(f"Destination directory: {dest_dir}")
-            output = subprocess.run(["Rscript", script_path, dest_dir], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            output = subprocess.run(
+                ["Rscript", script_path, rda_path, dest_dir], stderr=subprocess.PIPE, stdout=subprocess.PIPE
+            )
             print(output.stdout)
             if output.returncode != 0:
                 raise Exception(f"Subprocess failed - {output.stderr}")
