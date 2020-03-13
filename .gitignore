@@ -2,6 +2,23 @@
 **/.ipynb_checkpoints
 *.egg-info/
 .vscode/
+*.pkl
+*.h5
 
+# Data
 ojdata/*
 *.Rdata
+
+# AML Config
+aml_config/
+.azureml/
+.config/
+
+# Pytests
+.pytest_cache/
+
+# Environments
+myenv.yml
+
+# Logs
+logs/
