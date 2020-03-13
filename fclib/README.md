@@ -1,6 +1,6 @@
 # Forecasting library
 
-Building forecasting models can involve tedious tasks ranging from data loading, dataset understanding, model development, model evaluation to deployment of trained models. To assist with these tasks, we developed a forecasting library - **fclib**. You'll see this library used widely in sample notebooks in [Examples](../examples). The following provides a short description of the sub-modules. For more details about what functions/classes/utitilies are available and how to use them, please review the doc-strings provided with the code and see the sample notebooks in [Examples](../examples) directory.
+Building forecasting models can involve tedious tasks ranging from data loading, dataset understanding, model development, model evaluation to deployment of trained models. To assist with these tasks, we developed a forecasting library - **fclib**. You'll see this library used widely in sample notebooks in [examples](../examples). The following provides a short description of the sub-modules. For more details about what functions/classes/utitilies are available and how to use them, please review the doc-strings provided with the code and see the sample notebooks in [examples](../examples) directory.
 
 ## Submodules
 
@@ -14,7 +14,7 @@ The AzureML submodule contains utilities to connect to an Azure Machine Learning
 This submodule contains high-level utilities that are commonly used in multiple algorithms as well as helper functions for visualizing forecasting predictions.
 
 ### [Dataset](fclib/dataset)
-This submodule includes helper functions for interacting datasets used in the example notebooks, utility functions to process datasets for different models tasks, as well as utilities for splitting data for training/testing. For example, the [ojdata](fclib/dataset/ojdata.py) submodule will allow you to download and process OrangeJuice data set, as well as split it into training and testing rounds. 
+This submodule includes helper functions for interacting with datasets used in the example notebooks, utility functions to process datasets for different models tasks, as well as utilities for splitting data for training/testing. For example, the [ojdata](fclib/dataset/ojdata.py) submodule will allow you to download and process Orange Juice data set, as well as split it into training and testing rounds. 
 
 ```python
 from fclib.dataset.ojdata import download_ojdata, split_train_test

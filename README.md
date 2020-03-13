@@ -4,7 +4,7 @@ Time series forecasting is one of the most important topics in data science. Alm
 
 This repository provides examples and best practice guidelines for building forecasting solutions. The goal of this repository is to build a comprehensive set of tools and examples that leverage recent advances in forecasting algorithms to build solutions and operationalize them. Rather than creating implementions from scratch, we draw from existing state-of-the-art libraries and build additional utility around processing and featurizing the data, optimizing and evaluating models, and scaling up to the cloud. 
 
-This repository contains examples and best practices for building Forecasting solutions and systems, provided as [Jupyter notebooks](examples) and [a library of utility functions](fclib). We hope that these examples and utilities can significantly reduce the “time to market” by simplifying the experience from defining the business problem to development of solution by orders of magnitude. In addition, the example notebooks would serve as guidelines and showcase best practices and usage of the tools in a wide variety of languages.
+This repository contains examples and best practices for building forecasting solutions and systems, provided as [Jupyter notebooks and R markdown files](examples) and [a library of utility functions](fclib). We hope that these examples and utilities can significantly reduce the “time to market” by simplifying the experience from defining the business problem to development of solution by orders of magnitude. In addition, the example notebooks would serve as guidelines and showcase best practices and usage of the tools in a wide variety of languages.
 
 ## Getting Started
 

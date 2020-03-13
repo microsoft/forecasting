@@ -2,7 +2,7 @@
 
 This folder contains Python and R examples for building forecasting solutions presented in Python Jupyter notebooks and R Markdown files, respectively. The examples are organized according to f forecasting scenario, with each use-case named after `<dataset-name>_<scenario-domain>`. 
 
-At the moment, the repository contains a single retail use-case utilizing [Dominick's OrangeJuice data set](https://www.chicagobooth.edu/research/kilts/datasets/dominicks), hence the name of the directory `oj_retail`.
+At the moment, the repository contains a single retail scenario utilizing [Dominick's OrangeJuice data set](https://www.chicagobooth.edu/research/kilts/datasets/dominicks). Hence the name of the directory `oj_retail`.
 
 
 ## Summary
