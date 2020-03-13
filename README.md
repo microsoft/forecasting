@@ -57,6 +57,17 @@ Our target audience for this repository includes data scientists and machine lea
 ## Contributing
 We hope that the open source community would contribute to the content and bring in the latest SOTA algorithm. This project welcomes contributions and suggestions. Before contributing, please see our [Contributing Guide](./docs/CONTRIBUTING.md).
 
+## Reference
+
+The following is a list of related repositories that you may find helpful.
+
+|                                                    |                                                                                                 |
+|----------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| Deep Learning for Time Series Forecasting          | A collection of examples for using deep neural networks for time series forecasting with Keras. |
+| Demand Forecasting and Price Optimization Solution | A Cortana Intelligence solution how-to guide for demand forecasting and price optimization.     |
+
+
+
 ## Build Status
 | Build         | Branch  | Status                                                                                                                                                                                                                             |
 |---------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
