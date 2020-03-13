@@ -17,8 +17,12 @@ aml_config/
 # Pytests
 .pytest_cache/
 
+# File for model deployment
+score.py
+
 # Environments
 myenv.yml
 
 # Logs
 logs/
+*.log
