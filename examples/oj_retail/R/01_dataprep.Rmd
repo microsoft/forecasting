@@ -3,6 +3,9 @@ title: Data preparation
 output: html_notebook
 ---
 
+_Copyright (c) Microsoft Corporation._<br/>
+_Licensed under the MIT License._
+
 ```{r, echo=FALSE, results="hide", message=FALSE}
 library(tidyr)
 library(dplyr)
