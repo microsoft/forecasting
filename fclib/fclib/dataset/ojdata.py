@@ -48,7 +48,6 @@ def maybe_download(url, dest_directory, filename=None):
     os.makedirs(dest_directory, exist_ok=True)
     filepath = os.path.join(dest_directory, filename)
     if not os.path.exists(filepath):
-
         r = requests.get(url, stream=True)
         total_size = int(r.headers.get("content-length", 0))
         block_size = 1024
@@ -82,8 +81,7 @@ def download_ojdata(dest_dir="."):
         data_exists = data_exists and os.path.exists(file_path)
 
     if not data_exists:
-        # Call data download script
-        print("Starting data download ...")
+        # Call data loading script
         repo_path = git_repo_path()
         script_path = os.path.join(repo_path, "fclib", "fclib", "dataset", SCRIPT_NAME)
 
