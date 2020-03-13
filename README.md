@@ -61,10 +61,10 @@ We hope that the open source community would contribute to the content and bring
 
 The following is a list of related repositories that you may find helpful.
 
-|                                                    |                                                                                                 |
-|----------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| Deep Learning for Time Series Forecasting          | A collection of examples for using deep neural networks for time series forecasting with Keras. |
-| Demand Forecasting and Price Optimization Solution | A Cortana Intelligence solution how-to guide for demand forecasting and price optimization.     |
+|                                                                                                                        |                                                                                                 |
+|------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [Deep Learning for Time Series Forecasting](https://github.com/Azure/DeepLearningForTimeSeriesForecasting)             | A collection of examples for using deep neural networks for time series forecasting with Keras. |
+| [Demand Forecasting and Price Optimization Solution](https://github.com/Azure/cortana-intelligence-price-optimization) | A Cortana Intelligence solution how-to guide for demand forecasting and price optimization.     |
 
 
 
