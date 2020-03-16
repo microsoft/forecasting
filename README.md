@@ -15,7 +15,7 @@ The following is a summary of the examples related to the process of building fo
 | Quick Start                      | Auto ARIMA, Azure AutoML, Linear Regression, LightGBM | Quick start notebooks that demonstrate workflow of developing a forecast model using one-round training and testing data     | Python    |
 | Data Exploration and Preparation | Statistical Analysis and Data Transformation          | Data exploration and preparation examples                                                                                    | Python, R |
 | Model Training and Evaluation    | Auto ARIMA, LightGBM, Dilated CNN                     | Deep dive notebooks that perform multi-round training and testing of various classical and deep learning forecast algorithms | Python    |
-| Model Tuning and Deployment      | LightGBM                                              | Example notebook for model tuning using Azure Machine Learning Service and deploying the best model on Azure                 | Python    |
+| Model Tuning and Deployment      | HyperDrive, LightGBM                                  | Example notebook for model tuning using Azure Machine Learning Service and deploying the best model on Azure                 | Python    |
 | R Models                         | Mean Forecast, ARIMA, ETS, Prophet                    | Popular statistical forecast models and Prophet model implmented in R                                                        | R         |
 
 
