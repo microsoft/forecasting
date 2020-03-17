@@ -14,22 +14,28 @@ library(feasts)
 library(fable)
 ```
 
-This notebook builds on the output from "Basic models" by including regressor variables in the ARIMA model(s).
+This notebook builds on the output from "Basic models" by including regressor variables in the ARIMA model(s). We fit three model types:
+
+- `ar_trend` includes only a linear trend over time
+- `ar_reg` allows stepwise selection of independent regressors
+- `ar_regtrend` includes both a linear trend and regressors (again selected stepwise)
 
 ```{r}
 srcdir <- here::here("R_utils")
 for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load_objects("oj_retail", "oj_data.Rdata")
+load_objects("oj_retail", "data.Rdata")
 
 cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts"))
 
 oj_modelset_reg <- parallel::parLapply(cl, oj_train, function(df)
 {
     model(df,
-        ar_reg=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + deal + feat + price + maxpricediff),
         ar_trend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend()),
-        ar_regtrend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend() + deal + feat + price + maxpricediff),
+        ar_reg=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + deal + feat + maxpricediff +
+            price1 + price2 + price3 + price4 + price5 + price6 + price7 + price8 + price9 + price10 + price11),
+        ar_regtrend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend() + deal + feat + maxpricediff +
+            price1 + price2 + price3 + price4 + price5 + price6 + price7 + price8 + price9 + price10 + price11),
         .safely=FALSE
     )
 })
