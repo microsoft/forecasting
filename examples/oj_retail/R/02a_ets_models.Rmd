@@ -46,3 +46,5 @@ do.call(rbind, oj_fcast_ets) %>%
     mutate_at(-(1:3), exp) %>%
     eval_forecasts()
 ```
+
+The ETS model does _worse_ than the ARIMA model. We conclude that any simple univariate approach is unlikely to do well in forecasting this data.
