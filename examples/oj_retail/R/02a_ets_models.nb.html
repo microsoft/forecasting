@@ -226,18 +226,20 @@ summary {
 
 
 <!-- rnb-text-begin -->
+<p><em>Copyright (c) Microsoft Corporation.</em><br /> <em>Licensed under the MIT License.</em></p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>This notebook fits a simple exponential smoothing state-space model to the orange juice data, using the <code>ETS</code> modelling function. Unlike the other modelling functions in the fable package, <code>ETS</code> does not currently support time series containing missing values. Therefore we use a previously trained model (ARIMA) to impute missing values first, via the <code>interpolate</code> function.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbInNvdXJjZShcIi4uLy4uLy4uL2ZjbGliX1IvY2x1c3Rlci5SXCIpIiwic291cmNlKFwiLi4vLi4vLi4vZmNsaWJfUi9tb2RlbF9ldmFsLlJcIikiLCIiLCJsb2FkKFwib2pfZGF0YS5SZGF0YVwiKSIsImxvYWQoXCJval9tb2RlbF9iYXNpYy5SZGF0YVwiKSIsIiIsImNsIDwtIG1ha2VfY2x1c3RlcihsaWJzPWMoXCJ0aWR5clwiLCBcImRwbHlyXCIsIFwiZmFibGVcIiwgXCJ0c2liYmxlXCIsIFwiZmVhc3RzXCIpKSIsIiIsIm9qX21vZGVsc2V0X2V0cyA8LSBwYXJhbGxlbDo6Y2x1c3Rlck1hcChjbCwgZnVuY3Rpb24oZGYsIGJhc2ljbW9kKVxue1xuICAgIGRmICU+JVxuICAgICAgICBpbnRlcnBvbGF0ZShvYmplY3Q9c2VsZWN0KGJhc2ljbW9kLCAtYyhtZWFuLCBuYWl2ZSwgZHJpZnQpKSkgJT4lXG4gICAgICAgIG1vZGVsKFxuICAgICAgICAgICAgZXRzPUVUUyhsb2dtb3ZlIH4gZXJyb3IoXCJBXCIpICsgdHJlbmQoXCJBXCIpICsgc2Vhc29uKFwiTlwiKSksXG4gICAgICAgICAgICAuc2FmZWx5PUZBTFNFXG4gICAgICAgIClcbn0sIG9qX3RyYWluLCBval9tb2RlbHNldF9iYXNpYykiLCIiLCJval9mY2FzdF9ldHMgPC0gcGFyYWxsZWw6OmNsdXN0ZXJNYXAoY2wsIGdldF9mb3JlY2FzdHMsIG9qX21vZGVsc2V0X2V0cywgb2pfdGVzdCkiLCIiLCJkZXN0cm95X2NsdXN0ZXIoY2wpIiwiIiwic2F2ZShval9tb2RlbHNldF9ldHMsIG9qX2ZjYXN0X2V0cywgZmlsZT1cIm9qX21vZGVsX2V0cy5SZGF0YVwiKSIsIiIsImRvLmNhbGwocmJpbmQsIG9qX2ZjYXN0X2V0cykgJT4lXG4gICAgbXV0YXRlX2F0KC0oMTozKSwgZXhwKSAlPiVcbiAgICBldmFsX2ZvcmVjYXN0cygpIl19 -->
-<pre class="r"><code>source(&quot;../../../fclib_R/cluster.R&quot;)
-source(&quot;../../../fclib_R/model_eval.R&quot;)
+<!-- rnb-source-begin eyJkYXRhIjpbInNyY2RpciA8LSBoZXJlOjpoZXJlKFwiUl91dGlsc1wiKSIsImZvcihzcmMgaW4gZGlyKHNyY2RpciwgZnVsbC5uYW1lcz1UUlVFKSkgc291cmNlKHNyYykiLCIiLCJsb2FkX29iamVjdHMoXCJval9yZXRhaWxcIiwgXCJkYXRhLlJkYXRhXCIpIiwibG9hZF9vYmplY3RzKFwib2pfcmV0YWlsXCIsIFwibW9kZWxfYmFzaWMuUmRhdGFcIikiLCIiLCJjbCA8LSBtYWtlX2NsdXN0ZXIobGlicz1jKFwidGlkeXJcIiwgXCJkcGx5clwiLCBcImZhYmxlXCIsIFwidHNpYmJsZVwiLCBcImZlYXN0c1wiKSkiLCIiLCJval9tb2RlbHNldF9ldHMgPC0gcGFyYWxsZWw6OmNsdXN0ZXJNYXAoY2wsIGZ1bmN0aW9uKGRmLCBiYXNpY21vZClcbntcbiAgICBkZiAlPiVcbiAgICAgICAgaW50ZXJwb2xhdGUob2JqZWN0PXNlbGVjdChiYXNpY21vZCwgLWMobWVhbiwgbmFpdmUsIGRyaWZ0KSkpICU+JVxuICAgICAgICBtb2RlbChcbiAgICAgICAgICAgIGV0cz1FVFMobG9nbW92ZSB+IGVycm9yKFwiQVwiKSArIHRyZW5kKFwiQVwiKSArIHNlYXNvbihcIk5cIikpLFxuICAgICAgICAgICAgLnNhZmVseT1GQUxTRVxuICAgICAgICApXG59LCBval90cmFpbiwgb2pfbW9kZWxzZXRfYmFzaWMpIiwiIiwib2pfZmNhc3RfZXRzIDwtIHBhcmFsbGVsOjpjbHVzdGVyTWFwKGNsLCBnZXRfZm9yZWNhc3RzLCBval9tb2RlbHNldF9ldHMsIG9qX3Rlc3QpIiwiIiwiZGVzdHJveV9jbHVzdGVyKGNsKSIsIiIsInNhdmVfb2JqZWN0cyhval9tb2RlbHNldF9ldHMsIG9qX2ZjYXN0X2V0cyxcbiAgICAgICAgICAgICBleGFtcGxlPVwib2pfcmV0YWlsXCIsIGZpbGU9XCJtb2RlbF9ldHMuUmRhdGFcIikiLCIiLCJkby5jYWxsKHJiaW5kLCBval9mY2FzdF9ldHMpICU+JVxuICAgIG11dGF0ZV9hdCgtKDE6MyksIGV4cCkgJT4lXG4gICAgZXZhbF9mb3JlY2FzdHMoKSJdfQ== -->
+<pre class="r"><code>srcdir &lt;- here::here(&quot;R_utils&quot;)
+for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load(&quot;oj_data.Rdata&quot;)
-load(&quot;oj_model_basic.Rdata&quot;)
+load_objects(&quot;oj_retail&quot;, &quot;data.Rdata&quot;)
+load_objects(&quot;oj_retail&quot;, &quot;model_basic.Rdata&quot;)
 
 cl &lt;- make_cluster(libs=c(&quot;tidyr&quot;, &quot;dplyr&quot;, &quot;fable&quot;, &quot;tsibble&quot;, &quot;feasts&quot;))
 
@@ -255,7 +257,8 @@ oj_fcast_ets &lt;- parallel::clusterMap(cl, get_forecasts, oj_modelset_ets, oj_t
 
 destroy_cluster(cl)
 
-save(oj_modelset_ets, oj_fcast_ets, file=&quot;oj_model_ets.Rdata&quot;)
+save_objects(oj_modelset_ets, oj_fcast_ets,
+             example=&quot;oj_retail&quot;, file=&quot;model_ets.Rdata&quot;)
 
 do.call(rbind, oj_fcast_ets) %&gt;%
     mutate_at(-(1:3), exp) %&gt;%
@@ -263,12 +266,12 @@ do.call(rbind, oj_fcast_ets) %&gt;%
 <!-- rnb-source-end -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["ets"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"73.60232"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["ets"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"74.2348"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiBFVFMKb3V0cHV0OiBodG1sX25vdGVib29rCmVuY29kaW5nOiB1dGY4Ci0tLQoKYGBge3IsIGVjaG89RkFMU0UsIHJlc3VsdHM9ImhpZGUiLCBtZXNzYWdlPUZBTFNFfQpsaWJyYXJ5KHRpZHlyKQpsaWJyYXJ5KGRwbHlyKQpsaWJyYXJ5KHRzaWJibGUpCmxpYnJhcnkoZmVhc3RzKQpsaWJyYXJ5KGZhYmxlKQpgYGAKCmBgYHtyfQpzb3VyY2UoIi4uLy4uLy4uL2ZjbGliX1IvY2x1c3Rlci5SIikKc291cmNlKCIuLi8uLi8uLi9mY2xpYl9SL21vZGVsX2V2YWwuUiIpCgpsb2FkKCJval9kYXRhLlJkYXRhIikKbG9hZCgib2pfbW9kZWxfYmFzaWMuUmRhdGEiKQoKY2wgPC0gbWFrZV9jbHVzdGVyKGxpYnM9YygidGlkeXIiLCAiZHBseXIiLCAiZmFibGUiLCAidHNpYmJsZSIsICJmZWFzdHMiKSkKCm9qX21vZGVsc2V0X2V0cyA8LSBwYXJhbGxlbDo6Y2x1c3Rlck1hcChjbCwgZnVuY3Rpb24oZGYsIGJhc2ljbW9kKQp7CiAgICBkZiAlPiUKICAgICAgICBpbnRlcnBvbGF0ZShvYmplY3Q9c2VsZWN0KGJhc2ljbW9kLCAtYyhtZWFuLCBuYWl2ZSwgZHJpZnQpKSkgJT4lCiAgICAgICAgbW9kZWwoCiAgICAgICAgICAgIGV0cz1FVFMobG9nbW92ZSB+IGVycm9yKCJBIikgKyB0cmVuZCgiQSIpICsgc2Vhc29uKCJOIikpLAogICAgICAgICAgICAuc2FmZWx5PUZBTFNFCiAgICAgICAgKQp9LCBval90cmFpbiwgb2pfbW9kZWxzZXRfYmFzaWMpCgpval9mY2FzdF9ldHMgPC0gcGFyYWxsZWw6OmNsdXN0ZXJNYXAoY2wsIGdldF9mb3JlY2FzdHMsIG9qX21vZGVsc2V0X2V0cywgb2pfdGVzdCkKCmRlc3Ryb3lfY2x1c3RlcihjbCkKCnNhdmUob2pfbW9kZWxzZXRfZXRzLCBval9mY2FzdF9ldHMsIGZpbGU9Im9qX21vZGVsX2V0cy5SZGF0YSIpCgpkby5jYWxsKHJiaW5kLCBval9mY2FzdF9ldHMpICU+JQogICAgbXV0YXRlX2F0KC0oMTozKSwgZXhwKSAlPiUKICAgIGV2YWxfZm9yZWNhc3RzKCkKYGBgCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiBFVFMKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKX0NvcHlyaWdodCAoYykgTWljcm9zb2Z0IENvcnBvcmF0aW9uLl88YnIvPgpfTGljZW5zZWQgdW5kZXIgdGhlIE1JVCBMaWNlbnNlLl8KCmBgYHtyLCBlY2hvPUZBTFNFLCByZXN1bHRzPSJoaWRlIiwgbWVzc2FnZT1GQUxTRX0KbGlicmFyeSh0aWR5cikKbGlicmFyeShkcGx5cikKbGlicmFyeSh0c2liYmxlKQpsaWJyYXJ5KGZlYXN0cykKbGlicmFyeShmYWJsZSkKYGBgCgpUaGlzIG5vdGVib29rIGZpdHMgYSBzaW1wbGUgZXhwb25lbnRpYWwgc21vb3RoaW5nIHN0YXRlLXNwYWNlIG1vZGVsIHRvIHRoZSBvcmFuZ2UganVpY2UgZGF0YSwgdXNpbmcgdGhlIGBFVFNgIG1vZGVsbGluZyBmdW5jdGlvbi4gVW5saWtlIHRoZSBvdGhlciBtb2RlbGxpbmcgZnVuY3Rpb25zIGluIHRoZSBmYWJsZSBwYWNrYWdlLCBgRVRTYCBkb2VzIG5vdCBjdXJyZW50bHkgc3VwcG9ydCB0aW1lIHNlcmllcyBjb250YWluaW5nIG1pc3NpbmcgdmFsdWVzLiBUaGVyZWZvcmUgd2UgdXNlIGEgcHJldmlvdXNseSB0cmFpbmVkIG1vZGVsIChBUklNQSkgdG8gaW1wdXRlIG1pc3NpbmcgdmFsdWVzIGZpcnN0LCB2aWEgdGhlIGBpbnRlcnBvbGF0ZWAgZnVuY3Rpb24uCgpgYGB7cn0Kc3JjZGlyIDwtIGhlcmU6OmhlcmUoIlJfdXRpbHMiKQpmb3Ioc3JjIGluIGRpcihzcmNkaXIsIGZ1bGwubmFtZXM9VFJVRSkpIHNvdXJjZShzcmMpCgpsb2FkX29iamVjdHMoIm9qX3JldGFpbCIsICJkYXRhLlJkYXRhIikKbG9hZF9vYmplY3RzKCJval9yZXRhaWwiLCAibW9kZWxfYmFzaWMuUmRhdGEiKQoKY2wgPC0gbWFrZV9jbHVzdGVyKGxpYnM9YygidGlkeXIiLCAiZHBseXIiLCAiZmFibGUiLCAidHNpYmJsZSIsICJmZWFzdHMiKSkKCm9qX21vZGVsc2V0X2V0cyA8LSBwYXJhbGxlbDo6Y2x1c3Rlck1hcChjbCwgZnVuY3Rpb24oZGYsIGJhc2ljbW9kKQp7CiAgICBkZiAlPiUKICAgICAgICBpbnRlcnBvbGF0ZShvYmplY3Q9c2VsZWN0KGJhc2ljbW9kLCAtYyhtZWFuLCBuYWl2ZSwgZHJpZnQpKSkgJT4lCiAgICAgICAgbW9kZWwoCiAgICAgICAgICAgIGV0cz1FVFMobG9nbW92ZSB+IGVycm9yKCJBIikgKyB0cmVuZCgiQSIpICsgc2Vhc29uKCJOIikpLAogICAgICAgICAgICAuc2FmZWx5PUZBTFNFCiAgICAgICAgKQp9LCBval90cmFpbiwgb2pfbW9kZWxzZXRfYmFzaWMpCgpval9mY2FzdF9ldHMgPC0gcGFyYWxsZWw6OmNsdXN0ZXJNYXAoY2wsIGdldF9mb3JlY2FzdHMsIG9qX21vZGVsc2V0X2V0cywgb2pfdGVzdCkKCmRlc3Ryb3lfY2x1c3RlcihjbCkKCnNhdmVfb2JqZWN0cyhval9tb2RlbHNldF9ldHMsIG9qX2ZjYXN0X2V0cywKICAgICAgICAgICAgIGV4YW1wbGU9Im9qX3JldGFpbCIsIGZpbGU9Im1vZGVsX2V0cy5SZGF0YSIpCgpkby5jYWxsKHJiaW5kLCBval9mY2FzdF9ldHMpICU+JQogICAgbXV0YXRlX2F0KC0oMTozKSwgZXhwKSAlPiUKICAgIGV2YWxfZm9yZWNhc3RzKCkKYGBgCg==</div>
 
 
 

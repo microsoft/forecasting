@@ -10,7 +10,7 @@
 #' A tsibble, with one column per model type in `mable`, and one column named `.response` containing the response variable from `newdata`.
 get_forecasts <- function(mable, newdata, ...)
 {
-    fcast <- forecast(mable, new_data=newdata, h=h, ...)
+    fcast <- forecast(mable, new_data=newdata, ...)
     keyvars <- key_vars(fcast)
     keyvars <- keyvars[-length(keyvars)]
     indexvar <- index_var(fcast)

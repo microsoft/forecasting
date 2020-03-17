@@ -19,12 +19,14 @@ load(ojfile)
 
 The dataset generation parameters are obtained from the file `ojdata_forecast_settings.yaml`; you can modify that file to vary the experimental setup. The settings are
 
-- `N_SPLITS`: the number of splits to make.
-- `HORIZON`: the forecast horizon for the test dataset for each split.
-- `GAP`: the gap in weeks from the end of the training period to the start of the testing period; see below.
-- `FIRST_WEEK`: the first week of data to use.
-- `LAST_WEEK`: the last week of data to use.
-- `START_DATE`: the actual calendar date for the start of the first week in the data.
+| Parameter | Description | Default | 
+|-----------|-------------|---------|
+| `N_SPLITS` | The number of splits to make. | 10 |
+| `HORIZON` | The forecast horizon for the test dataset for each split. | 2 |
+| `GAP` | The gap in weeks from the end of the training period to the start of the testing period; see below. | 2 |
+| `FIRST_WEEK` | The first week of data to use. | 40 |
+| `LAST_WEEK` | The last week of data to use. | 156 |
+| `START_DATE` | The actual calendar date for the start of the first week in the data. | `1989-09-14` |
 
 As part of the modelling, we also compute a new column `maxpricediff`, the log-ratio of the price of this brand compared to the best competing price. A positive `maxpricediff` means this brand is cheaper than all the other brands, and a negative `maxpricediff` means it is more expensive.
 
@@ -77,7 +79,7 @@ oj_data %>%
         facet_grid(vars(store), vars(brand), labeller="label_both")
 ```
 
-Finally, we split the dataset into separate samples for training and testing. The schema used is broadly time series cross-validation, whereby we train a model on data up to time $t$, test it on data for times $t+1$ to $t+k$, then train on data up to time $t+k$, test it on data for times $t+k+1$ to $t+2k$, and so on. In this specific case study, however, we introduce a small extra piece of complexity based on discussions with domain experts. We train a model on data up to week $t$, then test it on week $t+2$ to $t+3$. Then we train on data up to week $t+2$, and test it on weeks $t+4$ to $t+5$, and so on. Thus there is always a gap of one week between the training and test samples. The reason for this is because in reality, inventory planning always takes some time; the gap allows store managers to prepare the stock based on the forecasted demand.
+Finally, we split the dataset into separate samples for training and testing. The schema used is broadly time series cross-validation, whereby we train a model on data up to time $t$, test it on data for times $t+1$ to $t+k$, then train on data up to time $t+k$, test it on data for times $t+k+1$ to $t+2k$, and so on. In this specific case study, however, we introduce a small extra piece of complexity based on discussions with domain experts. We train a model on data up to week $t$, then test it on week $t+2$ to $t+3$. Then we train on data up to week $t+2$, and test it on weeks $t+4$ to $t+5$, and so on. There is thus always a gap of one week between the training and test samples. The reason for this is because in reality, inventory planning always takes some time; the gap allows store managers to prepare the stock based on the forecasted demand.
 
 ```{r}
 subset_oj_data <- function(start, end)
@@ -90,7 +92,7 @@ subset_oj_data <- function(start, end)
 oj_train <- lapply(train_periods, function(i) subset_oj_data(settings$FIRST_WEEK, i))
 oj_test <- lapply(train_periods, function(i) subset_oj_data(i + settings$GAP, i + settings$GAP + settings$HORIZON - 1))
 
-save(oj_train, oj_test, file=here::here("examples/oj_retail/R/oj_data.Rdata"))
+save(oj_train, oj_test, file=here::here("examples/oj_retail/R/data.Rdata"))
 
 head(oj_train[[1]])
 
