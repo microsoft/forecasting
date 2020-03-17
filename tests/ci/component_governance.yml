@@ -28,3 +28,9 @@ jobs:
   - task: notice@0
     inputs:
       outputformat: 'text'
+  
+  - bash: |
+      ls -la
+      cat NOTICE.txt
+      cat notice.txt
+    displayName: 'Print out notice.'
