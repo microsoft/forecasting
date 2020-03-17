@@ -29,7 +29,7 @@ from the root of Forecasting repo. Similarly, if you are using a Windows machine
 ```
 tools\environment_setup.bat
 ```
-from the root of Forecasting repo. Note that you need to run the above command from Anaconda Prompt (terminal with conda available), which can be started as follows
+from the root of Forecasting repo. Note that you need to run the above command from Anaconda Prompt (terminal with conda available), which can be started by opening the Windows Start menu and clicking `Anaconda Prompt (Miniconda3)` as follows
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/20047467/76897869-f2f22900-686a-11ea-9f67-b189c15df27a.png" width="190" height="360">
