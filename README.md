@@ -8,7 +8,7 @@ This repository contains examples and best practices for building forecasting so
 
 ## Content
 
-The following is a summary of the examples related to the process of building forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case.
+The following is a summary of the examples related to the process of building forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization).
 
 | Example                          | Models/Methods                                        | Description                                                                                                                  | Language  |
 |----------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-----------|
