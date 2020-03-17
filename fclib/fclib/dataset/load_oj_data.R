@@ -14,9 +14,8 @@ args = commandArgs(trailingOnly=TRUE)
 if (length(args)==2) {
   RDA_PATH <- args[1]
   DATA_DIR <- args[2]
-}
-else {
-  stop("Two arguments must be supplied - path to .rda file and destination data directory).", call.=FALSE)
+} else {
+   stop("Two arguments must be supplied - path to .rda file and destination data directory).", call.=FALSE)
 } 
 
 # Load the data from bayesm library
