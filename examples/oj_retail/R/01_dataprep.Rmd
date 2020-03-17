@@ -15,6 +15,7 @@ The orange juice dataset comes from the bayesm package, and gives pricing and sa
 ojfile <- tempfile(fileext=".rda")
 download.file("https://github.com/cran/bayesm/raw/master/data/orangeJuice.rda", ojfile)
 load(ojfile)
+file.remove(ojfile)
 ```
 
 The dataset generation parameters are obtained from the file `ojdata_forecast_settings.yaml`; you can modify that file to vary the experimental setup. The settings are
@@ -27,8 +28,6 @@ The dataset generation parameters are obtained from the file `ojdata_forecast_se
 | `FIRST_WEEK` | The first week of data to use. | 40 |
 | `LAST_WEEK` | The last week of data to use. | 156 |
 | `START_DATE` | The actual calendar date for the start of the first week in the data. | `1989-09-14` |
-
-As part of the modelling, we also compute a new column `maxpricediff`, the log-ratio of the price of this brand compared to the best competing price. A positive `maxpricediff` means this brand is cheaper than all the other brands, and a negative `maxpricediff` means it is more expensive.
 
 A complicating factor is that the data does not include every possible combination of store, brand and date, so we have to pad out the missing rows with `complete`. In addition, one store/brand combination has no data beyond week 156; we therefore end the analysis at this week. We also do _not_ fill in the missing values in the data, as many of the modelling functions in the fable package can handle this innately via `interpolate`.
 
@@ -47,16 +46,7 @@ train_periods <- seq(to=settings$LAST_WEEK - settings$HORIZON - settings$GAP + 1
 
 oj_data <- orangeJuice$yx %>%
     complete(store, brand, week) %>%
-    group_by(store, brand) %>%
-    group_modify(~ {
-        pricevars <- grep("price", names(.x), value=TRUE)
-        thispricevar <- paste0("price", .y$brand)
-        best_other_price <- do.call(pmin, .x[setdiff(pricevars, thispricevar)])
-        .x$maxpricediff <- log(best_other_price/.x[[thispricevar]])
-        .x
-    }) %>%
-    ungroup() %>%
-    mutate(week=yearweek(start_date + week*7)) %>%  # do this separately because of tsibble/vctrs issues
+    mutate(week=yearweek(start_date + week*7)) %>%
     as_tsibble(index=week, key=c(store, brand))
 ```
 

@@ -16,14 +16,18 @@ library(prophet)
 library(fable.prophet)
 ```
 
-This notebook builds a forecasting model using the Prophet algorithm.
+This notebook builds a forecasting model using the [Prophet](https://facebook.github.io/prophet/) algorithm. Prophet is a time series model developed by Facebook that is designed to be simple for non-experts to use, yet flexible and powerful.
+
+> Prophet is a procedure for forecasting time series data based on an additive model where non-linear trends are fit with yearly, weekly, and daily seasonality, plus holiday effects. It works best with time series that have strong seasonal effects and several seasons of historical data. Prophet is robust to missing data and shifts in the trend, and typically handles outliers well.
+
+Here, we will use the fable.prophet package which provides a tidyverts frontend to the prophet package itself. As with ETS, prophet does not support time series with missing values, so we again impute them using the ARIMA model forecasts.
 
 ```{r}
 srcdir <- here::here("R_utils")
 for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load_objects("oj_retail", "oj_data.Rdata")
-load_objects("oj_retail", "oj_model_basic.Rdata")
+load_objects("oj_retail", "data.Rdata")
+load_objects("oj_retail", "model_basic.Rdata")
 
 cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts", "prophet", "fable.prophet"))
 
