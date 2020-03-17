@@ -23,4 +23,8 @@ jobs:
     inputs:
       scanType: 'Register'
       verbosity: 'Verbose'
-      alertWarningLevel: 'High'  
+      alertWarningLevel: 'High'
+
+  - task: notice@0
+    inputs:
+      outputformat: 'text'
