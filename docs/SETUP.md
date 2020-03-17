@@ -31,7 +31,9 @@ tools\environment_setup.bat
 ```
 from the root of Forecasting repo. Note that you need to run the above command from Anaconda Prompt (terminal with conda available), which can be started as follows
 
-<img src="https://user-images.githubusercontent.com/20047467/76897869-f2f22900-686a-11ea-9f67-b189c15df27a.png" width="150" height="300">
+<p align="center">
+<img src="https://user-images.githubusercontent.com/20047467/76897869-f2f22900-686a-11ea-9f67-b189c15df27a.png" width="160" height="320">
+</p>
 
 Once you've executed the setup script, please activate the newly created conda environment:
 
