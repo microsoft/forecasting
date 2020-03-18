@@ -33,4 +33,16 @@ jobs:
       ls -la
       cat NOTICE.txt
       git status
-    displayName: 'Print out notice file.'
+      result=$(git status | grep NOTICE.txt)
+      if [[ $result ]]; then
+        echo "Notice file modified: $result"
+        echo `git diff NOTICE.txt`
+        BRANCH=NOTICE/`date +%s`
+        git checkout -b $BRANCH
+        git add NOTICE.txt
+        git commit -m "Notice file modified."
+        git push origin $BRANCH
+      else
+        echo "Notice file not modified."
+      fi
+    displayName: 'Check in notice file if modified.'
