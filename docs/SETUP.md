@@ -6,7 +6,7 @@ Please follow these instructions to read about the preferred compute environment
 
 The code in this repo has been developed and tested on an Azure Linux VM. Therefore, we recommend using an [Azure Data Science Virtual Machine (DSVM) for Linux (Ubuntu)](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to run the example notebooks and scripts. This VM will come installed with all the system requirements that are needed to create the conda environment described below and then run the notebooks in this repository. If you are using a Linux machine without conda installed, please install Miniconda by following the instructions in this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html).
 
-You can also use a Windows machine to run the example notebooks and scripts. In this case, you may either work with a [Windows Server 2019 Data Science Virtual Machine on Azure](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/provision-vm) or a local Windows machine. For the Windows VW, it comes with conda pre-installed. If conda is not installed on your machine, please follow the instructions in this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/windows.html) to install Miniconda.
+You can also use a Windows machine to run the example notebooks and scripts. In this case, you may either work with a [Windows Server 2019 Data Science Virtual Machine on Azure](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/provision-vm) or a local Windows machine. Azure Windows VW comes with conda pre-installed. If conda is not installed on your machine, please follow the instructions in this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/windows.html) to install Miniconda.
 
 ### Clone the repository
 
@@ -21,11 +21,19 @@ Next, follow the instruction below to install all dependencies required to run t
 
 ### Automated environment setup
 
-We provide scripts to install all dependencies automatically on a Linux machine as well as on a Windows machine. If you are using a Linux machine, please run the following command to execute the shell script for Linux
+We provide scripts to install all dependencies automatically on a Linux machine as well as on a Windows machine. 
+
+#### Linux
+
+If you are using a Linux machine, please run the following command to execute the shell script for Linux
 ```
 ./tools/environment_setup.sh
 ```
-from the root of Forecasting repo. Similarly, if you are using a Windows machine, please run the batch script for Windows via
+from the root of Forecasting repo. 
+
+#### Windows
+
+Similarly, if you are using a Windows machine, please run the batch script for Windows via
 ```
 tools\environment_setup.bat
 ```
