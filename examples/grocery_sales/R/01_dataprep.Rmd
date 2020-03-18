@@ -38,7 +38,7 @@ library(tsibble)
 library(feasts)
 library(fable)
 
-settings <- yaml::read_yaml(here::here("examples/oj_retail/R/forecast_settings.yaml"))
+settings <- yaml::read_yaml(here::here("examples/grocery_sales/R/forecast_settings.yaml"))
 start_date <- as.Date(settings$START_DATE)
 train_periods <- seq(to=settings$LAST_WEEK - settings$HORIZON - settings$GAP + 1,
                      by=settings$HORIZON,
@@ -88,7 +88,7 @@ subset_oj_data <- function(start, end)
 oj_train <- lapply(train_periods, function(i) subset_oj_data(settings$FIRST_WEEK, i))
 oj_test <- lapply(train_periods, function(i) subset_oj_data(i + settings$GAP, i + settings$GAP + settings$HORIZON - 1))
 
-save(oj_train, oj_test, file=here::here("examples/oj_retail/R/data.Rdata"))
+save(oj_train, oj_test, file=here::here("examples/grocery_sales/R/data.Rdata"))
 
 head(oj_train[[1]])
 
