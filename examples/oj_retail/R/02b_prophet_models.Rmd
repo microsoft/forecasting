@@ -57,7 +57,7 @@ oj_fcast_pr <- parallel::clusterMap(cl, function(mable, newdata, fcast_func)
 destroy_cluster(cl)
 
 save_objects(oj_modelset_pr, oj_fcast_pr,
-             example="oj_retail", file="oj_model_pr.Rdata")
+             example="oj_retail", file="model_pr.Rdata")
 
 do.call(rbind, oj_fcast_pr) %>%
     mutate_at(-(1:3), exp) %>%
