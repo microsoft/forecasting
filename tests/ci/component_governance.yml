@@ -32,5 +32,5 @@ jobs:
   - bash: |
       ls -la
       cat NOTICE.txt
-      cat notice.txt
-    displayName: 'Print out notice.'
+      git status
+    displayName: 'Print out notice file.'
