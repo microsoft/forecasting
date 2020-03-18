@@ -4,7 +4,7 @@ Time series forecasting is one of the most important topics in data science. Alm
 
 This repository provides examples and best practice guidelines for building forecasting solutions. The goal of this repository is to build a comprehensive set of tools and examples that leverage recent advances in forecasting algorithms to build solutions and operationalize them. Rather than creating implementions from scratch, we draw from existing state-of-the-art libraries and build additional utility around processing and featurizing the data, optimizing and evaluating models, and scaling up to the cloud. 
 
-This repository contains examples and best practices for building forecasting solutions and systems, provided as [Jupyter notebooks and R markdown files](examples) and [a library of utility functions](fclib). We hope that these examples and utilities can significantly reduce the “time to market” by simplifying the experience from defining the business problem to development of solution by orders of magnitude. In addition, the example notebooks would serve as guidelines and showcase best practices and usage of the tools in a wide variety of languages.
+This repository contains examples and best practices for building forecasting solutions and systems, provided as [Jupyter and R notebooks](examples) and [a library of utility functions](fclib). We hope that these examples and utilities can significantly reduce the “time to market” by simplifying the experience from defining the business problem to development of solution by orders of magnitude. In addition, the example notebooks would serve as guidelines and showcase best practices and usage of the tools in a wide variety of languages.
 
 ## Content
 
@@ -19,7 +19,7 @@ The following is a summary of the examples related to the process of building fo
 | R Models                         | Mean Forecast, ARIMA, ETS, Prophet                    | Popular statistical forecast models and Prophet model implmented in R                                                        | R         |
 
 
-## Getting Started
+## Getting Started (Python)
 
 To quickly get started with the repository on your local machine, use the following commands.
 
@@ -50,6 +50,14 @@ To quickly get started with the repository on your local machine, use the follow
 6. Run the [LightGBM single-round](examples/oj_retail/python/00_quick_start/lightgbm_single_round.ipynb) notebook under the `00_quick_start` folder. Make sure that the selected Jupyter kernel is `forecasting_env`.
 
 For detailed instructions on how to set up your environment and run examples provided in the repository, on local or a remote machine, please navigate to the [Setup Guide](./docs/SETUP.md).
+
+## Getting Started (R)
+
+We assume you already have R installed on your machine. If not, simply follow the [instructions on CRAN](https://cloud.r-project.org/) to download and install R.
+
+The recommended editor is [RStudio](https://rstudio.com), which supports interactive editing and previewing of R notebooks. However, you can use any editor or IDE that supports RMarkdown. In particular, [Visual Studio Code](https://code.visualstudio.com) with the [R extension](https://marketplace.visualstudio.com/items?itemName=Ikuyadeu.r) can be used to edit and render the notebook files. The rendered `.nb.html` files can be viewed in any modern web browser.
+
+The examples use the [Tidyverts](https://tidyverts.org) family of packages, which is a modern framework for time series analysis that builds on the widely-used [Tidyverse](https://tidyverse.org) family. The Tidyverts framework is still under active development, so it's recommended that you update your packages regularly to get the latest bug fixes and features.
 
 ## Target Audience
 Our target audience for this repository includes data scientists and machine learning engineers with varying levels of knowledge in forecasting as our content is source-only and targets custom machine learning modelling. The utilities and examples provided are intended to be solution accelerators for real-world forecasting problems.
