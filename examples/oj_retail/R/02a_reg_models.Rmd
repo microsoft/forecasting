@@ -16,11 +16,12 @@ library(fable)
 
 This notebook builds on the output from "Basic models" by including regressor variables in the ARIMA model(s). We fit the following model types:
 
-- `ar_trend` includes only a linear trend over time
-- `ar_reg` allows stepwise selection of independent regressors
-- `ar_regtrend_price`: rather than allowing the algorithm to select from the 11 price variables, we use only the price relevant to each brand. This is to guard against possible overfitting, something that classical stepwise procedures are wont to do.
+- `ar_trend` includes only a linear trend over time.
+- `ar_reg` allows stepwise selection of independent regressors.
+- `ar_reg_price`: rather than allowing the algorithm to select from the 11 price variables, we use only the price relevant to each brand. This is to guard against possible overfitting, something that classical stepwise procedures are wont to do.
+- `ar_reg_price_trend` is the same as `ar_reg_price`, but including a linear trend.
 
-As part of the modelling, we also compute a new column `maxpricediff`, the log-ratio of the price of this brand compared to the best competing price. A positive `maxpricediff` means this brand is cheaper than all the other brands, and a negative `maxpricediff` means it is more expensive.
+As part of the modelling, we also compute a new independent variable `maxpricediff`, the log-ratio of the price of this brand compared to the best competing price. A positive `maxpricediff` means this brand is cheaper than all the other brands, and a negative `maxpricediff` means it is more expensive.
 
 ```{r}
 srcdir <- here::here("R_utils")
@@ -64,6 +65,8 @@ oj_modelset_reg <- parallel::parLapply(cl, oj_trainreg, function(df)
 
         ar_reg_price=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + deal + feat + maxpricediff + price),
 
+        ar_reg_price_trend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend() + deal + feat + maxpricediff + price),
+
         .safely=FALSE
     )
 })
@@ -80,4 +83,4 @@ do.call(rbind, oj_fcast_reg) %>%
     eval_forecasts()
 ```
 
-We can see that the models incorporating price are a significant improvement over the previous naive models.
+This shows that the models incorporating price are a significant improvement over the previous naive models. The model that uses stepwise selection to choose the best price variable does worse than the one where we choose the price beforehand, confirming the suspicion that stepwise leads to overfitting in this case.

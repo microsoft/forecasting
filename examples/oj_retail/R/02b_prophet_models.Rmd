@@ -26,7 +26,7 @@ Here, we will use the fable.prophet package which provides a tidyverts frontend 
 srcdir <- here::here("R_utils")
 for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load_objects("oj_retail", "data.Rdata")
+load_objects("oj_retail", "data_reg.Rdata")
 load_objects("oj_retail", "model_basic.Rdata")
 
 cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts", "prophet", "fable.prophet"))
@@ -38,18 +38,21 @@ oj_modelset_pr <- parallel::clusterMap(cl, function(df, basicmod)
         group_by(store, brand) %>%
         fill(deal:maxpricediff, .direction="downup") %>%
         model(
-            pr_default=prophet(logmove),
-            pr_reg=prophet(logmove ~ deal + feat + price + maxpricediff),
+            pr=prophet(logmove ~ deal + feat + price + maxpricediff),
+
+            pr_tune=prophet(logmove ~ deal + feat + price + maxpricediff +
+                growth(n_changepoints=2) + season(period=52, order=5, prior_scale=2)),
+
             .safely=FALSE
         )
-}, oj_train, oj_modelset_basic)
+}, oj_trainreg, oj_modelset_basic)
 
 oj_fcast_pr <- parallel::clusterMap(cl, function(mable, newdata, fcast_func)
 {
     newdata <- newdata %>%
         fill(deal:maxpricediff, .direction="downup")
     fcast_func(mable, newdata)
-}, oj_modelset_pr, oj_test, MoreArgs=list(fcast_func=get_forecasts))
+}, oj_modelset_pr, oj_testreg, MoreArgs=list(fcast_func=get_forecasts))
 
 destroy_cluster(cl)
 
@@ -61,4 +64,4 @@ do.call(rbind, oj_fcast_pr) %>%
     eval_forecasts()
 ```
 
-
+It appears that Prophet does _not_ do better than the simple ARIMA model with regression variables. This is possibly because the dataset does not have a strong time series nature: there is no seasonality, and only weak or nonexistent trends. These are features which the Prophet algorithm is designed to detect, and their absence means that there would be little advantage in using it.
