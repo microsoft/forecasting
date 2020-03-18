@@ -4,9 +4,12 @@ Please follow these instructions to read about the preferred compute environment
 
 ### Compute environment
 
-The code in this repo has been developed and tested on an Azure Linux VM. Therefore, we recommend using an [Azure Data Science Virtual Machine (DSVM) for Linux (Ubuntu)](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to run the example notebooks and scripts. This VM will come installed with all the system requirements that are needed to create the conda environment described below and then run the notebooks in this repository. 
+The code in this repo has been developed and tested on an Azure Linux VM. Therefore, we recommend using an [Azure Data Science Virtual Machine (DSVM) for Linux (Ubuntu)](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro) to run the example notebooks and scripts. This VM will come installed with all the system requirements that are needed to create the conda environment described below and then run the notebooks in this repository. If you are using a Linux machine without conda installed, please install Miniconda by following the instructions in this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html).
+
+You can also use a Windows machine to run the example notebooks and scripts. In this case, you may either work with a [Windows Server 2019 Data Science Virtual Machine on Azure](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/provision-vm) or a local Windows machine. Azure Windows VW comes with conda pre-installed. If conda is not installed on your machine, please follow the instructions in this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/windows.html) to install Miniconda.
 
 ### Clone the repository
+
 To clone the Forecasting repository to your local machine, please run:
 
 ```
@@ -14,16 +17,33 @@ git clone https://github.com/microsoft/forecasting.git
 cd forecasting/
 ```
 
-Next, follow the instruction below to install all dependencies required to run the examples provided in the repository. Follow [Automated environment setup](#automated-environment-setup) section to setup the environment automatically using a script. Alternatively, follow the [Manual environment setup](#manual-environment-setup) section for a step-by-step guide to setting up the environment.
+Next, follow the instruction below to install all dependencies required to run the examples provided in the repository. Follow [Automated environment setup](#automated-environment-setup) section to set up the environment automatically using a script. Alternatively, follow the [Manual environment setup](#manual-environment-setup) section for a step-by-step guide to setting up the environment.
 
 ### Automated environment setup
 
-We provide a script to install all dependencies automatically on a Linux machine. To execute the script, please run: 
+We provide scripts to install all dependencies automatically on a Linux machine as well as on a Windows machine. 
 
+#### Linux
+
+If you are using a Linux machine, please run the following command to execute the shell script for Linux
 ```
 ./tools/environment_setup.sh
 ```
-from the root of Forecasting repo. Once you've executed the setup script, please activate the newly created conda environment:
+from the root of Forecasting repo. 
+
+#### Windows
+
+Similarly, if you are using a Windows machine, please run the batch script for Windows via
+```
+tools\environment_setup.bat
+```
+from the root of Forecasting repo. Note that you need to run the above command from Anaconda Prompt (a terminal with conda available), which can be started by opening the Windows Start menu and clicking `Anaconda Prompt (Miniconda3)` as follows
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/20047467/76897869-f2f22900-686a-11ea-9f67-b189c15df27a.png" width="210" height="395">
+</p>
+
+Once you've executed the setup script, please activate the newly created conda environment:
 
 ```
 conda activate forecasting_env
