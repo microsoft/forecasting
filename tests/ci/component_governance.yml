@@ -4,6 +4,7 @@
 # Pull request against these branches will trigger this build
 pr: 
   - master
+  - staging
 
 # no CI trigger
 trigger: none
