@@ -19,7 +19,20 @@ The following is a summary of the examples related to the process of building fo
 | R Models                         | Mean Forecast, ARIMA, ETS, Prophet                    | Popular statistical forecast models and Prophet model implemented in R                                                       | R         |
 
 
-## Getting Started
+## Content
+
+The following is a summary of the examples related to the process of building forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization).
+
+| Example                          | Models/Methods                                        | Description                                                                                                                  | Language  |
+|----------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-----------|
+| Quick Start                      | Auto ARIMA, Azure AutoML, Linear Regression, LightGBM | Quick start notebooks that demonstrate workflow of developing a forecast model using one-round training and testing data     | Python    |
+| Data Exploration and Preparation | Statistical Analysis and Data Transformation          | Data exploration and preparation examples                                                                                    | Python, R |
+| Model Training and Evaluation    | Auto ARIMA, LightGBM, Dilated CNN                     | Deep dive notebooks that perform multi-round training and testing of various classical and deep learning forecast algorithms | Python    |
+| Model Tuning and Deployment      | HyperDrive, LightGBM                                  | Example notebook for model tuning using Azure Machine Learning Service and deploying the best model on Azure                 | Python    |
+| R Models                         | Mean Forecast, ARIMA, ETS, Prophet                    | Popular statistical forecast models and Prophet model implmented in R                                                        | R         |
+
+
+## Getting Started (Python)
 
 To quickly get started with the repository on your local machine, use the following commands.
 
@@ -50,7 +63,15 @@ To quickly get started with the repository on your local machine, use the follow
     
 5. Run the [LightGBM single-round](examples/oj_retail/python/00_quick_start/lightgbm_single_round.ipynb) notebook under the `00_quick_start` folder. Make sure that the selected Jupyter kernel is `forecasting_env`.
 
-For detailed instructions on how to set up your environment and run examples provided in the repository, on local or a remote machine, please navigate to the [Setup Guide](./SETUP.md).
+For detailed instructions on how to set up your environment and run examples provided in the repository, on local or a remote machine, please navigate to the [Setup Guide](./docs/SETUP.md).
+
+## Getting Started (R)
+
+We assume you already have R installed on your machine. If not, simply follow the [instructions on CRAN](https://cloud.r-project.org/) to download and install R.
+
+The recommended editor is [RStudio](https://rstudio.com), which supports interactive editing and previewing of R notebooks. However, you can use any editor or IDE that supports RMarkdown. In particular, [Visual Studio Code](https://code.visualstudio.com) with the [R extension](https://marketplace.visualstudio.com/items?itemName=Ikuyadeu.r) can be used to edit and render the notebook files. The rendered `.nb.html` files can be viewed in any modern web browser.
+
+The examples use the [Tidyverts](https://tidyverts.org) family of packages, which is a modern framework for time series analysis that builds on the widely-used [Tidyverse](https://tidyverse.org) family. The Tidyverts framework is still under active development, so it's recommended that you update your packages regularly to get the latest bug fixes and features.
 
 ## Target Audience
 Our target audience for this repository includes data scientists and machine learning engineers with varying levels of knowledge in forecasting as our content is source-only and targets custom machine learning modelling. The utilities and examples provided are intended to be solution accelerators for real-world forecasting problems.

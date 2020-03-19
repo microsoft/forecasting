@@ -1,20 +1,25 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# This script retrieves the orangeJuice dataset from the bayesm R package and saves the data as csv
+# This script retrieves the orangeJuice dataset from the bayesm R package and saves the data as csv.
+#
+# Two arguments must be supplied to this script:
+#
+# RDA_PATH - path to the local .rda file containing the data
+# DATA_DIR - destination directory for saving processed .csv files
 
 args = commandArgs(trailingOnly=TRUE)
 
-# test if there is at least one argument: if not, return an error
-if (length(args)==0) {
-  stop("At least one argument must be supplied (data directory).", call.=FALSE)
-} else if (length(args)==1) {
-  DATA_DIR <- args[1]
-}
+# Test if there are at least two arguments: if not, return an error
+if (length(args)==2) {
+  RDA_PATH <- args[1]
+  DATA_DIR <- args[2]
+} else {
+   stop("Two arguments must be supplied - path to .rda file and destination data directory).", call.=FALSE)
+} 
 
 # Load the data from bayesm library
-library(bayesm)
-data("orangeJuice")
+load(RDA_PATH)
 yx <- orangeJuice[[1]]
 storedemo <- orangeJuice[[2]]
 
