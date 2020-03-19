@@ -12,7 +12,7 @@ def notebooks():
     """
     repo_path = git_repo_path()
     examples_path = os.path.join(repo_path, "examples")
-    usecase_path = os.path.join(examples_path, "oj_retail", "python")
+    usecase_path = os.path.join(examples_path, "grocery_sales", "python")
     quick_start_path = os.path.join(usecase_path, "00_quick_start")
 
     # Path for the notebooks
