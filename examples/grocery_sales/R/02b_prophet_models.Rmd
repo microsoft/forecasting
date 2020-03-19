@@ -26,8 +26,8 @@ Here, we will use the fable.prophet package which provides a tidyverts frontend 
 srcdir <- here::here("R_utils")
 for(src in dir(srcdir, full.names=TRUE)) source(src)
 
-load_objects("oj_retail", "data_reg.Rdata")
-load_objects("oj_retail", "model_basic.Rdata")
+load_objects("grocery_sales", "data_reg.Rdata")
+load_objects("grocery_sales", "model_basic.Rdata")
 
 cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts", "prophet", "fable.prophet"))
 
@@ -57,7 +57,7 @@ oj_fcast_pr <- parallel::clusterMap(cl, function(mable, newdata, fcast_func)
 destroy_cluster(cl)
 
 save_objects(oj_modelset_pr, oj_fcast_pr,
-             example="oj_retail", file="model_pr.Rdata")
+             example="grocery_sales", file="model_pr.Rdata")
 
 do.call(rbind, oj_fcast_pr) %>%
     mutate_at(-(1:3), exp) %>%
