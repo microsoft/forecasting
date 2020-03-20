@@ -25,7 +25,9 @@ def test_lightgbm_quick_start(notebooks):
 def test_lightgbm_multi_round(notebooks):
     notebook_path = notebooks["lightgbm_multi_round"]
     output_notebook_path = os.path.join(os.path.dirname(notebook_path), "output.ipynb")
-    pm.execute_notebook(notebook_path, output_notebook_path, kernel_name="forecast_cpu")
+    pm.execute_notebook(
+        notebook_path, output_notebook_path, kernel_name="forecast_cpu", parameters=dict(N_SPLITS=2),
+    )
     nb = sb.read_notebook(output_notebook_path)
     df = nb.scraps.dataframe
     assert df.shape[0] == 1
