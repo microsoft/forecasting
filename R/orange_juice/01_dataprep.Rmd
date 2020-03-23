@@ -1,0 +1,83 @@
+---
+title: Data preparation
+output: html_notebook
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+In this notebook, we generate the datasets that will be used for model training and validating. The experiment parameters are obtained from the file `ojdata_forecast_settings.json`; you can modify that file to vary the experimental setup, or just edit the values in this notebook.
+
+The orange juice dataset comes from the bayesm package, and gives pricing and sales figures over time for a variety of orange juice brands in several stores in Florida.
+
+A complicating factor is that the data is in a hybrid of long and wide format: while the sales figures are long (one column of sales data for every store and brand), the prices are wide (one price column for each brand). Therefore we need to reshape the data if we want to use prices for modelling. As part of this, we also compute a new column `maxpricediff`: this represents the log-ratio of the price of this brand compared to the best competing price. A positive `maxpricediff` means this brand is cheaper than all the other brands, and a negative `maxpricediff` means it is more expensive.
+
+```{r}
+settings <- jsonlite::fromJSON("ojdata_forecast_settings.json")
+
+train_periods <- seq(settings$TRAIN_WINDOW, 160 - settings$STEP - 1, settings$STEP)
+start_date <- as.Date(settings$START_DATE)
+
+data(orangeJuice, package="bayesm")
+
+oj_data <- orangeJuice$yx %>%
+    complete(store, brand, week) %>%
+    group_by(store, brand) %>%
+    group_modify(~ {
+        pricevars <- grep("price", names(.x), value=TRUE)
+        thispricevar <- paste0("price", .y$brand)
+        best_other_price <- do.call(pmin, .x[setdiff(pricevars, thispricevar)])
+        .x$price <- .x[[thispricevar]]
+        .x$maxpricediff <- log(best_other_price/.x$price)
+        select(.x, week, logmove, deal, feat, price, maxpricediff)
+    }) %>%
+    ungroup() %>%
+    mutate(week=yearweek(start_date + week*7)) %>%  # do this separately because of tsibble/vctrs issues
+    as_tsibble(index=week, key=c(store, brand))
+```
+
+Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week. Note that we do _not_ fill in the missing values in the data, as (with the exception of `ETS`) the modelling functions in the fable package can handle this innately.
+
+```{r}
+head(oj_data)
+```
+
+The time series plots for a small subset of brands and stores are shown below. It is clear that the statistical behaviour of the data varies by store and brand.
+
+```{r}
+library(ggplot2)
+
+oj_data %>%
+    filter(store < 10, brand < 5) %>%
+    ggplot(aes(x=week, y=logmove)) +
+        geom_line() +
+        scale_x_date(labels=NULL) +
+        facet_grid(vars(store), vars(brand), labeller="label_both")
+```
+
+Finally, we split the dataset into separate samples for training and testing. The schema used is broadly time series cross-validation, whereby we train a model on data up to time $t$, test it on data for times $t+1$ to $t+k$, then train on data up to time $t+k$, test it on data for times $t+k+1$ to $t+2k$, and so on.
+
+In this specific case study we introduce a small extra piece of complexity. We train a model on data up to month $t$, then test it on months $t+2$ to $t+3$. Then we train on data up to month $t+2$, and test it on months $t+4$ to $t+5$, and so on. Thus there is always a gap of one month between the training and test samples, a complicating factor introduced after discussions with domain experts.
+
+```{r}
+subset_oj_data <- function(start, end)
+{
+    start <- yearweek(start_date + start*7)
+    end <- yearweek(start_date + end*7)
+    filter(oj_data, week >= start, week <= end)
+}
+
+oj_train <- lapply(train_periods, function(i) subset_oj_data(40, i))
+oj_test <- lapply(train_periods, function(i) subset_oj_data(i + 2, i + settings$STEP + 1))
+
+save(oj_train, oj_test, file="oj_data.Rdata")
+
+head(oj_train[[1]])
+
+head(oj_test[[1]])
+```

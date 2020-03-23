@@ -1,0 +1,39 @@
+---
+title: Regression models
+output: html_notebook
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+This notebook builds on the output from "Simple models" by including regressor variables in the ARIMA model(s).
+
+```{r, results="hide"}
+load("oj_data.Rdata")
+
+ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
+cl <- parallel::makeCluster(ncores)
+parallel::clusterEvalQ(cl,
+{
+    library(feasts)
+    library(fable)
+    library(tsibble)
+})
+
+oj_modelset_reg <- parallel::parLapply(cl, oj_train, function(df)
+{
+    model(df,
+        ar_reg=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + deal + feat + price + maxpricediff),
+        ar_trend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend()),
+        ar_regtrend=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0) + trend() + deal + feat + price + maxpricediff)
+    )
+})
+
+parallel::stopCluster(cl)
+save(oj_modelset_reg, file="oj_modelset_reg.Rdata")
+```
