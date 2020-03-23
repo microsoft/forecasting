@@ -8,16 +8,11 @@ import pandas as pd
 import math
 import datetime
 import itertools
-import argparse
-import logging
-import requests
-from tqdm import tqdm
 
-from fclib.common.utils import git_repo_path
 from fclib.feature_engineering.feature_utils import df_from_cartesian_product
 
 DATA_FILE_LIST = ["yx.csv", "storedemo.csv"]
-SCRIPT_NAME = "load_oj_data.R"
+SCRIPT_NAME = "download_oj_data.R"
 
 DEFAULT_TARGET_COL = "move"
 DEFAULT_STATIC_FEA = None
@@ -26,54 +21,25 @@ DEFAULT_DYNAMIC_FEA = ["deal", "feat"]
 # The start datetime of the first week in the record
 FIRST_WEEK_START = pd.to_datetime("1989-09-14 00:00:00")
 
-# Original data source
-OJ_URL = "https://github.com/cran/bayesm/raw/master/data/orangeJuice.rda"
 
+def download_ojdata(dest_dir):
+    """Downloads Orange Juice dataset.
 
-log = logging.getLogger(__name__)
-
-
-def maybe_download(url, dest_directory, filename=None):
-    """Download a file if it is not already downloaded.
     Args:
-        dest_directory (str): Destination directory.
-        url (str): URL of the file to download.
-        filename (str): File name.
+        dest_dir (str): Directory path for the downloaded file
+    """
+    maybe_download(dest_dir=dest_dir)
+
+
+def maybe_download(dest_dir):
+    """Download a file if it is not already downloaded.
+    
+    Args:
+        dest_dir (str): Destination directory
         
     Returns:
         str: File path of the file downloaded.
     """
-    if filename is None:
-        filename = url.split("/")[-1]
-    os.makedirs(dest_directory, exist_ok=True)
-    filepath = os.path.join(dest_directory, filename)
-    if not os.path.exists(filepath):
-        r = requests.get(url, stream=True)
-        total_size = int(r.headers.get("content-length", 0))
-        block_size = 1024
-        num_iterables = math.ceil(total_size / block_size)
-
-        with open(filepath, "wb") as file:
-            for data in tqdm(r.iter_content(block_size), total=num_iterables, unit="KB", unit_scale=True,):
-                file.write(data)
-    else:
-        log.debug("File {} already downloaded".format(filepath))
-
-    return filepath
-
-
-def download_ojdata(dest_dir="."):
-    """Download orange juice dataset from the original source.
-
-     Args:
-        dest_dir (str): Directory path for the downloaded file
-    
-    Returns:
-        str: Path of the downloaded file.
-    """
-    url = OJ_URL
-    rda_path = maybe_download(url, dest_directory=dest_dir)
-
     # Check if data files exist
     data_exists = True
     for f in DATA_FILE_LIST:
@@ -81,21 +47,13 @@ def download_ojdata(dest_dir="."):
         data_exists = data_exists and os.path.exists(file_path)
 
     if not data_exists:
-        # Call data loading script
-        repo_path = git_repo_path()
-        script_path = os.path.join(repo_path, "fclib", "fclib", "dataset", SCRIPT_NAME)
-
+        # Call data download script
+        print("Starting data download ...")
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), SCRIPT_NAME)
         try:
-            print(f"Destination directory: {dest_dir}")
-            output = subprocess.run(
-                ["Rscript", script_path, rda_path, dest_dir], stderr=subprocess.PIPE, stdout=subprocess.PIPE
-            )
-            print(output.stdout)
-            if output.returncode != 0:
-                raise Exception(f"Subprocess failed - {output.stderr}")
-
+            subprocess.call(["Rscript", script_path, dest_dir])
         except subprocess.CalledProcessError as e:
-            raise e
+            print(e.output)
     else:
         print("Data already exists at the specified location.")
 
@@ -155,12 +113,12 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
 
     Note that train_*.csv files in /train folder contain all the features in the training period
     and aux_*.csv files in /train folder contain all the features except 'logmove', 'constant',
-    'profit' up until the forecast period end week. Both train_*.csv and auxi_*csv can be used for
+    'profit' up until the forecast period end week. Both train_*.csv and aux_*csv can be used for
     generating forecasts in each split. However, test_*.csv files in /test folder can only be used
     for model performance evaluation.
 
     Example:
-        data_dir = "/home/ojdata"
+        data_dir = "/home/vapaunic/forecasting/ojdata"
 
         train, test, aux = split_train_test(data_dir=data_dir, n_splits=5, horizon=3, write_csv=True)
 
@@ -216,7 +174,7 @@ def split_train_test(data_dir, n_splits=1, horizon=2, gap=2, first_week=40, last
             roundstr = "_" + str(i + 1) if n_splits > 1 else ""
             train_df.to_csv(os.path.join(TRAIN_DATA_DIR, "train" + roundstr + ".csv"))
             test_df.to_csv(os.path.join(TEST_DATA_DIR, "test" + roundstr + ".csv"))
-            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "auxi" + roundstr + ".csv"))
+            aux_df.to_csv(os.path.join(TRAIN_DATA_DIR, "aux" + roundstr + ".csv"))
 
         train_df_list.append(train_df)
         test_df_list.append(test_df)
@@ -478,12 +436,9 @@ def specify_retail_data_schema(
 
 
 if __name__ == "__main__":
+    data_dir = "/home/vapaunic/forecasting/ojdata"
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", help="Data download directory")
-    args = parser.parse_args()
-
-    download_ojdata(args.data_dir)
+    download_ojdata(data_dir)
     # train, test, aux = split_train_test(data_dir=data_dir, n_splits=1, horizon=2, write_csv=True)
 
     # print((test[0].week))

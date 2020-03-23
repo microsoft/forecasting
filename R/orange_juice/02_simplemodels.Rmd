@@ -1,0 +1,74 @@
+---
+title: Simple models
+output: html_notebook
+encoding: utf8
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+```
+
+We fit some simple models to the orange juice data. One model is fit for each combination of store and brand.
+
+- `mean`: This is just a simple mean.
+- `naive`: A random walk model without any other components. This amounts to setting all forecast values to the last observed value.
+- `drift`: This adjusts the `naive` model to incorporate a trend.
+- `arima`: An ARIMA model with the parameter values estimated from the data.
+- `ets`: An exponentially weighted model, again with parameter values estimated from the data.
+
+Note that the model training process is embarrassingly parallel on 3 levels:
+
+- We have multiple independent training datasets;
+- For which we fit multiple independent models;
+- Within which we have independent sub-models for each store and brand.
+
+This lets us speed up the training significantly. While the `fable::model` function can fit multiple models in parallel, we will run it sequentially here and instead parallelise by dataset. This avoids contention for cores, and also results in the simplest code.
+
+```{r, results="hide"}
+load("oj_data.Rdata")
+
+ncores <- max(2, parallel::detectCores(logical=FALSE) - 2)
+cl <- parallel::makeCluster(ncores)
+parallel::clusterEvalQ(cl,
+{
+    library(tidyr)
+    library(feasts)
+    library(fable)
+    library(tsibble)
+})
+```
+
+First, we fit the models that can innately handle missing values.
+
+```{r}
+oj_modelset <- parallel::parLapply(cl, oj_train, function(df)
+{
+    model(df,
+        mean=MEAN(logmove),
+        naive=NAIVE(logmove),
+        drift=RW(logmove ~ drift()),
+        arima=ARIMA(logmove ~ pdq() + PDQ(0, 0, 0))
+    )
+})
+```
+Next, we fit models that require manual imputation (ETS).
+
+```{r}
+oj_modelset_ets <- parallel::parLapply(cl, oj_train, function(df)
+{
+    df %>%
+        fill(everything()) %>%
+        model(ets=ETS(logmove ~ error("A") + trend("A") + season("N")))
+})
+
+parallel::stopCluster(cl)
+save(oj_modelset, oj_modelset_ets, file="oj_modelset.Rdata")
+
+head(oj_modelset[[1]])
+head(oj_modelset_ets[[1]])
+```
+
