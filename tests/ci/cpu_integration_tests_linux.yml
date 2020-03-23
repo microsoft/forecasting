@@ -14,10 +14,10 @@ trigger:
 
 jobs:
 - job: cpu_integration_tests_linux
-  timeoutInMinutes: 10 # how long to run the job before automatically cancelling
+  timeoutInMinutes: 60 # how long to run the job before automatically cancelling
   pool:
     # vmImage: 'ubuntu-16.04' # hosted machine 
-    name: ForecastingAgents
+    name: $(Agent_Name)
 
   steps:
   - bash: |
