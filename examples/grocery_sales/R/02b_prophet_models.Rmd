@@ -1,0 +1,67 @@
+---
+title: Prophet models
+output: html_notebook
+---
+
+_Copyright (c) Microsoft Corporation._<br/>
+_Licensed under the MIT License._
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+library(prophet)
+library(fable.prophet)
+```
+
+This notebook builds a forecasting model using the [Prophet](https://facebook.github.io/prophet/) algorithm. Prophet is a time series model developed by Facebook that is designed to be simple for non-experts to use, yet flexible and powerful.
+
+> Prophet is a procedure for forecasting time series data based on an additive model where non-linear trends are fit with yearly, weekly, and daily seasonality, plus holiday effects. It works best with time series that have strong seasonal effects and several seasons of historical data. Prophet is robust to missing data and shifts in the trend, and typically handles outliers well.
+
+Here, we will use the fable.prophet package which provides a tidyverts frontend to the prophet package itself. As with ETS, prophet does not support time series with missing values, so we again impute them using the ARIMA model forecasts.
+
+```{r}
+srcdir <- here::here("R_utils")
+for(src in dir(srcdir, full.names=TRUE)) source(src)
+
+load_objects("grocery_sales", "data_reg.Rdata")
+load_objects("grocery_sales", "model_basic.Rdata")
+
+cl <- make_cluster(libs=c("tidyr", "dplyr", "fable", "tsibble", "feasts", "prophet", "fable.prophet"))
+
+oj_modelset_pr <- parallel::clusterMap(cl, function(df, basicmod)
+{
+    df$logmove <- interpolate(select(basicmod, -c(mean, naive, drift)), df)$logmove
+    df %>%
+        group_by(store, brand) %>%
+        fill(deal:maxpricediff, .direction="downup") %>%
+        model(
+            pr=prophet(logmove ~ deal + feat + price + maxpricediff),
+
+            pr_tune=prophet(logmove ~ deal + feat + price + maxpricediff +
+                growth(n_changepoints=2) + season(period=52, order=5, prior_scale=2)),
+
+            .safely=FALSE
+        )
+}, oj_trainreg, oj_modelset_basic)
+
+oj_fcast_pr <- parallel::clusterMap(cl, function(mable, newdata, fcast_func)
+{
+    newdata <- newdata %>%
+        fill(deal:maxpricediff, .direction="downup")
+    fcast_func(mable, newdata)
+}, oj_modelset_pr, oj_testreg, MoreArgs=list(fcast_func=get_forecasts))
+
+destroy_cluster(cl)
+
+save_objects(oj_modelset_pr, oj_fcast_pr,
+             example="grocery_sales", file="model_pr.Rdata")
+
+do.call(rbind, oj_fcast_pr) %>%
+    mutate_at(-(1:3), exp) %>%
+    eval_forecasts()
+```
+
+It appears that Prophet does _not_ do better than the simple ARIMA model with regression variables. This is possibly because the dataset does not have a strong time series nature: there is no seasonality, and only weak or nonexistent trends. These are features which the Prophet algorithm is designed to detect, and their absence means that there would be little advantage in using it.

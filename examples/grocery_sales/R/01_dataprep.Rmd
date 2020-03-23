@@ -1,0 +1,96 @@
+---
+title: Data preparation
+output: html_notebook
+---
+
+_Copyright (c) Microsoft Corporation._<br/>
+_Licensed under the MIT License._
+
+In this notebook, we generate the datasets that will be used for model training and validating. 
+
+The orange juice dataset comes from the bayesm package, and gives pricing and sales figures over time for a variety of orange juice brands in several stores in Florida. Rather than installing the entire package (which is very complex), we download the dataset itself from the GitHub mirror of the CRAN repository.
+
+```{r, results="hide", message=FALSE}
+# download the data from the GitHub mirror of the bayesm package source
+ojfile <- tempfile(fileext=".rda")
+download.file("https://github.com/cran/bayesm/raw/master/data/orangeJuice.rda", ojfile)
+load(ojfile)
+file.remove(ojfile)
+```
+
+The dataset generation parameters are obtained from the file `ojdata_forecast_settings.yaml`; you can modify that file to vary the experimental setup. The settings are
+
+| Parameter | Description | Default | 
+|-----------|-------------|---------|
+| `N_SPLITS` | The number of splits to make. | 10 |
+| `HORIZON` | The forecast horizon for the test dataset for each split. | 2 |
+| `GAP` | The gap in weeks from the end of the training period to the start of the testing period; see below. | 2 |
+| `FIRST_WEEK` | The first week of data to use. | 40 |
+| `LAST_WEEK` | The last week of data to use. | 156 |
+| `START_DATE` | The actual calendar date for the start of the first week in the data. | `1989-09-14` |
+
+A complicating factor is that the data does not include every possible combination of store, brand and date, so we have to pad out the missing rows with `complete`. In addition, one store/brand combination has no data beyond week 156; we therefore end the analysis at this week. We also do _not_ fill in the missing values in the data, as many of the modelling functions in the fable package can handle this innately.
+
+```{r, results="hide", message=FALSE}
+library(tidyr)
+library(dplyr)
+library(tsibble)
+library(feasts)
+library(fable)
+
+settings <- yaml::read_yaml(here::here("examples/grocery_sales/R/forecast_settings.yaml"))
+start_date <- as.Date(settings$START_DATE)
+train_periods <- seq(to=settings$LAST_WEEK - settings$HORIZON - settings$GAP + 1,
+                     by=settings$HORIZON,
+                     length.out=settings$N_SPLITS)
+
+oj_data <- orangeJuice$yx %>%
+    complete(store, brand, week) %>%
+    mutate(week=yearweek(start_date + week*7)) %>%
+    as_tsibble(index=week, key=c(store, brand))
+```
+
+Here are some glimpses of what the data looks like. The dependent variable is `logmove`, the logarithm of the total sales for a given brand and store, in a particular week.
+
+```{r}
+head(oj_data)
+```
+
+The time series plots for a small subset of brands and stores are shown below. We can make the following observations:
+
+- There appears to be little seasonal variation in sales (probably because Florida is a state without very different seasons). In any case, with less than 2 years of observations, the time series is not long enough for many model-fitting functions in the fable package to automatically estimate seasonal parameters.
+- While some store/brand combinations show weak trends over time, this is far from universal.
+- Different brands can exhibit very different behaviour, especially in terms of variation about the mean.
+- Many of the time series have missing values, indicating that the dataset is incomplete.
+
+
+```{r, fig.height=10}
+library(ggplot2)
+
+oj_data %>%
+    filter(store < 25, brand < 5) %>%
+    ggplot(aes(x=week, y=logmove)) +
+        geom_line() +
+        scale_x_date(labels=NULL) +
+        facet_grid(vars(store), vars(brand), labeller="label_both")
+```
+
+Finally, we split the dataset into separate samples for training and testing. The schema used is broadly time series cross-validation, whereby we train a model on data up to time $t$, test it on data for times $t+1$ to $t+k$, then train on data up to time $t+k$, test it on data for times $t+k+1$ to $t+2k$, and so on. In this specific case study, however, we introduce a small extra piece of complexity based on discussions with domain experts. We train a model on data up to week $t$, then test it on week $t+2$ to $t+3$. Then we train on data up to week $t+2$, and test it on weeks $t+4$ to $t+5$, and so on. There is thus always a gap of one week between the training and test samples. The reason for this is because in reality, inventory planning always takes some time; the gap allows store managers to prepare the stock based on the forecasted demand.
+
+```{r}
+subset_oj_data <- function(start, end)
+{
+    start <- yearweek(start_date + start*7)
+    end <- yearweek(start_date + end*7)
+    filter(oj_data, week >= start, week <= end)
+}
+
+oj_train <- lapply(train_periods, function(i) subset_oj_data(settings$FIRST_WEEK, i))
+oj_test <- lapply(train_periods, function(i) subset_oj_data(i + settings$GAP, i + settings$GAP + settings$HORIZON - 1))
+
+save(oj_train, oj_test, file=here::here("examples/grocery_sales/R/data.Rdata"))
+
+head(oj_train[[1]])
+
+head(oj_test[[1]])
+```
