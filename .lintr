@@ -1,0 +1,18 @@
+linters: with_defaults(
+    infix_spaces_linter = NULL,
+    spaces_left_parentheses_linter = NULL,
+    open_curly_linter = NULL,
+    line_length_linter = NULL,
+    camel_case_linter = NULL,
+    object_name_linter = NULL,
+    object_usage_linter = NULL,
+    object_length_linter = NULL,
+    trailing_blank_lines_linter = NULL,
+    absolute_paths_linter = NULL,
+    commented_code_linter = NULL,
+    implicit_integer_linter = NULL,
+    extraction_operator_linter = NULL,
+    single_quotes_linter = NULL,
+    pipe_continuation_linter = NULL,
+    cyclocomp_linter = NULL
+  )

@@ -11,17 +11,10 @@ import calendar
 import itertools
 import pandas as pd
 import numpy as np
-import datetime
 from datetime import timedelta
 from sklearn.preprocessing import MinMaxScaler
-from dateutil.relativedelta import relativedelta
 
-ALLOWED_TIME_COLUMN_TYPES = [
-    pd.Timestamp,
-    pd.DatetimeIndex,
-    datetime.datetime,
-    datetime.date,
-]
+from fclib.feature_engineering.utils import is_datetime_like
 
 # 0: Monday, 2: T/W/TR, 4: F, 5:SA, 6: S
 WEEK_DAY_TYPE_MAP = {1: 2, 3: 2}  # Map for converting Wednesday and
@@ -30,11 +23,6 @@ HOLIDAY_CODE = 7
 SEMI_HOLIDAY_CODE = 8  # days before and after a holiday
 
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-
-def is_datetime_like(x):
-    """Function that checks if a data frame column x is of a datetime type."""
-    return any(isinstance(x, col_type) for col_type in ALLOWED_TIME_COLUMN_TYPES)
 
 
 def day_type(datetime_col, holiday_col=None, semi_holiday_offset=timedelta(days=1)):
@@ -1014,81 +1002,3 @@ def normalize_columns(df, seq_cols, scaler=MinMaxScaler()):
     df_scaled = pd.DataFrame(scaler.fit_transform(df[seq_cols]), columns=seq_cols, index=df.index)
     df_scaled = pd.concat([df[cols_fixed], df_scaled], axis=1)
     return df_scaled, scaler
-
-
-def get_datetime_col(df, datetime_colname):
-    """
-    Helper function for extracting the datetime column as datetime type from
-    a data frame.
-
-    Args:
-        df: pandas DataFrame containing the column to convert
-        datetime_colname: name of the column to be converted
-
-    Returns:
-        pandas.Series: converted column
-
-    Raises:
-        Exception: if datetime_colname does not exist in the dateframe df.
-        Exception: if datetime_colname cannot be converted to datetime type.
-    """
-    if datetime_colname in df.index.names:
-        datetime_col = df.index.get_level_values(datetime_colname)
-    elif datetime_colname in df.columns:
-        datetime_col = df[datetime_colname]
-    else:
-        raise Exception("Column or index {0} does not exist in the data " "frame".format(datetime_colname))
-
-    if not is_datetime_like(datetime_col):
-        datetime_col = pd.to_datetime(df[datetime_colname])
-    return datetime_col
-
-
-def get_month_day_range(date):
-    """
-    Returns the first date and last date of the month of the given date.
-    """
-    # Replace the date in the original timestamp with day 1
-    first_day = date + relativedelta(day=1)
-    # Replace the date in the original timestamp with day 1
-    # Add a month to get to the first day of the next month
-    # Subtract one day to get the last day of the current month
-    last_day = date + relativedelta(day=1, months=1, days=-1, hours=23)
-    return first_day, last_day
-
-
-def add_datetime(input_datetime, unit, add_count):
-    """
-    Function to add a specified units of time (years, months, weeks, days,
-    hours, or minutes) to the input datetime.
-
-    Args:
-        input_datetime: datatime to be added to
-        unit: unit of time, valid values: 'year', 'month', 'week',
-            'day', 'hour', 'minute'.
-        add_count: number of units to add
-
-    Returns:
-        New datetime after adding the time difference to input datetime.
-
-    Raises:
-        Exception: if invalid unit is provided. Valid units are:
-            'year', 'month', 'week', 'day', 'hour', 'minute'.
-    """
-    if unit == "Y":
-        new_datetime = input_datetime + relativedelta(years=add_count)
-    elif unit == "M":
-        new_datetime = input_datetime + relativedelta(months=add_count)
-    elif unit == "W":
-        new_datetime = input_datetime + relativedelta(weeks=add_count)
-    elif unit == "D":
-        new_datetime = input_datetime + relativedelta(days=add_count)
-    elif unit == "h":
-        new_datetime = input_datetime + relativedelta(hours=add_count)
-    elif unit == "m":
-        new_datetime = input_datetime + relativedelta(minutes=add_count)
-    else:
-        raise Exception(
-            "Invalid backtest step unit, {}, provided. Valid " "step units are Y, M, W, D, h, " "and m".format(unit)
-        )
-    return new_datetime

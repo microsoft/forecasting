@@ -2,3 +2,4 @@ pandas
 datetime
 scikit_learn
 numpy
+requests
