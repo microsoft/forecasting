@@ -61,7 +61,7 @@ def day_type(datetime_col, holiday_col=None, semi_holiday_offset=timedelta(days=
     datetype = pd.DataFrame({"DayType": datetime_col.dt.dayofweek})
     datetype.replace({"DayType": WEEK_DAY_TYPE_MAP}, inplace=True)
 
-    if holiday_col is not None:
+    if holiday_col:
         holiday_mask = holiday_col > 0
         datetype.loc[holiday_mask, "DayType"] = HOLIDAY_CODE
 
@@ -606,7 +606,7 @@ def same_day_hour_moving_average(
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
-        if len(hour_lags) > 0:
+        if hour_lags:
             tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
@@ -678,7 +678,7 @@ def same_day_hour_moving_quantile(
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
-        if len(hour_lags) > 0:
+        if hour_lags:
             tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
@@ -749,7 +749,7 @@ def same_day_hour_moving_std(
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
-        if len(hour_lags) > 0:
+        if hour_lags:
             tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
@@ -825,7 +825,7 @@ def same_day_hour_moving_agg(
         week_lag_start = start_week + i
         hour_lags = [(week_lag_start + w) * 24 * 7 for w in range(window_size)]
         hour_lags = [h for h in hour_lags if h > max_diff]
-        if len(hour_lags) > 0:
+        if hour_lags:
             tmp_df = df[["value"]].copy()
             tmp_col_all = []
             for h in hour_lags:
