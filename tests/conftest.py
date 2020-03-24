@@ -24,5 +24,7 @@ def notebooks():
         "lightgbm_quick_start": os.path.join(quick_start_path, "lightgbm_single_round.ipynb"),
         "lightgbm_multi_round": os.path.join(model_path, "lightgbm_multi_round.ipynb"),
         "dilatedcnn_multi_round": os.path.join(model_path, "dilatedcnn_multi_round.ipynb"),
+        "autoarima_quick_start": os.path.join(quick_start_path, "autoarima_single_round.ipynb"),
+        "autoarima_multi_round": os.path.join(model_path, "autoarima_multi_round.ipynb"),
     }
     return paths
