@@ -1,5 +1,5 @@
-pandas
-datetime
-scikit_learn
-numpy
-requests
+pandas==0.23.4
+datetime==4.3
+scikit-learn==0.20.3
+numpy==1.16.2
+requests==2.23.0
