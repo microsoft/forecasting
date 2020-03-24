@@ -1,5 +1,5 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License. 
+# Licensed under the MIT License.
 
 import pandas as pd
 
@@ -9,12 +9,15 @@ def MAPE(predictions, actuals):
     Implements Mean Absolute Percent Error (MAPE).
 
     Args:
-        predictions (pandas.Series): a vector of predicted values.
-        actuals (pandas.Series): a vector of actual values.
+        predictions (array like): a vector of predicted values.
+        actuals (array like): a vector of actual values.
 
     Returns:
-        MAPE value
+        numpy.float: MAPE value
     """
+    if not (isinstance(actuals, pd.Series) and isinstance(predictions, pd.Series)):
+        predictions, actuals = pd.Series(predictions), pd.Series(actuals)
+
     return ((predictions - actuals).abs() / actuals).mean()
 
 
@@ -23,12 +26,15 @@ def sMAPE(predictions, actuals):
     Implements Symmetric Mean Absolute Percent Error (sMAPE).
 
     Args:
-        predictions (pandas.Series): a vector of predicted values.
-        actuals (pandas.Series): a vector of actual values.
+        predictions (array like): a vector of predicted values.
+        actuals (array like): a vector of actual values.
 
     Returns:
-        sMAPE value
+        numpy.float: sMAPE value
     """
+    if not (isinstance(actuals, pd.Series) and isinstance(predictions, pd.Series)):
+        predictions, actuals = pd.Series(predictions), pd.Series(actuals)
+
     return ((predictions - actuals).abs() / (predictions.abs() + actuals.abs())).mean()
 
 
