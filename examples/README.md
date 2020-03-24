@@ -2,7 +2,7 @@
 
 This folder contains Python and R examples for building forecasting solutions presented in Python Jupyter notebooks and R Markdown files, respectively. The examples are organized according to forecasting scenarios in different use cases with each subdirectory under `examples/` named after the specific use case. 
 
-At the moment, the repository contains a single retail sales forecasting scenario utilizing [Dominick's OrangeJuice data set](https://www.chicagobooth.edu/research/kilts/datasets/dominicks). The name of the directory is `grocery_sales`.
+At the moment, the repository contains a single retail sales forecasting scenario utilizing [Dominick's OrangeJuice dataset](https://www.chicagobooth.edu/research/kilts/datasets/dominicks). The name of the directory is `grocery_sales`.
 
 
 ## Summary

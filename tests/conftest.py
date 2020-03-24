@@ -19,7 +19,7 @@ def notebooks():
     quick_start_path = os.path.join(usecase_path, "00_quick_start")
     model_path = os.path.join(usecase_path, "02_model")
 
-    # Path for the notebooks
+    # Paths of the notebooks
     paths = {
         "lightgbm_quick_start": os.path.join(quick_start_path, "lightgbm_single_round.ipynb"),
         "lightgbm_multi_round": os.path.join(model_path, "lightgbm_multi_round.ipynb"),
