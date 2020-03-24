@@ -1,5 +1,5 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License. 
+# Licensed under the MIT License.
 
 """
 Perform cross validation of a LightGBM forecasting model on the training data of the 1st forecast round.
