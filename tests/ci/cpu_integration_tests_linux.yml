@@ -1,5 +1,5 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+# Licensed under the MIT License. 
 
 # Pull request against these branches will trigger this build
 pr:
@@ -14,7 +14,7 @@ trigger:
 
 jobs:
 - job: cpu_integration_tests_linux
-  timeoutInMinutes: 10 # how long to run the job before automatically cancelling
+  timeoutInMinutes: 60 # how long to run the job before automatically cancelling
   pool:
     # vmImage: 'ubuntu-16.04' # hosted machine 
     name: $(Agent_Name)

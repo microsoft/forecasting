@@ -1,5 +1,5 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+# Licensed under the MIT License. 
 
 # To create the conda environment:
 # $ conda env create -f environment.yaml

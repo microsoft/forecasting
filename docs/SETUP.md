@@ -1,6 +1,6 @@
 ## Setting up Environment
 
-Please follow these instructions to read about the preferred compute environment and to set up the environment.
+Please follow these instructions to read about the preferred compute environment and to set up the environment. 
 
 ### Compute environment
 

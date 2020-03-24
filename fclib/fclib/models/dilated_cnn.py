@@ -1,5 +1,5 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+# Licensed under the MIT License. 
 
 """
 This file contains utility functions for builing Dilated CNN model to solve time series forecasting problems.

@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-Contribution are welcome! Here's a few things to know:
+Contribution are welcome! Here's a few things to know: 
 
 * [Setup](./SETUP.md)
 * [Microsoft Contributor License Agreement](#microsoft-contributor-license-agreement)

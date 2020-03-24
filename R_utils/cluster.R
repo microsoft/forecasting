@@ -7,7 +7,7 @@
 #' @param libs The packages to load on each node, as a character vector.
 #' @param useXDR For most platforms, this can be left at its default `FALSE` value.
 #' @return
-#' A cluster object.
+#' A cluster object. 
 make_cluster <- function(ncores=NULL, libs=character(0), useXDR=FALSE)
 {
     if(is.null(ncores))
