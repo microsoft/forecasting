@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 """
-Perform cross validation of a LightGBM forecasting model on the training data of the 1st forecast round.
+Perform cross validation of a LightGBM forecasting model on the training data that includes historical sales from week 40 to week 135 as well as price, deal, advertisement information from week 40 to week 138.
 """
 
 import os
