@@ -45,3 +45,4 @@ dependencies:
     - statsmodels==0.11.1
     - pmdarima==1.1.1
     - gitpython==3.0.8
+    - ray==0.8.2
