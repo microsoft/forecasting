@@ -2,7 +2,13 @@
 # Licensed under the MIT License.
 
 """
-Perform cross validation of a LightGBM forecast model on the training data that includes historical sales from week 40 to week 135 as well as price, deal, and advertisement information from week 40 to week 138.
+Perform cross-validation of a LightGBM forecast model on the data that includes historical sales from week 40 
+to week 135 as well as price, deal, and advertisement information from week 40 to week 138. The script accepts 
+hyperparameters of the model and trains a model on 95% of the data by using these hyperparameters. Then, it 
+evaluates the accuracy of the trained model on a validation set which is the remaining 5% of the data. The 
+validation MAPE will be logged and collected by HyperDrive for searching the best set of hyperparameters. In 
+addition, the trained model will be saved in the "./outputs/" folder which is automatically uploaded into run 
+history of each trial.
 """
 
 import os
