@@ -1,11 +1,11 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License. 
+# Licensed under the MIT License.
 
 # To create the conda environment:
-# $ conda env create -f environment.yaml
+# $ conda env create -f environment.yml
 #
 # To update the conda environment:
-# $ conda env update -f environment.yaml
+# $ conda env update -f environment.yml
 #
 # To register the conda environment in Jupyter:
 # $ conda activate forecasting_env
@@ -45,3 +45,4 @@ dependencies:
     - statsmodels==0.11.1
     - pmdarima==1.1.1
     - gitpython==3.0.8
+    - ray==0.8.2

@@ -420,7 +420,7 @@ def specify_retail_data_schema(
         df (Pandas DataFrame): sales data combined with store demographic features
     """
     # Read the 1st split of training data if "sales" is not specified
-    if sales is None:
+    if not sales:
         print("Sales dataframe is not given! The 1st split of training data will be used.")
         sales = pd.read_csv(os.path.join(data_dir, "train", "train_round_1.csv"), index_col=False)
         aux = pd.read_csv(os.path.join(data_dir, "train", "aux_round_1.csv"), index_col=False)
