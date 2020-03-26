@@ -11,10 +11,10 @@ except ImportError:
 
 # Package meta-data.
 NAME = "fclib"
-DESCRIPTION = "A library for forecasting"
+DESCRIPTION = "A library for forecasting utilities"
 URL = ""
-EMAIL = "vapaunic@users.noreply.github.com"
-AUTHOR = "AUTHORS.md"
+EMAIL = ""
+AUTHOR = "Forecasting team at AI CAT Microsoft"
 LICENSE = "MIT"
 LONG_DESCRIPTION = DESCRIPTION
 

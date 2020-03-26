@@ -24,14 +24,11 @@ dependencies:
   - scipy=1.1.0
   - numpy=1.16.2
   - pandas=0.23.4
-  - xlrd=1.1.0
-  - urllib3=1.21.1
   - scikit-learn=0.20.3
   - pytest>=3.6.4
-  - tqdm>=4.43.0
   - pylint
   - papermill>=1.0.1
-  - matplotlib=3.1.2
+  - matplotlib>=3.1.2
   - r-base>=3.3.0
   - pip:
     - black>=18.6b4
@@ -42,7 +39,6 @@ dependencies:
     - tensorboard==2.1.0
     - nteract-scrapbook==0.3.1
     - azureml-sdk[explain,automl]==1.0.85
-    - statsmodels==0.11.1
-    - pmdarima==1.1.1
-    - gitpython==3.0.8
-    - ray==0.8.2
+    - statsmodels>=0.11.1
+    - pmdarima>=1.1.1
+    - ray>=0.8.2

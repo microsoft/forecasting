@@ -1,5 +1,10 @@
 pandas==0.23.4
-datetime==4.3
+datetime>=4.3
 scikit-learn==0.20.3
 numpy==1.16.2
-requests==2.23.0
+requests>=2.23.0
+tqdm>=4.43.0
+matplotlib>=3.1.2
+tensorflow==2.0
+azureml-sdk[explain,automl]==1.0.85
+gitpython>=3.0.8
