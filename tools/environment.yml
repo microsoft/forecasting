@@ -26,7 +26,6 @@ dependencies:
   - pandas=0.23.4
   - scikit-learn=0.20.3
   - pytest>=3.6.4
-  - tqdm>=4.43.0
   - pylint
   - papermill>=1.0.1
   - matplotlib=3.1.2
