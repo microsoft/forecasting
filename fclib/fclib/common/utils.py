@@ -1,8 +1,10 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License. 
+# Licensed under the MIT License.
+
 
 import pandas as pd
 from git import Repo
+from pkgutil import iter_modules
 
 
 def git_repo_path():
@@ -10,6 +12,11 @@ def git_repo_path():
 
     repo = Repo(search_parent_directories=True)
     return repo.working_dir
+
+
+def module_exists(module_name):
+    """Check if a package is installed"""
+    return module_name in (name for loader, name, ispkg in iter_modules())
 
 
 # Source repo:
@@ -30,7 +37,7 @@ def align_outputs(
     using pandas indexes. Helps understand what happened if
     the output's shape differs from the input shape, or if
     the data got re-sorted by time and grain during forecasting.
-    
+
 
     Typical causes of misalignment are:
     * we predicted some periods that were missing in actuals -> drop from eval
