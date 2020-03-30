@@ -41,4 +41,3 @@ dependencies:
     - azureml-sdk[explain,automl]==1.0.85
     - statsmodels>=0.11.1
     - pmdarima>=1.1.1
-    - ray>=0.8.2
