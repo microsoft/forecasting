@@ -67,7 +67,7 @@ The examples use the [Tidyverts](https://tidyverts.org) family of packages, whic
 Our target audience for this repository includes data scientists and machine learning engineers with varying levels of knowledge in forecasting as our content is source-only and targets custom machine learning modelling. The utilities and examples provided are intended to be solution accelerators for real-world forecasting problems.
 
 ## Contributing
-We hope that the open source community would contribute to the content and bring in the latest SOTA algorithm. This project welcomes contributions and suggestions. Before contributing, please see our [Contributing Guide](./docs/CONTRIBUTING.md).
+We hope that the open source community would contribute to the content and bring in the latest SOTA algorithm. This project welcomes contributions and suggestions. Before contributing, please see our [Contributing Guide](CONTRIBUTING.md).
 
 ## Reference
 
@@ -76,7 +76,7 @@ The following is a list of related repositories that you may find helpful.
 |                                                                                                                        |                                                                                                 |
 |------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
 | [Deep Learning for Time Series Forecasting](https://github.com/Azure/DeepLearningForTimeSeriesForecasting)             | A collection of examples for using deep neural networks for time series forecasting with Keras. |
-| [Demand Forecasting and Price Optimization Solution](https://github.com/Azure/cortana-intelligence-price-optimization) | A Cortana Intelligence solution how-to guide for demand forecasting and price optimization.     |
+| [Microsoft AI Github](https://github.com/microsoft/ai) | Find other Best Practice projects, and Azure AI designed patterns in our central repository. |
 
 
 
