@@ -15,7 +15,7 @@ The following is a summary of models or methods for developing forecasting solut
 |---------------------|----------|----------------------------|-------------------------------------------------------------------------------------------------------------|
 | Auto ARIMA          | Python   | Statistical                | Auto Regressive Integrated Moving Average (ARIMA) model that is automatically selected                      |
 | Linear Regression   | Python   | Classical Machine Learning | Linear regression model trained on lagged features of the target variable and external features             |
-| LightGBM            | Python   | Classical Machine Learning | Gradient boosting decision tree implemented with LightGBM package for high accuracy and fast training       |
+| LightGBM            | Python   | Classical Machine Learning | Gradient boosting decision tree implemented with LightGBM package for high accuracy and fast speed          |
 | DilatedCNN          | Python   | Deep Learning              | Dilated Convolutional Neural Network that captures long-range temporal flow with dilated causal connections |
 | AutoML              | Python   | AzureML                    | AzureML service that automates model development process and identifies the best machine learning pipeline  |
 | HyperDrive          | Python   | AzureML                    | Azure ML service for tuning hyperparameters of machine learning models in parallel on cloud                 |
