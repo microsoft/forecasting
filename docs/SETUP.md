@@ -83,6 +83,11 @@ pip install -e fclib
 
 The library is installed in developer mode with the `-e` flag. This means that all changes made to the library locally, are immediately available.
 
+If you work with Linux or MacOS, you could also install Ray for parallel model training:
+```
+pip install ray>=0.8.2 
+``` 
+
 #### Jupyter kernel
 In order to run the example notebooks, make sure to run the notebooks in the conda environment we previously set up, `forecasting_env`. To register the conda environment in Jupyter, please run:
 

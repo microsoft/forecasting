@@ -41,6 +41,7 @@ jobs:
       yes | conda env create -n forecast_cpu -f tools/environment.yml
       eval "$(conda shell.bash hook)" && conda activate forecast_cpu
       pip install -e fclib
+      pip install ray>=0.8.2
       echo "Conda env installed."
     displayName: 'Creating conda environment with dependencies'
 
