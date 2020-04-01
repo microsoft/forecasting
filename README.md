@@ -11,7 +11,7 @@ The examples and best practices are provided as [Python Jupyter notebooks and R 
 
 The following is a summary of models or methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization).
 
-| Models/Methods      | Language | Type                       | Description                                                                                                 |
+| Model/Method        | Language | Type                       | Description                                                                                                 |
 |---------------------|----------|----------------------------|-------------------------------------------------------------------------------------------------------------|
 | Auto ARIMA          | Python   | Statistical                | Auto Regressive Integrated Moving Average (ARIMA) model that is automatically selected                      |
 | Linear Regression   | Python   | Classical Machine Learning | Linear regression model trained on lagged features of the target variable and external features             |
