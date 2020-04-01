@@ -9,15 +9,21 @@ The examples and best practices are provided as [Python Jupyter notebooks and R 
 
 ## Content
 
-The following is a summary of the examples related to the process of building forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization).
+The following is a summary of models or methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization).
 
-| Example                          | Models/Methods                                        | Description                                                                                                                  | Language  |
-|----------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-----------|
-| Quick Start                      | Auto ARIMA, Azure AutoML, Linear Regression, LightGBM | Quick start notebooks that demonstrate workflow of developing a forecast model using one-round training and testing data     | Python    |
-| Data Exploration and Preparation | Statistical Analysis and Data Transformation          | Data exploration and preparation examples                                                                                    | Python, R |
-| Model Training and Evaluation    | Auto ARIMA, LightGBM, Dilated CNN                     | Deep dive notebooks that perform multi-round training and testing of various classical and deep learning forecast algorithms | Python    |
-| Model Tuning and Deployment      | HyperDrive, LightGBM                                  | Example notebook for model tuning using Azure Machine Learning Service and deploying the best model on Azure                 | Python    |
-| R Models                         | Mean Forecast, ARIMA, ETS, Prophet                    | Popular statistical forecast models and Prophet model implmented in R                                                        | R         |
+| Model/Method        | Language | Type                       | Description                                                                                                 |
+|---------------------|----------|----------------------------|-------------------------------------------------------------------------------------------------------------|
+| Auto ARIMA          | Python   | Statistical                | Auto Regressive Integrated Moving Average (ARIMA) model that is automatically selected                      |
+| Linear Regression   | Python   | Classical Machine Learning | Linear regression model trained on lagged features of the target variable and external features             |
+| LightGBM            | Python   | Classical Machine Learning | Gradient boosting decision tree implemented with LightGBM package for high accuracy and fast speed          |
+| DilatedCNN          | Python   | Deep Learning              | Dilated Convolutional Neural Network that captures long-range temporal flow with dilated causal connections |
+| AutoML              | Python   | AzureML                    | AzureML service that automates model development process and identifies the best machine learning pipeline  |
+| HyperDrive          | Python   | AzureML                    | Azure ML service for tuning hyperparameters of machine learning models in parallel on cloud                 |
+| AzureML Web Service | Python   | AzureML                    | Azure ML service for deploying a model as a web service on Azure Container Instances                        |
+| Mean Forecast       | R        | Statistical                | Simple forecasting method based on historical mean                                                          |
+| ARIMA               | R        | Statistical                | ARIMA model without or with external features                                                               |
+| ETS                 | R        | Statistical                | Exponential Smoothing algorithm with additive errors                                                        |
+| Prophet             | R        | Statistical                | Automated forecasting procedure based on an additive model with non-linear trends                           |
 
 
 ## Getting Started in Python
@@ -73,10 +79,10 @@ We hope that the open source community would contribute to the content and bring
 
 The following is a list of related repositories that you may find helpful.
 
-|                                                                                                                        |                                                                                                 |
-|------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| [Deep Learning for Time Series Forecasting](https://github.com/Azure/DeepLearningForTimeSeriesForecasting)             | A collection of examples for using deep neural networks for time series forecasting with Keras. |
-| [Microsoft AI Github](https://github.com/microsoft/ai) | Find other Best Practice projects, and Azure AI designed patterns in our central repository. |
+|                                                                                                            |                                                                                                 |
+|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [Deep Learning for Time Series Forecasting](https://github.com/Azure/DeepLearningForTimeSeriesForecasting) | A collection of examples for using deep neural networks for time series forecasting with Keras. |
+| [Microsoft AI Github](https://github.com/microsoft/ai)                                                     | Find other Best Practice projects, and Azure AI designed patterns in our central repository.    |
 
 
 
