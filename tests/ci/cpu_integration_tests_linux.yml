@@ -32,14 +32,14 @@ jobs:
       ls
       uname -ra
       echo "Running cleanup ... "
-      conda env remove -n forecast_cpu
+      conda env remove -n forecasting_env
       echo "Cleanup done."
     displayName: 'Cleanup existing conda environment'
 
   - bash: |
       echo "Running conda env setup ..."
-      yes | conda env create -n forecast_cpu -f tools/environment.yml
-      eval "$(conda shell.bash hook)" && conda activate forecast_cpu
+      yes | conda env create -n forecasting_env -f tools/environment.yml
+      eval "$(conda shell.bash hook)" && conda activate forecasting_env
       pip install -e fclib
       pip install ray>=0.8.2
       echo "Conda env installed."
@@ -47,8 +47,8 @@ jobs:
 
   - bash: |
       sudo ln -sf /usr/lib/R/modules/lapack.so /usr/lib/libRlapack.so
-      eval "$(conda shell.bash hook)" && conda activate forecast_cpu
-      python -m ipykernel install --user --name forecast_cpu
+      eval "$(conda shell.bash hook)" && conda activate forecasting_env
+      python -m ipykernel install --user --name forecasting_env
       pytest --durations=0 tests/integration -m "not gpu and not azureml" --junitxml=report/test-integration.xml
     displayName: 'Run integration tests'
 
