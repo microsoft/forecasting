@@ -52,13 +52,17 @@ def module_path(env_name, module_name):
         str: path of the package/module
     """
 
-    if system_type() == "win":
+    system = system_type()
+    if system == "win":
         command = "where " + module_name
     else:
         command = "which " + module_name
     all_paths = subprocess.check_output(command, shell=True)
     all_paths = all_paths.decode("utf-8").split("\n")
-    module_path = [path for path in all_paths if env_name in path][0][:-1]
+    module_path = [path for path in all_paths if env_name in path][0]
+    if system == "win":
+        # Remove additional char \r
+        module_path = module_path[:-1]
     return module_path
 
 
