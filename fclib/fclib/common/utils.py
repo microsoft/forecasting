@@ -59,7 +59,10 @@ def module_path(env_name, module_name):
         command = "which " + module_name
     all_paths = subprocess.check_output(command, shell=True)
     all_paths = all_paths.decode("utf-8").split("\n")
-    module_path = [path for path in all_paths if env_name in path][0]
+    all_paths = [path for path in all_paths if env_name in path]
+    module_path = ""
+    if all_paths:
+        module_path = all_paths[0]
     if system == "win":
         # Remove additional char \r
         module_path = module_path[:-1]
