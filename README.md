@@ -26,7 +26,7 @@ The repository also comes with AzureML-themed notebooks and best practices recip
 
 | Method              | Language | Description                                                                                                |
 |---------------------|----------|------------------------------------------------------------------------------------------------------------|
-| AutoML              | Python   | AzureML service that automates model development process and identifies the best machine learning pipeline |
+| Azure AutoML        | Python   | AzureML service that automates model development process and identifies the best machine learning pipeline |
 | HyperDrive          | Python   | Azure ML service for tuning hyperparameters of machine learning models in parallel on cloud                |
 | AzureML Web Service | Python   | Azure ML service for deploying a model as a web service on Azure Container Instances                       |
 
