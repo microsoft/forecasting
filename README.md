@@ -9,7 +9,7 @@ The examples and best practices are provided as [Python Jupyter notebooks and R 
 
 ## Content
 
-The following is a summary of models and methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization). To enable high-throughput forecasting scenarios, we have included playbooks for forecasting multiple time series with distributed training techniques such as Ray in Python, parallel package in R, and multi-threading in LightGBM.
+The following is a summary of models and methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization). To enable high-throughput forecasting scenarios, we have included examples for forecasting multiple time series with distributed training techniques such as Ray in Python, parallel package in R, and multi-threading in LightGBM.
 
 | Model             | Language | Description                                                                                                 |
 |-------------------|----------|-------------------------------------------------------------------------------------------------------------|
@@ -27,8 +27,8 @@ The repository also comes with AzureML-themed notebooks and best practices recip
 | Method              | Language | Description                                                                                                |
 |---------------------|----------|------------------------------------------------------------------------------------------------------------|
 | Azure AutoML        | Python   | AzureML service that automates model development process and identifies the best machine learning pipeline |
-| HyperDrive          | Python   | Azure ML service for tuning hyperparameters of machine learning models in parallel on cloud                |
-| AzureML Web Service | Python   | Azure ML service for deploying a model as a web service on Azure Container Instances                       |
+| HyperDrive          | Python   | AzureML service for tuning hyperparameters of machine learning models in parallel on cloud                 |
+| AzureML Web Service | Python   | AzureML service for deploying a model as a web service on Azure Container Instances                        |
 
 
 ## Getting Started in Python
