@@ -9,21 +9,26 @@ The examples and best practices are provided as [Python Jupyter notebooks and R 
 
 ## Content
 
-The following is a summary of models or methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization).
+The following is a summary of models and methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization). To enable high-throughput forecasting scenarios, we have included playbooks for forecasting multiple time series with distributed training techniques such as Ray in Python, parallel package in R, and multi-threading in LightGBM.
 
-| Model/Method        | Language | Type                       | Description                                                                                                 |
-|---------------------|----------|----------------------------|-------------------------------------------------------------------------------------------------------------|
-| Auto ARIMA          | Python   | Statistical                | Auto Regressive Integrated Moving Average (ARIMA) model that is automatically selected                      |
-| Linear Regression   | Python   | Classical Machine Learning | Linear regression model trained on lagged features of the target variable and external features             |
-| LightGBM            | Python   | Classical Machine Learning | Gradient boosting decision tree implemented with LightGBM package for high accuracy and fast speed          |
-| DilatedCNN          | Python   | Deep Learning              | Dilated Convolutional Neural Network that captures long-range temporal flow with dilated causal connections |
-| AutoML              | Python   | AzureML                    | AzureML service that automates model development process and identifies the best machine learning pipeline  |
-| HyperDrive          | Python   | AzureML                    | Azure ML service for tuning hyperparameters of machine learning models in parallel on cloud                 |
-| AzureML Web Service | Python   | AzureML                    | Azure ML service for deploying a model as a web service on Azure Container Instances                        |
-| Mean Forecast       | R        | Statistical                | Simple forecasting method based on historical mean                                                          |
-| ARIMA               | R        | Statistical                | ARIMA model without or with external features                                                               |
-| ETS                 | R        | Statistical                | Exponential Smoothing algorithm with additive errors                                                        |
-| Prophet             | R        | Statistical                | Automated forecasting procedure based on an additive model with non-linear trends                           |
+| Model             | Language | Description                                                                                                 |
+|-------------------|----------|-------------------------------------------------------------------------------------------------------------|
+| Auto ARIMA        | Python   | Auto Regressive Integrated Moving Average (ARIMA) model that is automatically selected                      |
+| Linear Regression | Python   | Linear regression model trained on lagged features of the target variable and external features             |
+| LightGBM          | Python   | Gradient boosting decision tree implemented with LightGBM package for high accuracy and fast speed          |
+| DilatedCNN        | Python   | Dilated Convolutional Neural Network that captures long-range temporal flow with dilated causal connections |
+| Mean Forecast     | R        | Simple forecasting method based on historical mean                                                          |
+| ARIMA             | R        | ARIMA model without or with external features                                                               |
+| ETS               | R        | Exponential Smoothing algorithm with additive errors                                                        |
+| Prophet           | R        | Automated forecasting procedure based on an additive model with non-linear trends                           |
+
+The repository also comes with AzureML-themed notebooks and best practices recipes to accelerate the development of scalable, production-grade forecasting solutions on Azure. In particular, we have the following examples for forecasting with Azure AutoML as well as tuning and deploying a forecasting model on Azure.
+
+| Method              | Language | Description                                                                                                |
+|---------------------|----------|------------------------------------------------------------------------------------------------------------|
+| AutoML              | Python   | AzureML service that automates model development process and identifies the best machine learning pipeline |
+| HyperDrive          | Python   | Azure ML service for tuning hyperparameters of machine learning models in parallel on cloud                |
+| AzureML Web Service | Python   | Azure ML service for deploying a model as a web service on Azure Container Instances                       |
 
 
 ## Getting Started in Python
