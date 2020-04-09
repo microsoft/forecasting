@@ -1,6 +1,7 @@
 ---
-title: Basic models
-output: html_notebook
+title: "Basic models"
+output:
+  html_notebook: default
 ---
 
 _Copyright (c) Microsoft Corporation._<br/>
@@ -12,6 +13,7 @@ library(dplyr)
 library(tsibble)
 library(feasts)
 library(fable)
+library(urca)
 ```
 
 We fit some simple models to the orange juice data for illustrative purposes. Here, each model is actually a _group_ of models, one for each combination of store and brand. This is the standard approach taken in statistical forecasting, and is supported out-of-the-box by the tidyverts framework.
