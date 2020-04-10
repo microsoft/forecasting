@@ -1,7 +1,6 @@
 ---
-title: "Basic models"
-output:
-  html_notebook: default
+title: Basic models
+output: html_notebook
 ---
 
 _Copyright (c) Microsoft Corporation._<br/>

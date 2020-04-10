@@ -13,7 +13,11 @@ library(tsibble)
 library(feasts)
 library(fable)
 library(prophet)
+## NOTE: the following package can be installed from GitHub with
+## remotes::install_github("mitchelloharawild/fable.prophet")
 library(fable.prophet)
+
+### NOTE: You must run the 02a_reg_models.Rmd notebook before this one
 ```
 
 This notebook builds a forecasting model using the [Prophet](https://facebook.github.io/prophet/) algorithm. Prophet is a time series model developed by Facebook that is designed to be simple for non-experts to use, yet flexible and powerful.
