@@ -21,6 +21,7 @@ The following packages are needed to run the basic analysis notebooks in this di
 - fable
 - feasts
 - yaml
+- urca
 - here
 
 It's likely that you will already have many of these (particularly the [Tidyverse](https://tidyverse.org) packages) installed, if you use R for data science tasks. The main exceptions are the packages in the [Tidyverts](https://tidyverts.org) family, which is a modern framework for time series analysis building on the Tidyverse.
@@ -29,7 +30,7 @@ It's likely that you will already have many of these (particularly the [Tidyvers
 install.packages("tidyverse") # installs all tidyverse packages
 install.packages("rmarkdown")
 install.packages("here")
-install.packages(c("tsibble", "fable", "feasts"))
+install.packages(c("tsibble", "fable", "feasts", "urca"))
 ```
 
 The following packages are needed to run the Prophet analysis notebook:
