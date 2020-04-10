@@ -12,6 +12,7 @@ library(dplyr)
 library(tsibble)
 library(feasts)
 library(fable)
+library(urca)
 ```
 
 This notebook builds on the output from "Basic models" by including regressor variables in the ARIMA model(s). We fit the following model types:
