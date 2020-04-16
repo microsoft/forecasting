@@ -1,11 +1,11 @@
 # Forecasting examples in R: orange juice retail sales
 
-The Rmarkdown notebooks in this directory are as follows. Each notebook also has a corresponding HTML file, which is the rendered output from running the code.
+The Rmarkdown notebooks in this directory are as follows. Each notebook also has a corresponding HTML file, which is the rendered output from running the code (best viewed if you're reading this document on our `github.io` page).
 
-- [`01_dataprep.Rmd`](01_dataprep.Rmd) creates the training and test datasets
-- [`02_basic_models.Rmd`](02_basic_models.Rmd) fits a range of simple time series models to the data, including ARIMA and ETS.
-- [`02a_reg_models.Rmd`](02a_reg_models.Rmd) adds independent variables as regressors to the ARIMA model.
-- [`02b_prophet_models.Rmd`](02b_prophet_models.Rmd) fits some simple models using the Prophet algorithm.
+- [`01_dataprep.Rmd`](01_dataprep.Rmd) [`(.html)`](01_dataprep.nb.html) creates the training and test datasets
+- [`02_basic_models.Rmd`](02_basic_models.Rmd) [`(.html)`](02_basic_models.nb.html) fits a range of simple time series models to the data, including ARIMA and ETS.
+- [`02a_reg_models.Rmd`](02a_reg_models.Rmd) [`(.html)`](02a_reg_models.nb.html) adds independent variables as regressors to the ARIMA model.
+- [`02b_prophet_models.Rmd`](02b_prophet_models.Rmd) [`(.html)`](02b_prophet_models.nb.html) fits some simple models using the Prophet algorithm.
 
 If you want to run the code in the notebooks interactively, you must start from `01_dataprep.Rmd` and proceed in sequence, as the earlier notebooks will generate artifacts (datasets/model objects) that are used by later ones.
 
