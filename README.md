@@ -9,7 +9,9 @@ The examples and best practices are provided as [Python Jupyter notebooks and R 
 
 ## Content
 
-The following is a summary of models and methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization). To enable high-throughput forecasting scenarios, we have included examples for forecasting multiple time series with distributed training techniques such as Ray in Python, parallel package in R, and multi-threading in LightGBM.
+The following is a summary of models and methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization). To enable high-throughput forecasting scenarios, we have included examples for forecasting multiple time series with distributed training techniques such as Ray in Python, parallel package in R<sup>1</sup>, and multi-threading in LightGBM.
+
+<sup>1</sup> html links provided next to R examples for best viewing experience when reading this document on our `github.io` page.
 
 | Model                                                                                             | Language | Description                                                                                                 |
 |---------------------------------------------------------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------|
@@ -17,10 +19,10 @@ The following is a summary of models and methods for developing forecasting solu
 | [Linear Regression](examples/grocery_sales/python/00_quick_start/azure_automl_single_round.ipynb) | Python   | Linear regression model trained on lagged features of the target variable and external features             |
 | [LightGBM](examples/grocery_sales/python/00_quick_start/lightgbm_single_round.ipynb)              | Python   | Gradient boosting decision tree implemented with LightGBM package for high accuracy and fast speed          |
 | [DilatedCNN](examples/grocery_sales/python/02_model/dilatedcnn_multi_round.ipynb)                 | Python   | Dilated Convolutional Neural Network that captures long-range temporal flow with dilated causal connections |
-| [Mean Forecast](examples/grocery_sales/R/02_basic_models.Rmd)                                     | R        | Simple forecasting method based on historical mean                                                          |
-| [ARIMA](examples/grocery_sales/R/02a_reg_models.Rmd)                                              | R        | ARIMA model without or with external features                                                               |
-| [ETS](examples/grocery_sales/R/02_basic_models.Rmd)                                               | R        | Exponential Smoothing algorithm with additive errors                                                        |
-| [Prophet](examples/grocery_sales/R/02b_prophet_models.Rmd)                                        | R        | Automated forecasting procedure based on an additive model with non-linear trends                           |
+| [Mean Forecast](examples/grocery_sales/R/02_basic_models.Rmd) [(.html)](examples/grocery_sales/R/02_basic_models.nb.html)                                | R        | Simple forecasting method based on historical mean                                                          |
+| [ARIMA](examples/grocery_sales/R/02a_reg_models.Rmd) [(.html)](examples/grocery_sales/R/02a_reg_models.nb.html)                                              | R        | ARIMA model without or with external features                                                               |
+| [ETS](examples/grocery_sales/R/02_basic_models.Rmd) [(.html)](examples/grocery_sales/R/02_basic_models.nb.html)                                              | R        | Exponential Smoothing algorithm with additive errors                                                        |
+| [Prophet](examples/grocery_sales/R/02b_prophet_models.Rmd) [(.html)](examples/grocery_sales/R/02b_prophet_models.nb.html)                                       | R        | Automated forecasting procedure based on an additive model with non-linear trends                           |
 
 The repository also comes with AzureML-themed notebooks and best practices recipes to accelerate the development of scalable, production-grade forecasting solutions on Azure. In particular, we have the following examples for forecasting with Azure AutoML as well as tuning and deploying a forecasting model on Azure.
 
@@ -92,7 +94,8 @@ The following is a list of related repositories that you may find helpful.
 
 
 ## Build Status
-| Build         | Branch  | Status                                                                                                                                                                                                                             |
-|---------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+| Build         | Branch  | Status  |
+|---------------|---------|---------|
 | **Linux CPU** | master  | [![Build Status](https://dev.azure.com/best-practices/forecasting/_apis/build/status/cpu_unit_tests_linux?branchName=master)](https://dev.azure.com/best-practices/forecasting/_build/latest?definitionId=128&branchName=master)   |
 | **Linux CPU** | staging | [![Build Status](https://dev.azure.com/best-practices/forecasting/_apis/build/status/cpu_unit_tests_linux?branchName=staging)](https://dev.azure.com/best-practices/forecasting/_build/latest?definitionId=128&branchName=staging) |
