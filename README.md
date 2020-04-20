@@ -9,9 +9,7 @@ The examples and best practices are provided as [Python Jupyter notebooks and R 
 
 ## Content
 
-The following is a summary of models and methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization). To enable high-throughput forecasting scenarios, we have included examples for forecasting multiple time series with distributed training techniques such as Ray in Python, parallel package in R<sup>1</sup>, and multi-threading in LightGBM.
-
-<sup>1</sup> html links provided next to R examples for best viewing experience when reading this document on our `github.io` page.
+The following is a summary of models and methods for developing forecasting solutions covered in this repository. The [examples](examples) are organized according to use cases. Currently, we focus on a retail sales forecasting use case as it is widely used in [assortment planning](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1569&context=edissertations), [inventory optimization](https://en.wikipedia.org/wiki/Inventory_optimization), and [price optimization](https://en.wikipedia.org/wiki/Price_optimization). To enable high-throughput forecasting scenarios, we have included examples for forecasting multiple time series with distributed training techniques such as Ray in Python, parallel package in R, and multi-threading in LightGBM. Note that html links are provided next to R examples for best viewing experience when reading this document on our [`github.io`](https://microsoft.github.io/forecasting/) page.
 
 | Model                                                                                             | Language | Description                                                                                                 |
 |---------------------------------------------------------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------|
@@ -96,6 +94,6 @@ The following is a list of related repositories that you may find helpful.
 ## Build Status
 
 | Build         | Branch  | Status  |
-|---------------|---------|---------|
+| -  | -  | - |
 | **Linux CPU** | master  | [![Build Status](https://dev.azure.com/best-practices/forecasting/_apis/build/status/cpu_unit_tests_linux?branchName=master)](https://dev.azure.com/best-practices/forecasting/_build/latest?definitionId=128&branchName=master)   |
 | **Linux CPU** | staging | [![Build Status](https://dev.azure.com/best-practices/forecasting/_apis/build/status/cpu_unit_tests_linux?branchName=staging)](https://dev.azure.com/best-practices/forecasting/_build/latest?definitionId=128&branchName=staging) |
