@@ -53,7 +53,8 @@ oj_fcast_basic <- parallel::clusterMap(cl, get_forecasts, oj_modelset_basic, oj_
 save_objects(oj_modelset_basic, oj_fcast_basic,
              example="grocery_sales", file="model_basic.Rdata")
 
-do.call(rbind, oj_fcast_basic) %>%
+oj_fcast_basic %>%
+    bind_rows() %>%
     mutate_at(-(1:3), exp) %>%
     eval_forecasts()
 ```
@@ -80,7 +81,8 @@ destroy_cluster(cl)
 save_objects(oj_modelset_ets, oj_fcast_ets,
              example="grocery_sales", file="model_ets.Rdata")
 
-do.call(rbind, oj_fcast_ets) %>%
+oj_fcast_ets %>%
+    bind_rows() %>%
     mutate_at(-(1:3), exp) %>%
     eval_forecasts()
 ```

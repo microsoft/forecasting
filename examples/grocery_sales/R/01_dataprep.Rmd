@@ -69,6 +69,7 @@ library(ggplot2)
 
 oj_data %>%
     filter(store < 25, brand < 5) %>%
+    mutate(week=as.Date(week)) %>%
     ggplot(aes(x=week, y=logmove)) +
         geom_line() +
         scale_x_date(labels=NULL) +
