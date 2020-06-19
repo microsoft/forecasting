@@ -79,7 +79,8 @@ destroy_cluster(cl)
 save_objects(oj_modelset_reg, oj_fcast_reg,
              example="grocery_sales", file="model_reg.Rdata")
 
-do.call(rbind, oj_fcast_reg) %>%
+oj_fcast_reg %>%
+    bind_rows() %>%
     mutate_at(-(1:3), exp) %>%
     eval_forecasts()
 ```

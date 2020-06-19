@@ -21,24 +21,13 @@ The following packages and their dependencies are needed to run the notebooks in
 | Tidyverse | dplyr, tidyr, ggplot2 |
 | Tidyverts | tsibble, tsibbledata, fabletools, fable, feasts |
 | Future    | future, future.apply |
-| Other     | urca, rmarkdown, distributional, devtools (see below) |
-
-It's likely that you will already have many of these (particularly the Tidyverse packages) installed. However, currently (June 2020) the notebooks do require the _development_ versions of the Tidyverts packages; these can be installed from GitHub using the devtools package.
+| Other     | urca, rmarkdown |
 
 ```r
-install.packages("tidyverse")
+install.packages("tidyverse") # installs all Tidyverse packages
 install.packages(c("future", "future.apply"))
 install.packages(c("rmarkdown", "urca"))
-
-# install Tidyverts packages from GitHub
-install.packages("devtools")
-
-devtools::install_github("tidyverts/tsibble@a19cda281c3f1e0061b5b0de93b059c52052ebda")
-devtools::install_github("tidyverts/tsibbledata@b06a965b788722157a149296c47f821c99cc41f0")
-devtools::install_github("mitchelloharawild/distributional@e668b520b415f417f71eacd7e1e940561eecffd6")
-devtools::install_github("tidyverts/fabletools@864b2daa983446017f2ed757a3b8889b935cc2cb")
-devtools::install_github("tidyverts/fable@d2600c151fde1609cc491d8f94bd136c71f87523")
-devtools::install_github("tidyverts/feasts@f006746effa10bc223479441ebede136ca016b11")
+install.packages(c("tsibble", "tsibbledata", "fabletools", "fable", "feasts"))
 ```
 
 ## Acknowledgements

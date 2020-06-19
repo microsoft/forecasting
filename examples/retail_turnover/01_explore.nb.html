@@ -236,12 +236,33 @@ summary {
 <p>Let’s look at how to do some simple summaries. We’ll use the <code>aus_retail</code> dataset, which contains retail turnover statistics by (Australian) state and industry, going back to 1982. This is part of the tsibbledata package, which contains several example time series datasets.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImxpYnJhcnkoZHBseXIpIiwibGlicmFyeSh0c2liYmxlZGF0YSkiLCJsaWJyYXJ5KHRzaWJibGUpIiwibGlicmFyeShmZWFzdHMpIiwibGlicmFyeShmYWJsZSkiLCIiLCJzbGljZShhdXNfcmV0YWlsLCAxOjYpIl19 -->
-<pre class="r"><code>library(dplyr)
-library(tsibbledata)
+<!-- rnb-source-begin eyJkYXRhIjoibGlicmFyeShkcGx5cikifQ== -->
+<pre class="r"><code>library(dplyr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-message-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTogJ2RwbHlyJ1xuIn0= -->
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+<!-- rnb-message-end -->
+<!-- rnb-message-begin eyJkYXRhIjoiVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSAncGFja2FnZTpzdGF0cyc6XG5cbiAgICBmaWx0ZXIsIGxhZ1xuIn0= -->
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+<!-- rnb-message-end -->
+<!-- rnb-message-begin eyJkYXRhIjoiVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSAncGFja2FnZTpiYXNlJzpcblxuICAgIGludGVyc2VjdCwgc2V0ZGlmZiwgc2V0ZXF1YWwsIHVuaW9uXG4ifQ== -->
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+<!-- rnb-message-end -->
+<!-- rnb-source-begin eyJkYXRhIjpbImxpYnJhcnkodHNpYmJsZWRhdGEpIiwibGlicmFyeSh0c2liYmxlKSIsImxpYnJhcnkoZmVhc3RzKSJdfQ== -->
+<pre class="r"><code>library(tsibbledata)
 library(tsibble)
-library(feasts)
-library(fable)
+library(feasts)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-message-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBmYWJsZXRvb2xzXG4ifQ== -->
+<pre><code>Loading required package: fabletools</code></pre>
+<!-- rnb-message-end -->
+<!-- rnb-source-begin eyJkYXRhIjpbImxpYnJhcnkoZmFibGUpIiwiIiwic2xpY2UoYXVzX3JldGFpbCwgMTo2KSJdfQ== -->
+<pre class="r"><code>library(fable)
 
 slice(aus_retail, 1:6)</code></pre>
 <!-- rnb-source-end -->
@@ -303,7 +324,7 @@ Industry</code></pre>
 <!-- rnb-message-end -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Industry"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Turnover"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"Cafes, restaurants and catering services","2":"414431.2","_rn_":"1"},{"1":"Cafes, restaurants and takeaway food services","2":"741912.6","_rn_":"2"},{"1":"Clothing retailing","2":"324124.1","_rn_":"3"},{"1":"Clothing, footwear and personal accessory retailing","2":"492355.6","_rn_":"4"},{"1":"Department stores","2":"487129.3","_rn_":"5"},{"1":"Electrical and electronic goods retailing","2":"435935.7","_rn_":"6"},{"1":"Food retailing","2":"2278544.8","_rn_":"7"},{"1":"Footwear and other personal accessory retailing","2":"168230.4","_rn_":"8"},{"1":"Furniture, floor coverings, houseware and textile goods retailing","2":"286170.1","_rn_":"9"},{"1":"Hardware, building and garden supplies retailing","2":"330429.6","_rn_":"10"},{"1":"Household goods retailing","2":"1052532.0","_rn_":"11"},{"1":"Liquor retailing","2":"156742.8","_rn_":"12"},{"1":"Newspaper and book retailing","2":"121892.2","_rn_":"13"},{"1":"Other recreational goods retailing","2":"118192.1","_rn_":"14"},{"1":"Other retailing","2":"815217.9","_rn_":"15"},{"1":"Other retailing n.e.c.","2":"307293.4","_rn_":"16"},{"1":"Other specialised food retailing","2":"178784.1","_rn_":"17"},{"1":"Pharmaceutical, cosmetic and toiletry goods retailing","2":"285984.0","_rn_":"18"},{"1":"Supermarket and grocery stores","2":"1889565.5","_rn_":"19"},{"1":"Takeaway food services","2":"327477.0","_rn_":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["Industry"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Turnover"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"Cafes, restaurants and catering services","2":"414431.2"},{"1":"Cafes, restaurants and takeaway food services","2":"741912.6"},{"1":"Clothing retailing","2":"324124.1"},{"1":"Clothing, footwear and personal accessory retailing","2":"492355.6"},{"1":"Department stores","2":"487129.3"},{"1":"Electrical and electronic goods retailing","2":"435935.7"},{"1":"Food retailing","2":"2278544.8"},{"1":"Footwear and other personal accessory retailing","2":"168230.4"},{"1":"Furniture, floor coverings, houseware and textile goods retailing","2":"286170.1"},{"1":"Hardware, building and garden supplies retailing","2":"330429.6"},{"1":"Household goods retailing","2":"1052532.0"},{"1":"Liquor retailing","2":"156742.8"},{"1":"Newspaper and book retailing","2":"121892.2"},{"1":"Other recreational goods retailing","2":"118192.1"},{"1":"Other retailing","2":"815217.9"},{"1":"Other retailing n.e.c.","2":"307293.4"},{"1":"Other specialised food retailing","2":"178784.1"},{"1":"Pharmaceutical, cosmetic and toiletry goods retailing","2":"285984.0"},{"1":"Supermarket and grocery stores","2":"1889565.5"},{"1":"Takeaway food services","2":"327477.0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-source-begin eyJkYXRhIjoiYXVzX3JldGFpbCAlPiVcbiAgICBhc190aWJibGUoKSAlPiVcbiAgICBncm91cF9ieShTdGF0ZSkgJT4lXG4gICAgc3VtbWFyaXNlKFR1cm5vdmVyPXN1bShUdXJub3ZlcikpIn0= -->
@@ -317,7 +338,7 @@ Industry</code></pre>
 <!-- rnb-message-end -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["State"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Turnover"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"Australian Capital Territory","2":"211366.7","_rn_":"1"},{"1":"New South Wales","2":"3685679.7","_rn_":"2"},{"1":"Northern Territory","2":"97203.1","_rn_":"3"},{"1":"Queensland","2":"2152508.3","_rn_":"4"},{"1":"South Australia","2":"786950.1","_rn_":"5"},{"1":"Tasmania","2":"199168.6","_rn_":"6"},{"1":"Victoria","2":"2851855.4","_rn_":"7"},{"1":"Western Australia","2":"1228212.5","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["State"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Turnover"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"Australian Capital Territory","2":"211366.7"},{"1":"New South Wales","2":"3685679.7"},{"1":"Northern Territory","2":"97203.1"},{"1":"Queensland","2":"2152508.3"},{"1":"South Australia","2":"786950.1"},{"1":"Tasmania","2":"199168.6"},{"1":"Victoria","2":"2851855.4"},{"1":"Western Australia","2":"1228212.5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-chunk-end -->

@@ -14,13 +14,13 @@ get_forecasts <- function(mable, newdata, ...)
     keyvars <- key_vars(fcast)
     keyvars <- keyvars[-length(keyvars)]
     indexvar <- index_var(fcast)
-    fcastvar <- as.character(attr(fcast, "response")[[1]])
+    fcastvar <- names(fcast)[length(keyvars) + 3]
     fcast <- fcast %>%
         as_tibble() %>%
         pivot_wider(
             id_cols=all_of(c(keyvars, indexvar)),
             names_from=.model,
-            values_from=all_of(fcastvar))
+            values_from=.mean)
     select(newdata, !!keyvars, !!indexvar, !!fcastvar) %>%
         rename(.response=!!fcastvar) %>%
         inner_join(fcast)
