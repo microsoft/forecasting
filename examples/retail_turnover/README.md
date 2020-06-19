@@ -21,10 +21,10 @@ The following packages and their dependencies are needed to run the notebooks in
 | Tidyverse | dplyr, tidyr, ggplot2 |
 | Tidyverts | tsibble, tsibbledata, fabletools, fable, feasts |
 | Future    | future, future.apply |
-| Other     | urca, rmarkdown, distributional, devtools (see below) |
+| Other     | urca, rmarkdown |
 
 ```r
-install.packages("tidyverse")
+install.packages("tidyverse") # installs all Tidyverse packages
 install.packages(c("future", "future.apply"))
 install.packages(c("rmarkdown", "urca"))
 install.packages(c("tsibble", "tsibbledata", "fabletools", "fable", "feasts"))
