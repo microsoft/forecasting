@@ -1,5 +1,11 @@
 # Forecasting Best Practices 
 
+## Cleanup notice (2020-06-23)
+
+We've carried out a cleanup of large files to reduce the size of this repo. If you had cloned or forked it previously, please delete and clone/fork it again to avoid any potential merge conflicts.
+
+---
+
 Time series forecasting is one of the most important topics in data science. Almost every business needs to predict the future in order to make better decisions and allocate resources more effectively.
 
 This repository provides examples and best practice guidelines for building forecasting solutions. The goal of this repository is to build a comprehensive set of tools and examples that leverage recent advances in forecasting algorithms to build solutions and operationalize them. Rather than creating implementations from scratch, we draw from existing state-of-the-art libraries and build additional utilities around processing and featurizing the data, optimizing and evaluating models, and scaling up to the cloud. 
