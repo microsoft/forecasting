@@ -6,6 +6,10 @@ This repository provides examples and best practice guidelines for building fore
 
 The examples and best practices are provided as [Python Jupyter notebooks and R markdown files](examples) and [a library of utility functions](fclib). We hope that these examples and utilities can significantly reduce the “time to market” by simplifying the experience from defining the business problem to the development of solutions by orders of magnitude. In addition, the example notebooks would serve as guidelines and showcase best practices and usage of the tools in a wide variety of languages.
 
+## Cleanup notice (2020-06-23)
+
+> We've carried out a cleanup of large files to reduce the size of this repo. If you had cloned or forked it previously, please delete and clone/fork it again to avoid any potential merge conflicts.
+
 
 ## Content
 
