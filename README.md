@@ -8,7 +8,7 @@ The examples and best practices are provided as [Python Jupyter notebooks and R 
 
 ## Cleanup notice (2020-06-23)
 
-> We've carried out a cleanup of large files to reduce the size of this repo. If you had cloned or forked it previously, please delete and clone/fork it again to avoid any potential merge conflicts.
+> We've carried out a cleanup of large obsolete files to reduce the size of this repo. If you had cloned or forked it previously, please delete and clone/fork it again to avoid any potential merge conflicts.
 
 
 ## Content
