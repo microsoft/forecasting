@@ -1,0 +1,43 @@
+# Source: https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate?view=azure-devops#publish-python-distribution-to-azure-artifacts-feed
+
+trigger:
+- master
+
+jobs:
+- job: Artifact
+  displayName: 'Create test artifact'
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+
+  # Python version
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.6.10'
+      architecture: 'x64'
+    displayName: 'Use Python 3.6.10'
+
+  # Install python distributions like wheel, twine etc
+  - script: |
+      pip install wheel twine keyring artifacts-keyring
+      pip list
+    displayName: 'Install dependencies'
+  
+  # Build the python distribution from source
+  - script: |
+      cd fclib
+      python setup.py sdist bdist_wheel
+    displayName: 'Build wheel'
+  
+  # Specify artifactFeed as ProjectName/FeedName. Project is needed because the feed is project scoped.
+  - task: TwineAuthenticate@1
+    inputs:
+      artifactFeed: Azure Global CAT Engineering/forecasting
+    displayName: 'Twine Authenticate'
+
+  # Use command line script to 'twine upload', use -r to pass the repository name and --config-file to pass the environment variable set by the authenticate task.
+  - script: |
+      cat $(PYPIRC_PATH)
+      python -m twine upload -r forecasting --config-file $(PYPIRC_PATH) fclib/dist/*.whl --verbose
+
