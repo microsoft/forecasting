@@ -12,45 +12,7 @@ from fclib.dataset.ojdata import download_ojdata, complete_and_fill_df, _gen_spl
 
 
 # data file that will be created and deleted each time test is run
-ojdata_csv = "fclib/tests/resources/ojdatasim.csv"
-
-
-def setup_module():
-    keyvars = {
-        "store": [1, 2],
-        "brand": [1, 2, 3],
-        "week": list(range(50, 61))
-    }
-    df = pd.DataFrame([row for row in product(*keyvars.values())], 
-                      columns=keyvars.keys())
-
-    n = len(df)
-    np.random.seed(12345)
-    df["constant"] = 1
-    df["logmove"] = np.random.normal(9, 1, n)
-    df["price1"] = np.random.normal(0.55, 0.003, n)
-    df["price2"] = np.random.normal(0.55, 0.003, n)
-    df["price3"] = np.random.normal(0.55, 0.003, n)
-    df["price4"] = np.random.normal(0.55, 0.003, n)
-    df["price5"] = np.random.normal(0.55, 0.003, n)
-    df["price6"] = np.random.normal(0.55, 0.003, n)
-    df["price7"] = np.random.normal(0.55, 0.003, n)
-    df["price8"] = np.random.normal(0.55, 0.003, n)
-    df["price9"] = np.random.normal(0.55, 0.003, n)
-    df["price10"] = np.random.normal(0.55, 0.003, n)
-    df["price11"] = np.random.normal(0.55, 0.003, n)
-    df["deal"] = np.random.binomial(1, 0.5, n)
-    df["feat"] = np.random.binomial(1, 0.25, n)
-    df["profit"] = np.random.normal(30, 7.5, n)
-    df.to_csv(ojdata_csv, index_label=False, index=False)
-
-
-def teardown_module():
-    try:
-        os.remove(ojdata_csv)
-        os.remove(os.path.dirname(ojdata_csv) + "/yx.csv")
-    except Exception:
-        pass
+ojdata_csv = "fclib/tests/resources/ojdatagen.csv"
 
 
 def test_download_retail_data():
@@ -109,7 +71,7 @@ def test_download_retail_data():
             assert list(df) == COLUMN_NAME_LIST[idx]
 
 
-def test_complete_and_fill_df():
+def test_complete_and_fill_df(generate_ojdata):
     ojdata = pd.read_csv(ojdata_csv, index_col=False)
 
     base_out = complete_and_fill_df(ojdata, stores=[1, 2], brands=[1, 2, 3], weeks=list(range(50, 61)))
@@ -128,7 +90,7 @@ def test_complete_and_fill_df():
     assert len(row_out) == len(ojdata)
 
 
-def test_gen_split_indices():
+def test_gen_split_indices(generate_ojdata):
     base = _gen_split_indices()
     assert len(base) == 3
     assert all([len(i) == 12 for i in base])
@@ -137,7 +99,7 @@ def test_gen_split_indices():
     assert all([len(i) == 3 for i in small])
 
 
-def test_split_train_test():
+def test_split_train_test(generate_ojdata):
     resdir = os.path.dirname(ojdata_csv)
     shutil.copyfile(ojdata_csv, resdir + "/yx.csv")
 
