@@ -152,6 +152,4 @@ def test_split_train_test():
     assert len(auxdf) == 3
 
     for i in list(range(3)):
-        traindf_i = traindf[i]
-        testdf_i = testdf[i]
-        assert max(np.array(traindf_i.week)) < min(np.array(testdf_i.week))
+        assert max(traindf[i].week) < min(testdf[i].week)
