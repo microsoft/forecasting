@@ -1,13 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-import subprocess
-import pandas as pd
-from git import Repo
-from sys import platform
-from tempfile import TemporaryDirectory
-
-from fclib.common.utils import *
+from fclib.common.utils import git_repo_path, module_exists, system_type, module_path
 
 
 def test_git_repo_path():
@@ -21,7 +15,7 @@ def test_module_exists():
 
 
 def test_system_type():
-    assert system_type in ["linux", "mac", "win"]
+    assert system_type() in ["linux", "mac", "win"]
 
 
 def test_module_path():
