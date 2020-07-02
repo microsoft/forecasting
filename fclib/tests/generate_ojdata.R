@@ -23,4 +23,4 @@ ojdata <- local({
     df$profit <- rnorm(n, 30, 7.5)
     df
 })
-write.csv(ojdata, "fclib/tests/resources/ojdatasimR.csv", row.names=FALSE)
+write.csv(ojdata, "fclib/tests/resources/ojdatagenR.csv", row.names=FALSE)
