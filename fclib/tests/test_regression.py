@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-import pytest
 import pandas as pd
 
 from fclib.models.multiple_linear_regression import fit, predict

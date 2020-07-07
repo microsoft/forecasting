@@ -5,7 +5,6 @@ import os
 import shutil
 import pandas as pd
 import numpy as np
-from itertools import product
 from tempfile import TemporaryDirectory
 
 from fclib.dataset.ojdata import download_ojdata, complete_and_fill_df, _gen_split_indices, split_train_test

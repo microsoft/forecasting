@@ -1,11 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-import pytest
-import warnings
-
 from fclib.models.dilated_cnn import create_dcnn_model
-
 
 def test_create_dcnn_model():
     create_dcnn_model(seq_len=1) # default args
