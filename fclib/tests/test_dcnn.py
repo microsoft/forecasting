@@ -6,11 +6,10 @@ import warnings
 
 from fclib.models.dilated_cnn import create_dcnn_model
 
-# [pytest]
-# filterwarnings = 'ignore:.*imp module is deprecated:DeprecationWarning'
 
 def test_create_dcnn_model():
-    # with pytest.deprecated_call():
+    create_dcnn_model(seq_len=1) # default args
+
     create_dcnn_model(
         seq_len=1,
         n_dyn_fea=1,
