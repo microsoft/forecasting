@@ -14,4 +14,7 @@ def test_fit_and_predict(generate_ojdata, generate_data):
     target = "logmove"
 
     mods = fit(data, keyvars, xvars, target)
-    predict(newdata, mods, "week", keyvars, xvars, False, False)
+    predint = predict(newdata, mods, "week", keyvars, xvars, False, True)
+    assert predint.prediction.dtype.name == "int64"
+    predfloat = predict(newdata, mods, "week", keyvars, xvars, False, False)
+    assert predfloat.prediction.dtype.name == "float64"
