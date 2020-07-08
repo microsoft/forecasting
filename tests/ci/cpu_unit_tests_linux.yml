@@ -49,7 +49,7 @@ jobs:
       sudo ln -sf /usr/lib/R/modules/lapack.so /usr/lib/libRlapack.so
       eval "$(conda shell.bash hook)" && conda activate forecasting_env
       python -m ipykernel install --user --name forecasting_env
-      pytest --durations=0 fclib/tests -m "not notebooks and not gpu and not azureml" --junitxml=junit/test-unitttest.xml
+      pytest --durations=0 fclib/tests -m "not notebooks and not gpu and not azureml" --junitxml=junit/test-unitttest.xml --cov=fclib --cov-report html:cov_html
     displayName: 'Run Unit tests'
 
   - task: PublishTestResults@2
