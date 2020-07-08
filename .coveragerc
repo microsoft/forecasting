@@ -1,0 +1,8 @@
+[run]
+include =
+    fclib/fclib/*
+
+omit =
+    fclib/fclib/azureml/*
+    fclib/tests/*
+    fclib/setup.py
