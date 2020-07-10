@@ -71,30 +71,30 @@ def test_day_of_year():
     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
     assert day_of_year(dates)[0] == 1
 
-def test_encoded_month_of_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
-    enc = encoded_month_of_year(dates)
-    assert len(enc.columns) == 12
+# def test_encoded_month_of_year():
+#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     enc = encoded_month_of_year(dates)
+#     assert len(enc.columns) == 12
 
-def test_encoded_day_of_week():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
-    enc = encoded_day_of_week(dates)
-    assert len(enc.columns) == 7
+# def test_encoded_day_of_week():
+#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     enc = encoded_day_of_week(dates)
+#     assert len(enc.columns) == 7
 
-def test_encoded_day_of_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
-    enc = encoded_day_of_year(dates)
-    assert len(enc.columns) >= 365
+# def test_encoded_day_of_year():
+#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     enc = encoded_day_of_year(dates)
+#     assert len(enc.columns) >= 365
 
-def test_encoded_hour_of_day():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
-    enc = encoded_hour_of_day(dates)
-    assert len(enc.columns) == 24
+# def test_encoded_hour_of_day():
+#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     enc = encoded_hour_of_day(dates)
+#     assert len(enc.columns) == 24
 
-def test_encoded_week_of_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
-    enc = encoded_week_of_year(dates)
-    assert len(enc.columns) >= 52
+# def test_encoded_week_of_year():
+#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     enc = encoded_week_of_year(dates)
+#     assert len(enc.columns) >= 52
 
 # normalization functions
 

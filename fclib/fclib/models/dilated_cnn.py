@@ -19,7 +19,7 @@ def create_dcnn_model(
     kernel_size=2,
     n_filters=3,
     dropout_rate=0.1,
-    max_cat_id=[1e3, 1e3],
+    max_cat_id=[100, 100],
 ):
     """Create a Dilated CNN model.
 
