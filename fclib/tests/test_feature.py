@@ -105,17 +105,28 @@ def test_normalized_current_year():
     nyr = normalized_current_year(dates, 1980, 2020)
     assert all(nyr >= 0) and all(nyr <= 1)
 
+    bad = normalized_current_year(dates, 2000, 2000)
+    assert len(bad) == len(dates)
+
 def test_normalized_current_date():
     dates = sample_date
     span = pd.to_datetime(pd.Series(['1980-01-01 00:00:00', '2020-01-01 23:59:59']))
     ndt = normalized_current_date(dates, span[0], span[1])
     assert all(ndt >= 0) and all(ndt <= 1)
 
+    badspan = pd.to_datetime(pd.Series(['2000-01-01 00:00:00', '2000-01-01 00:00:00']))
+    bad = normalized_current_date(dates, badspan[0], badspan[1])
+    assert len(bad) == len(dates)
+
 def test_normalized_current_datehour():
     dates = sample_date
     span = pd.to_datetime(pd.Series(['1980-01-01 00:00:00', '2020-01-01 23:59:59']))
     ndt = normalized_current_datehour(dates, span[0], span[1])
     assert all(ndt >= 0) and all(ndt <= 1)
+
+    badspan = pd.to_datetime(pd.Series(['2000-01-01 00:00:00', '2000-01-01 00:00:00']))
+    bad = normalized_current_datehour(dates, badspan[0], badspan[1])
+    assert len(bad) == len(dates)
 
 def test_normalized_columns():
     dates = pd.to_datetime(pd.Series(['2000-01-01', '2000-01-02', '2000-01-03']))

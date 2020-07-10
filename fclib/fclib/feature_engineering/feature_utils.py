@@ -236,8 +236,8 @@ def normalized_current_year(datetime_col, min_year, max_year):
 
     if max_year != min_year:
         current_year = (year - min_year) / (max_year - min_year)
-    elif max_year == min_year:
-        current_year = 0
+    else:
+        current_year = pd.Series([0 for x in range(len(datetime_col))])
 
     return current_year
 
@@ -260,8 +260,8 @@ def normalized_current_date(datetime_col, min_date, max_date):
 
     if max_date != min_date:
         current_date = current_date / (max_date - min_date) # .days
-    elif max_date == min_date:
-        current_date = 0
+    else:
+        current_date = pd.Series([0 for x in range(len(datetime_col))])
 
     return current_date
 
@@ -285,8 +285,8 @@ def normalized_current_datehour(datetime_col, min_datehour, max_datehour):
 
     if max_min_diff != 0:
         current_datehour = current_datehour / (max_min_diff.days * 24 + max_min_diff.seconds / 3600)
-    elif max_min_diff == 0:
-        current_datehour = 0
+    else:
+        current_datehour = pd.Series([0 for x in range(len(datetime_col))])
 
     return current_datehour
 
