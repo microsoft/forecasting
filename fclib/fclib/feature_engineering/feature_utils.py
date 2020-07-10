@@ -61,7 +61,7 @@ def day_type(datetime_col, holiday_col=None, semi_holiday_offset=timedelta(days=
     datetype = pd.DataFrame({"DayType": datetime_col.dt.dayofweek})
     datetype.replace({"DayType": WEEK_DAY_TYPE_MAP}, inplace=True)
 
-    if holiday_col:
+    if holiday_col is not None:
         holiday_mask = holiday_col > 0
         datetype.loc[holiday_mask, "DayType"] = HOLIDAY_CODE
 
@@ -656,17 +656,17 @@ def add_datetime(input_datetime, unit, add_count):
         Exception: if invalid unit is provided. Valid units are:
             'year', 'month', 'week', 'day', 'hour', 'minute'.
     """
-    if unit == "Y":
+    if unit == "year":
         new_datetime = input_datetime + relativedelta(years=add_count)
-    elif unit == "M":
+    elif unit == "month":
         new_datetime = input_datetime + relativedelta(months=add_count)
-    elif unit == "W":
+    elif unit == "week":
         new_datetime = input_datetime + relativedelta(weeks=add_count)
-    elif unit == "D":
+    elif unit == "day":
         new_datetime = input_datetime + relativedelta(days=add_count)
-    elif unit == "h":
+    elif unit == "hour":
         new_datetime = input_datetime + relativedelta(hours=add_count)
-    elif unit == "m":
+    elif unit == "minute":
         new_datetime = input_datetime + relativedelta(minutes=add_count)
     else:
         raise Exception(

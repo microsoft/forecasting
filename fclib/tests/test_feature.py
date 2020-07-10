@@ -28,7 +28,7 @@ def test_is_datetime_like():
 
 def test_day_type():
     dates = pd.to_datetime(pd.Series(['2000-01-01', '2000-01-02', '2000-01-03']))
-    hols = pd.Series([1])
+    hols = pd.Series([True, False, False])
 
     dty = day_type(dates)
     assert all(dty == [5, 6, 0])
@@ -38,79 +38,81 @@ def test_day_type():
 
 # date component extractors
 
+sample_date = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+
 def test_hour_of_day():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     assert all(hour_of_day(dates) == 12)
 
 def test_time_of_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     tyr = time_of_year(dates)
     assert all(tyr >= 0 and tyr <= 1)
 
 def test_week_of_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     assert week_of_year(dates)[0] == 52  # first day of 2000 is in last week of 1999
 
 def test_week_of_month():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     assert week_of_month(dates)[0] == 1  # first day of 2000 is in first month of 2000
 
 def test_month_of_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     assert month_of_year(dates)[0] == 1
 
 def test_day_of_week():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     assert day_of_week(dates)[0] == 5
 
 def test_day_of_month():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     assert day_of_month(dates)[0] == 1
 
 def test_day_of_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     assert day_of_year(dates)[0] == 1
 
 # def test_encoded_month_of_year():
-#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     dates = sample_date
 #     enc = encoded_month_of_year(dates)
 #     assert len(enc.columns) == 12
 
 # def test_encoded_day_of_week():
-#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     dates = sample_date
 #     enc = encoded_day_of_week(dates)
 #     assert len(enc.columns) == 7
 
 # def test_encoded_day_of_year():
-#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     dates = sample_date
 #     enc = encoded_day_of_year(dates)
 #     assert len(enc.columns) >= 365
 
 # def test_encoded_hour_of_day():
-#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     dates = sample_date
 #     enc = encoded_hour_of_day(dates)
 #     assert len(enc.columns) == 24
 
 # def test_encoded_week_of_year():
-#     dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+#     dates = sample_date
 #     enc = encoded_week_of_year(dates)
 #     assert len(enc.columns) >= 52
 
 # normalization functions
 
 def test_normalized_current_year():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     nyr = normalized_current_year(dates, 1980, 2020)
     assert all(nyr >= 0) and all(nyr <= 1)
 
 def test_normalized_current_date():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     span = pd.to_datetime(pd.Series(['1980-01-01 00:00:00', '2020-01-01 23:59:59']))
     ndt = normalized_current_date(dates, span[0], span[1])
     assert all(ndt >= 0) and all(ndt <= 1)
 
 def test_normalized_current_datehour():
-    dates = pd.to_datetime(pd.Series(['2000-01-01 12:30:59']))
+    dates = sample_date
     span = pd.to_datetime(pd.Series(['1980-01-01 00:00:00', '2020-01-01 23:59:59']))
     ndt = normalized_current_datehour(dates, span[0], span[1])
     assert all(ndt >= 0) and all(ndt <= 1)
