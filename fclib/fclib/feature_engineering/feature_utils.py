@@ -255,11 +255,11 @@ def normalized_current_date(datetime_col, min_date, max_date):
     Returns:
         float: the position of the current date in the min_date:max_date range
     """
-    date = datetime_col.dt.date
-    current_date = (date - min_date).apply(lambda x: x.days)
+    date = datetime_col # .dt.date
+    current_date = (date - min_date) # .apply(lambda x: x.days)
 
     if max_date != min_date:
-        current_date = current_date / (max_date - min_date).days
+        current_date = current_date / (max_date - min_date) # .days
     elif max_date == min_date:
         current_date = 0
 

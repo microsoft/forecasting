@@ -96,7 +96,7 @@ def test_day_of_year():
 # def test_encoded_week_of_year():
 #     dates = sample_date
 #     enc = encoded_week_of_year(dates)
-#     assert len(enc.columns) >= 52
+#     assert len(enc.columns) == 53
 
 # normalization functions
 
@@ -138,6 +138,7 @@ def test_fourier_approximation():
     (fsin, fcos) = fourier_approximation(dates, 1, 365.24)
     assert len(fsin) == len(dates)
     assert len(fcos) == len(dates)
+    assert all(abs(fsin) <= 1) and all(abs(fcos) <= 1)
 
 def test_annual_fourier():
     dates = pd.to_datetime(pd.Series([datetime.date(2000, 1, 1) + datetime.timedelta(days=x) for x in range(365)]))
