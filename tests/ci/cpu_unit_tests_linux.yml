@@ -53,6 +53,11 @@ jobs:
       pytest --durations=0 fclib/tests -m "not notebooks and not gpu and not azureml" --junitxml=junit/test-unitttest.xml --cov=fclib --cov-report=xml --cov-report=html
     displayName: 'Run Unit tests'
 
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk'
+    inputs:
+      version: 2.x
+
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: Cobertura
