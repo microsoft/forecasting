@@ -53,6 +53,7 @@ jobs:
       pytest --durations=0 fclib/tests -m "not notebooks and not gpu and not azureml" --junitxml=junit/test-unitttest.xml --cov=fclib --cov-report=xml
     displayName: 'Run Unit tests'
 
+  # required for Cobertura
   - task: UseDotNet@2
     displayName: 'Use .NET Core sdk'
     inputs:
@@ -62,7 +63,6 @@ jobs:
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
-#      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
 
   - task: PublishTestResults@2
     inputs:
