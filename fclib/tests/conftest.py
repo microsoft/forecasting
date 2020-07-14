@@ -9,16 +9,10 @@ from itertools import product
 
 
 class GenerateData:
-
     @staticmethod
     def ojdata(start=50, stop=61):
-        keyvars = {
-            "store": [1, 2],
-            "brand": [1, 2, 3],
-            "week": list(range(start, stop))
-        }
-        df = pd.DataFrame([row for row in product(*keyvars.values())], 
-                          columns=keyvars.keys())
+        keyvars = {"store": [1, 2], "brand": [1, 2, 3], "week": list(range(start, stop))}
+        df = pd.DataFrame([row for row in product(*keyvars.values())], columns=keyvars.keys())
 
         n = len(df)
         np.random.seed(12345)

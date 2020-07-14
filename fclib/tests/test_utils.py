@@ -11,7 +11,7 @@ def test_git_repo_path():
 
 def test_module_exists():
     assert module_exists("numpy")
-    assert (not module_exists("fakepkgxyz"))
+    assert not module_exists("fakepkgxyz")
 
 
 def test_system_type():
@@ -22,4 +22,3 @@ def test_module_path():
     # look for binaries we use in this repo
     assert module_path("forecasting_env", "python") != ""
     assert module_path("forecasting_env", "tensorboard") != ""
-

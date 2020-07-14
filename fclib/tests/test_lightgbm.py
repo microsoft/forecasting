@@ -6,6 +6,7 @@ import lightgbm as lgb
 
 from fclib.models.lightgbm import predict
 
+
 def test_predict(generate_ojdata, generate_data):
     data = pd.read_csv("fclib/tests/resources/ojdatagen.csv")
     newdata = generate_data.ojdata(61, 70)
@@ -18,6 +19,5 @@ def test_predict(generate_ojdata, generate_data):
 
     predint = predict(newdata, lgb_model, target, ["store", "brand"], True)
     assert predint.logmove.dtype.name == "int64"
-    predfloat= predict(newdata.drop(columns=[target]), lgb_model, "logmove", ["store", "brand"], False)
+    predfloat = predict(newdata.drop(columns=[target]), lgb_model, "logmove", ["store", "brand"], False)
     assert predfloat.logmove.dtype.name == "float64"
-

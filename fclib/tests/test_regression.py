@@ -5,6 +5,7 @@ import pandas as pd
 
 from fclib.models.multiple_linear_regression import fit, predict
 
+
 def test_fit_and_predict(generate_ojdata, generate_data):
     data = pd.read_csv("fclib/tests/resources/ojdatagen.csv")
     newdata = generate_data.ojdata(61, 70)
