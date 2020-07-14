@@ -62,7 +62,7 @@ jobs:
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
-      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+#      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
 
   - task: PublishTestResults@2
     inputs:
